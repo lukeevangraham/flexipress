@@ -4,7 +4,7 @@ const session = require("express-session")
 const passport = require("./config/passport")
 const db = require("./models")
 const path = require("path");
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -17,9 +17,9 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // So the server can process request bodies!!
-let jsonParser = bodyParser.json()
+// let jsonParser = bodyParser.json()
 
-let urlencodedParser = bodyParser.urlencoded({ extended: false })
+// let urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 // We need to use sessions to keep track of our user's login status
 app.use(

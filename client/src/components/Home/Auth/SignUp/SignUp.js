@@ -48,14 +48,6 @@ const SignUp = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (signUpForm.password.value === signUpForm.passwordConfirm.value) {
-      // const requestOptions = {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     email: signUpForm.email.value,
-      //     password: signUpForm.password.value,
-      //   }),
-      // };
       const signupFormValues = {
         email: signUpForm.email.value,
         password: signUpForm.password.value,
