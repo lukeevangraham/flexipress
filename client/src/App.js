@@ -1,37 +1,29 @@
+import { useEffect } from "react";
 import { connect } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./components/Home/Home"
+import Home from "./components/Home/Home";
+import { getUser } from "./store/actions";
 
 import "./App.css";
 
-function App() {
+function App({ getUser }) {
+  useEffect(() => {
+    getUser();
+  }, [getUser]);
 
-const routes = (
-<Routes>
-  <Route path="/" element={Home} />
-  <Route path="*" element={Home} />
-</Routes>
-)
-
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  const routes = (
+    <Routes>
+      <Route path="/" element={Home} />
+      <Route path="*" element={Home} />
+    </Routes>
   );
+
+  return <BrowserRouter>{routes}</BrowserRouter>;
 }
 
+const mapStateToProps = (state) => ({
+  userEmail: state.auth.email,
+  userId: state.auth.id,
+});
 
-
-export default connect()(App);
+export default connect(mapStateToProps, { getUser })(App);

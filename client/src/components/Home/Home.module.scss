@@ -1,0 +1,10 @@
+@import "../../assets/sass/variables";
+
+.Home {
+  background-color: $color-tertiary;
+  color: $color-primary;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  padding: 2rem;
+  height: 80vh;
+}
