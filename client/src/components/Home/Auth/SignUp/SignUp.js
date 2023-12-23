@@ -2,7 +2,6 @@ import axios from "axios";
 import { useState } from "react";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
-import { signIn } from "../../../../store/actions/";
 
 import classes from "./SignUp.module.scss";
 
@@ -54,7 +53,7 @@ const SignUp = () => {
       };
       axios
         .post("http://localhost:3000/api/signup", signupFormValues)
-        // console.log("BODY: ", requestOptions.body);
+        // console.log("BODY: ", requestOptions.body)
         // fetch("http://localhost:3000/api/signup", requestOptions)
         .then((response) => {
           console.log("RES: ", response);
@@ -62,12 +61,6 @@ const SignUp = () => {
         })
         .then((data) => {
           console.log("DATA: ", data);
-          data.errors
-            ? setError(data.errors[0].message)
-            : signIn({
-                email: data.email,
-                password: signUpForm.password.value,
-              });
         });
     } else {
       setError("Passwords must match");

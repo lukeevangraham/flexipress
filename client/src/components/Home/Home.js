@@ -1,8 +1,8 @@
 import Auth from "./Auth/Auth";
 
-import classes from "./Home.module.scss"
+import classes from "./Home.module.scss";
 
-const Home = (
+const Home = () => (
   <div className={classes.Home}>
     <div>Welcome</div>
     <Auth />

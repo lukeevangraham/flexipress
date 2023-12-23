@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+// import { AuthContext } from "../../../store/auth-context";
 import SignIn from "./SignIn/SignIn";
 import SignUp from "./SignUp/SignUp";
 
 const Auth = () => {
-  let [signupChosen, setSignupChosen] = useState(true);
+  // const UserCtx = useContext(AuthContext)
+  let [signupChosen, setSignupChosen] = useState(false);
 
   return <>{signupChosen ? <SignUp /> : <SignIn />}</>;
 };
