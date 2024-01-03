@@ -6,6 +6,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const passport = require("./config/passport");
 const db = require("./models");
+const path = require("path")
 var morgan = require("morgan");
 
 app.use(morgan("tiny"));

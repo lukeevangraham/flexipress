@@ -6,14 +6,14 @@ module.exports = function (sequelize, DataTypes) {
   var User = sequelize.define(
     "User",
     {
-      // firstName: {
-      //   type: DataTypes.STRING,
-      //   allowNull: false,
-      // },
-      // lastName: {
-      //   type: DataTypes.STRING,
-      //   allowNull: false,
-      // },
+      firstName: {
+        type: DataTypes.STRING,
+        // allowNull: false,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        // allowNull: false,
+      },
       // The email cannot be null, and must be a proper email before creation
       email: {
         type: DataTypes.STRING,
@@ -28,6 +28,10 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      // orgName: {
+      //   type: DataTypes.STRING,
+      //   allowNull: false,
+      // },
       // fullName: {
       //   type: DataTypes.VIRTUAL,
       //   get() {
@@ -49,6 +53,14 @@ module.exports = function (sequelize, DataTypes) {
     //   },
     // }
   );
+
+  User.associate = (models) => {
+    User.belongsTo(models.Organization, {
+      foreignKey: {
+        allowNull: false,
+      },
+    });
+  };
 
   // User.associate = (models) => {
   //   User.belongsTo(models.Image, { as: "ProfilePicture", constraints: false }),

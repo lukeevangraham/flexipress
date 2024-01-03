@@ -1,13 +1,13 @@
 @import "../../../../assets/sass/variables";
 
-.signUp {
+.SignUp {
     height: 100%;
     display: grid;
     grid-template-columns: 1 1fr;
     align-items: center;
     background-color: $color-primary;
     padding-top: 4rem;
-    border-radius: 9px;
+    border-radius: 9px 9px 0 0;
 
 
     .form {
@@ -21,13 +21,13 @@
         }
         padding-bottom: 4rem;
 
-        div:first-of-type {
-            margin-right: 4%;
-        }
-        div:nth-of-type(-n+2) {
-            width: 48%;
-            display: inline-block;
-        }
+        // div:first-of-type {
+        //     margin-right: 4%;
+        // }
+        // div:nth-of-type(-n+2) {
+        //     width: 48%;
+        //     display: inline-block;
+        // }
     }
 
     .error {

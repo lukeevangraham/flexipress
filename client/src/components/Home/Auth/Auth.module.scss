@@ -1,0 +1,22 @@
+@import "../../../assets/sass/variables";
+
+.Auth {
+    // background-color: orangered;
+    // display: grid;
+    // grid-template-rows: repeat(2, minmax(min-content, 1fr));
+    // height: min-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    & > * {
+        flex-basis: 0;
+    }
+}
+.signUpWrapper {
+    padding: 3rem 5%;
+    border-radius: 0 0 9px 9px;
+    background-color: $color-secondary;
+    & > * {
+        width: 100%;
+    }
+}

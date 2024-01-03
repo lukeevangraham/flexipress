@@ -1,0 +1,53 @@
+@import "./assets/sass/variables";
+@import "./assets/sass/mixins";
+@import "./assets/sass/typography";
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  // This defines what 1rem is
+  font-size: 62.5%; //1 rem = 10px; 10px/16px = 62.5%
+
+  @include respond(tab-land) {
+    // width < 1200?
+    font-size: 56.25%; //1 rem = 9px, 9/16 = 50%
+  }
+
+  @include respond(tab-port) {
+    // width < 900?
+    font-size: 50%; //1 rem = 8px, 8/16 = 50%
+  }
+
+  @include respond(big-desktop) {
+    font-size: 75%; //1rem = 12, 12/16
+  }
+}
+
+body {
+  box-sizing: border-box;
+  //   padding: 3rem;
+  // max-width: 120rem;
+  // margin: 2rem auto;
+  // box-shadow: 0 0 1rem rgba($color-black, .5);
+  // padding: 2rem;
+
+  @include respond(tab-port) {
+      max-width: 100%;
+      margin: 0;
+
+  }
+  // background-color: $color-quaternary;
+  // background-image: linear-gradient(
+  //   to bottom right,
+  //   $color-primary,
+  //   $color-secondary
+  // );
+  // background-size: cover;
+  // background-position: center;
+}

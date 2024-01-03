@@ -1,12 +1,29 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../../contexts/AuthContext";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
 
 import classes from "./SignUp.module.scss";
 
 const SignUp = () => {
+  const navigate = useNavigate();
+
+  const { setIsLoggedIn, setAuthUser } = useAuth();
+
   const [signUpForm, setSignUpForm] = useState({
+    orgName: {
+      elementType: "input",
+      elementConfig: {
+        type: "text",
+        placeholder: "Church or organization name",
+      },
+      value: "",
+      validation: {
+        required: true,
+      },
+    },
     email: {
       elementType: "input",
       elementConfig: {
@@ -44,24 +61,41 @@ const SignUp = () => {
 
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (signUpForm.password.value === signUpForm.passwordConfirm.value) {
       const signupFormValues = {
         email: signUpForm.email.value,
         password: signUpForm.password.value,
+        orgName: signUpForm.orgName.value,
       };
-      axios
-        .post("http://localhost:3000/api/signup", signupFormValues)
-        // console.log("BODY: ", requestOptions.body)
-        // fetch("http://localhost:3000/api/signup", requestOptions)
-        .then((response) => {
-          console.log("RES: ", response);
-          return response.json();
-        })
-        .then((data) => {
-          console.log("DATA: ", data);
+
+      const signupResponse = await axios.post(
+        "http://localhost:3000/api/signup",
+        signupFormValues
+      );
+
+      if (signupResponse.data) {
+        axios.get("http://localhost:3000/api/user_data").then((userDataResponse) => {
+          if (userDataResponse.data.id) {
+            setIsLoggedIn(true);
+            setAuthUser(userDataResponse.data);
+            navigate(signupResponse.data);
+          }
         });
+        // setIsLoggedIn(true);
+        // setIsLoggedIn(true)
+      }
+
+      // console.log("BODY: ", requestOptions.body)
+      // fetch("http://localhost:3000/api/signup", requestOptions)
+      // .then((response) => {
+      //   console.log("RES: ", response);
+      //   return response.json();
+      // })
+      // .then((data) => {
+      //   console.log("DATA: ", data);
+      // });
     } else {
       setError("Passwords must match");
     }
@@ -89,7 +123,7 @@ const SignUp = () => {
   }
 
   const form = (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className={classes.form}>
       {formElementsArray.map((formElement) => (
         <Input
           key={formElement.id}

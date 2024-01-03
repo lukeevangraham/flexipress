@@ -1,11 +1,17 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../../contexts/AuthContext";
 import Button from "../../../UI/Button/Button";
 import Input from "../../../UI/Input/Input";
 
 import classes from "./SignIn.module.scss";
 
-const SignIn = ({ signIn, signOut }) => {
+const SignIn = () => {
+  const navigate = useNavigate();
+
+  const { setIsLoggedIn, setAuthUser } = useAuth();
+
   let [signInForm, setSignInForm] = useState({
     email: {
       elementType: "input",
@@ -38,18 +44,23 @@ const SignIn = ({ signIn, signOut }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // // REDUX WAY
-    // signIn({
-    //   email: signInForm.email.value,
-    //   password: signInForm.password.value,
-    // });
-
     const response = await axios.post("http://localhost:3000/api/login", {
       email: signInForm.email.value,
       password: signInForm.password.value,
     });
 
-    console.log("HERE: ", response)
+    if (response.data) {
+      axios.get("http://localhost:3000/api/user_data").then((res) => {
+        setIsLoggedIn(true);
+        setAuthUser(res.data);
+        navigate(response.data);
+      });
+      // setIsLoggedIn(true);
+      // setIsLoggedIn(true)
+    }
+
+    // response.status === "200" ? setIsLoggedIn(true) : null;
+    // navigate(response.data);
   };
 
   const inputChangedHandler = (e, inputIdentifier) => {
