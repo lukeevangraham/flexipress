@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
-import Button from "../UI/Button/Button";
+import Sidebar from "./Sidebar/Sidebar";
 
 const Member = () => {
   const { setIsLoggedIn, setAuthUser, authUser } = useAuth();
@@ -18,16 +18,6 @@ const Member = () => {
   return (
     <>
       <div>Member</div>
-
-      <div>
-        Hello {authUser.email} of {authUser.orgName}
-      </div>
-
-      <button onClick={(e) => signOut(e)}>Sign Out</button>
-
-      {/* <Button onClick={(e) => console.log("HI")} type="submit" color={"green"}>
-        <>Sign Out</>
-      </Button> */}
     </>
   );
 };

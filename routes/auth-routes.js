@@ -24,7 +24,6 @@ module.exports = function (app) {
   // how we configured our Sequelize User Model. If the user is created successfully, proceed to log the user in,
   // otherwise send back an error
   app.post("/api/signup", async function (req, res) {
-    console.log(req.body);
 
     const orgResponse = await db.Organization.create({
       orgName: req.body.orgName,
@@ -74,6 +73,7 @@ module.exports = function (app) {
         id: req.user.id,
         email: req.user.email,
         orgName: orgInfo.dataValues.orgName,
+        orgId: orgInfo.dataValues.id,
         // firstName: req.user.firstName,
         // lastName: req.user.lastName,
         // image: req.user.ProfilePicture,

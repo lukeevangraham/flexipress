@@ -1,0 +1,9 @@
+.App {
+    display: flex;
+    flex-wrap: nowrap;
+  &__Main {
+    background-color: yellowgreen;
+    padding: 2rem;
+    flex-grow: 1;
+  }
+}

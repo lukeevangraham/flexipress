@@ -64,6 +64,7 @@ app.use(passport.session());
 // });
 
 require("./routes/auth-routes")(app);
+require("./routes/event-routes")(app)
 
 // require("./routes/api-routes")(app);
 // require("./routes/image-api-routes")(app, cloudinary, upload);
