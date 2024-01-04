@@ -3,56 +3,39 @@
 var bcrypt = require("bcrypt-nodejs");
 // Creating our User model
 module.exports = function (sequelize, DataTypes) {
-  var User = sequelize.define(
-    "User",
-    {
-      firstName: {
-        type: DataTypes.STRING,
-        // allowNull: false,
+  var User = sequelize.define("User", {
+    firstName: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      // allowNull: false,
+    },
+    // The email cannot be null, and must be a proper email before creation
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true,
       },
-      lastName: {
-        type: DataTypes.STRING,
-        // allowNull: false,
-      },
-      // The email cannot be null, and must be a proper email before creation
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        },
-      },
-      // The password cannot be null
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      // orgName: {
-      //   type: DataTypes.STRING,
-      //   allowNull: false,
-      // },
-      // fullName: {
-      //   type: DataTypes.VIRTUAL,
-      //   get() {
-      //     return `${this.firstName} ${this.lastName}`;
-      //   },
-      //   set(value) {
-      //     throw new Error("Do not try to set the `fullName` value!");
-      //   },
-      // },
-    }
-    // {
-    //   classMethods: {
-    //     associate: function (models) {
-    //       User.hasOne(models.Image),
-    //         User.hasMany(models.Post, {
-    //           onDelete: "cascade",
-    //         });
-    //     },
+    },
+    // The password cannot be null
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    // fullName: {
+    //   type: DataTypes.VIRTUAL,
+    //   get() {
+    //     return `${this.firstName} ${this.lastName}`;
     //   },
-    // }
-  );
+    //   set(value) {
+    //     throw new Error("Do not try to set the `fullName` value!");
+    //   },
+    // },
+  });
 
   User.associate = (models) => {
     User.belongsTo(models.Organization, {

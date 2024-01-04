@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
+import server from "../../../../apis/server";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../contexts/AuthContext";
 import Button from "../../../UI/Button/Button";
@@ -44,13 +45,13 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await axios.post("http://localhost:3000/api/login", {
+    const response = await server.post("/login", {
       email: signInForm.email.value,
       password: signInForm.password.value,
     });
 
     if (response.data) {
-      axios.get("http://localhost:3000/api/user_data").then((res) => {
+      server.get("/user_data").then((res) => {
         setIsLoggedIn(true);
         setAuthUser(res.data);
         navigate(response.data);

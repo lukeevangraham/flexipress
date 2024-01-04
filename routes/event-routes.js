@@ -6,9 +6,21 @@ module.exports = (app) => {
 
     db.Event.create({
       name: req.body.name,
+      startDate: req.body.startDate,
+      OrganizationId: req.body.orgId,
     }).then((dbEvent) => {
-      console.log("RES: ", dbEvent);
       res.json(dbEvent);
     });
+  });
+
+  app.get("/api/event/org/:orgId", async (req, res) => {
+
+    const dbEvent = await db.Event.findAll({
+      where: {
+        OrganizationId: req.params.orgId,
+      },
+    });
+
+    res.json(dbEvent);
   });
 };

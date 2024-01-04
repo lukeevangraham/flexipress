@@ -1,4 +1,5 @@
 import axios from "axios";
+import server from "../../apis/server";
 import { useAuth } from "../../contexts/AuthContext";
 import Sidebar from "./Sidebar/Sidebar";
 
@@ -9,7 +10,7 @@ const Member = () => {
     e.preventDefault();
     console.log("sign out");
 
-    axios.get("http://localhost:3000/api/logout").then((res) => {
+    server.get("/logout").then((res) => {
       setIsLoggedIn(false);
       setAuthUser(null);
     });

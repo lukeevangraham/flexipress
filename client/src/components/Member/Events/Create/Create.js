@@ -1,12 +1,14 @@
-import axios from "axios";
 import { useState } from "react";
+import { useAuth } from "../../../../contexts/AuthContext";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
-import Datepicker from "react-datepicker";
+import server from "../../../../apis/server";
 
 import classes from "./Create.module.scss";
 
 const CreateEvent = () => {
+  const { authUser } = useAuth();
+
   const [eventForm, setEventForm] = useState({
     name: {
       elementType: "input",
@@ -19,6 +21,18 @@ const CreateEvent = () => {
         required: true,
       },
     },
+    startDate: {
+      elementType: "date",
+      elementConfig: {
+        timeInputLabel: "Time:",
+        dateFormat: "MM/dd/yyyy h:mm aa",
+        showTimeInput: true,
+      },
+      value: new Date(),
+      validation: {
+        // required: true
+      },
+    },
   });
 
   const [error, setError] = useState("");
@@ -27,12 +41,11 @@ const CreateEvent = () => {
     e.preventDefault();
     const eventFormValues = {
       name: eventForm.name.value,
+      startDate: eventForm.startDate.value,
+      orgId: authUser.orgId,
     };
 
-    const eventResponse = await axios.post(
-      "http://localhost:3000/api/event",
-      eventFormValues
-    );
+    const eventResponse = await server.post("/event", eventFormValues);
 
     console.log("event response: ", eventResponse);
   };
@@ -44,7 +57,14 @@ const CreateEvent = () => {
     const updatedFormElement = {
       ...updatedEventForm[inputIdentifier],
     };
-    updatedFormElement.value = e.target.value;
+
+
+    if (updatedFormElement.elementType === "date") {
+      updatedFormElement.value = e;
+    } else {
+      updatedFormElement.value = e.target.value;
+    }
+
     updatedFormElement.touched = true;
     updatedEventForm[inputIdentifier] = updatedFormElement;
     setEventForm(updatedEventForm);

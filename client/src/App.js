@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import server from "./apis/server";
 
 import Dashboard from "./components/Dashboard/Dashboard";
 import Home from "./components/Home/Home";
@@ -18,18 +19,24 @@ const App = () => {
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/user_data").then((res) => {
+    server.get("/user_data").then(res => {
       if (res.data.id) {
         setIsLoggedIn(true);
         setAuthUser(res.data);
       }
-    });
+    })
+    // axios.get("http://localhost:3000/api/user_data").then((res) => {
+    //   if (res.data.id) {
+    //     setIsLoggedIn(true);
+    //     setAuthUser(res.data);
+    //   }
+    // });
   }, [setIsLoggedIn, setAuthUser]);
 
   let routes = (
     <Routes>
       <Route path="/" element={<Home />} />
-      {/* <Route path="*" element={<Navigate to="/" />}  /> */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 
@@ -77,9 +84,6 @@ const App = () => {
   //     break;
   // }
 
-  const token = localStorage.getItem("token");
-    console.log("token: ", token);
-
   return (
     <>
       <BrowserRouter>
@@ -93,7 +97,6 @@ const App = () => {
         ) : (
           <>{routes}</>
         )}
-        {console.log("LI: ", isLoggedIn)}
         {console.log("U: ", authUser)}
       </BrowserRouter>
     </>
