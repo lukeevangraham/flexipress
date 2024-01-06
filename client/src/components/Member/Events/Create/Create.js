@@ -5,6 +5,7 @@ import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
 
 import classes from "./Create.module.scss";
+// import event from "../../../../../../models/event";
 
 const CreateEvent = () => {
   const { authUser } = useAuth();
@@ -27,10 +28,66 @@ const CreateEvent = () => {
         timeInputLabel: "Time:",
         dateFormat: "MM/dd/yyyy h:mm aa",
         showTimeInput: true,
+        placeholder: "Start date & time",
       },
       value: new Date(),
       validation: {
-        // required: true
+        required: true,
+      },
+    },
+    endDate: {
+      elementType: "date",
+      elementConfig: {
+        timeInputLabel: "Time:",
+        dateFormat: "MM/dd/yyyy h:mm aa",
+        showTimeInput: true,
+        placeholder: "End date & time",
+      },
+      value: new Date(),
+      validation: {
+        required: true,
+      },
+    },
+    repeatsEveryXDays: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "Repeats every X days",
+      },
+      value: "",
+      validation: {
+        required: false,
+      },
+    },
+    location: {
+      elementType: "input",
+      elementConfig: {
+        type: "text",
+        placeholder: "Location",
+      },
+      value: "",
+      validation: {
+        required: true,
+      },
+    },
+    description: {
+      elementType: "textarea",
+      elementConfig: {
+        minRows: 5,
+        placeholder: "Description",
+      },
+      value: "",
+      validation: {
+        required: true,
+      },
+    },
+    image: {
+      elementType: "image",
+      elementConfig: {
+        placeholder: "Image",
+      },
+      validation: {
+        required: false,
       },
     },
   });
@@ -42,6 +99,10 @@ const CreateEvent = () => {
     const eventFormValues = {
       name: eventForm.name.value,
       startDate: eventForm.startDate.value,
+      endDate: eventForm.endDate.value,
+      repeatsEveryXDays: eventForm.repeatsEveryXDays.value,
+      location: eventForm.location.value,
+      description: eventForm.description.value,
       orgId: authUser.orgId,
     };
 
@@ -57,7 +118,6 @@ const CreateEvent = () => {
     const updatedFormElement = {
       ...updatedEventForm[inputIdentifier],
     };
-
 
     if (updatedFormElement.elementType === "date") {
       updatedFormElement.value = e;

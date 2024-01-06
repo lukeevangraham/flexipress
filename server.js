@@ -6,21 +6,23 @@ const app = express();
 const bodyParser = require("body-parser");
 const passport = require("./config/passport");
 const db = require("./models");
-const path = require("path")
+const path = require("path");
 var morgan = require("morgan");
+const multer = require("multer");
+const cloudinary = require("cloudinary");
 
 app.use(morgan("tiny"));
 
-// app.use(bodyParser.json({ limit: "50mb", extended: true }));
-// app.use(
-//   bodyParser.urlencoded({
-//     limit: "50mb",
-//     extended: true,
-//     parameterLimit: 1000000,
-//   })
-// );
+app.use(bodyParser.json({ limit: "50mb", extended: true }));
+app.use(
+  bodyParser.urlencoded({
+    limit: "50mb",
+    extended: true,
+    parameterLimit: 1000000,
+  })
+);
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // app.use(express.json({ limit: "50mb" }));
@@ -43,28 +45,29 @@ app.use(passport.session());
 
 // // IMAGE UPLOAD CONFIGURATION
 
-// const storage = multer.diskStorage({
-//   filename: (req, file, callback) =>
-//     callback(null, Date.now() + file.originalname),
-// });
-// const imageFilter = (req, file, cb) => {
-//   // accept image files only
-//   if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-//     return cb(new Error("Only image files are accepted!"), false);
-//   }
-//   cb(null, true);
-// };
+const storage = multer.diskStorage({
+  filename: (req, file, callback) =>
+    callback(null, Date.now() + file.originalname),
+});
+const imageFilter = (req, file, cb) => {
+  // accept image files only
+  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+    return cb(new Error("Only image files are accepted!"), false);
+  }
+  cb(null, true);
+};
 
-// const upload = multer({ storage: storage, fileFilter: imageFilter });
+const upload = multer({ storage: storage, fileFilter: imageFilter });
 
-// cloudinary.config({
-//   cloud_name: "diqgdacjy",
-//   api_key: process.env.CLOUDINARY_API_KEY,
-//   api_secret: process.env.CLOUDINARY_API_SECRET,
-// });
+cloudinary.config({
+  cloud_name: "dzekujbym",
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 require("./routes/auth-routes")(app);
-require("./routes/event-routes")(app)
+require("./routes/event-routes")(app);
+require("./routes/image-api-routes")(app, cloudinary, upload);
 
 // require("./routes/api-routes")(app);
 // require("./routes/image-api-routes")(app, cloudinary, upload);

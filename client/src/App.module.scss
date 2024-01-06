@@ -1,8 +1,10 @@
+@import "./assets/sass/variables";
+
 .App {
-    display: flex;
-    flex-wrap: nowrap;
+  display: flex;
+  flex-wrap: nowrap;
   &__Main {
-    background-color: yellowgreen;
+    background-color: $color-secondary;
     padding: 2rem;
     flex-grow: 1;
   }
