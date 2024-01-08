@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Image.associate = (models) => {
     Image.hasMany(models.Event);
+    Image.belongsTo(models.Organization)
   };
 
   return Image;

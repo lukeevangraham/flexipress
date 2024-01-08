@@ -17,6 +17,7 @@ module.exports = (app, cloudinary, upload) => {
         imageId: cloudinaryResponse.public_id,
         width: cloudinaryResponse.width,
         height: cloudinaryResponse.height,
+        OrganizationId: req.body.orgId,
       };
 
       const dbImage = await db.Image.create(newImageObject, (err, image) => {
@@ -24,7 +25,6 @@ module.exports = (app, cloudinary, upload) => {
           res.json(err.message);
         }
       });
-      console.log("DB IMAGE: ", dbImage);
 
       const dbEvent = await db.Event.create({
         name: req.body.name,
@@ -39,8 +39,13 @@ module.exports = (app, cloudinary, upload) => {
         ImageId: dbImage.id,
       });
 
+      const valuesToSendToClient = {
+        ...dbEvent.dataValues,
+        Image: dbImage.dataValues,
+      };
+
       try {
-        res.json(dbEvent);
+        res.json(valuesToSendToClient);
       } catch (error) {
         console.log("E: ", error);
       }
