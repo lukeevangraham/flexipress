@@ -1,20 +1,50 @@
 let db = require("../models");
 
-module.exports = (app) => {
-  app.post("/api/event", async function (req, res) {
-    console.log("EVENT POST: ", req.body);
+module.exports = (app, cloudinary, upload) => {
+  app.post("/api/event", upload.single("image"), async function (req, res) {
+    console.log("EVENT POST: ", req.file);
 
-    db.Event.create({
-      name: req.body.name,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-      repeatsEveryXDays: req.body.repeatsEveryXDays,
-      location: req.body.location,
-      description: req.body.description,
-      OrganizationId: req.body.orgId,
-    }).then((dbEvent) => {
-      res.json(dbEvent);
-    });
+    if (req.file) {
+      const cloudinaryResponse = await cloudinary.v2.uploader.upload(
+        req.file.path
+      );
+
+      // console.log("HERE: ", cloudinaryResponse)
+
+      const newImageObject = {
+        fileName: cloudinaryResponse.original_filename,
+        url: cloudinaryResponse.secure_url,
+        imageId: cloudinaryResponse.public_id,
+        width: cloudinaryResponse.width,
+        height: cloudinaryResponse.height,
+      };
+
+      const dbImage = await db.Image.create(newImageObject, (err, image) => {
+        if (err) {
+          res.json(err.message);
+        }
+      });
+      console.log("DB IMAGE: ", dbImage);
+
+      const dbEvent = await db.Event.create({
+        name: req.body.name,
+        startDate: req.body.startDate,
+        endDate: req.body.endDate,
+        repeatsEveryXDays: req.body.repeatsEveryXDays
+          ? req.body.repeatsEveryXDays
+          : null,
+        location: req.body.location,
+        description: req.body.description,
+        OrganizationId: req.body.orgId,
+        ImageId: dbImage.id,
+      });
+
+      try {
+        res.json(dbEvent);
+      } catch (error) {
+        console.log("E: ", error);
+      }
+    }
   });
 
   app.get("/api/event/org/:orgId", async (req, res) => {
@@ -22,6 +52,7 @@ module.exports = (app) => {
       where: {
         OrganizationId: req.params.orgId,
       },
+      include: [db.Image],
     });
 
     res.json(dbEvent);

@@ -66,8 +66,8 @@ cloudinary.config({
 });
 
 require("./routes/auth-routes")(app);
-require("./routes/event-routes")(app);
-require("./routes/image-api-routes")(app, cloudinary, upload);
+require("./routes/event-routes")(app, cloudinary, upload);
+require("./routes/image-api-routes")(app);
 
 // require("./routes/api-routes")(app);
 // require("./routes/image-api-routes")(app, cloudinary, upload);

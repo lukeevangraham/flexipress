@@ -53,10 +53,20 @@ const Input = ({ elementType, elementConfig, value, changed, required }) => {
         />
       );
       break;
-      case "image":
-        inputElement = (
-          <ImageEdit />
-        )
+    case "image":
+      inputElement = (
+        <>
+          {elementConfig.url ? <img src={elementConfig.url} alt="" /> : null}
+          <input
+            type="file"
+            {...elementConfig}
+            name={elementConfig.placeholder}
+            id="image"
+            onChange={changed}
+            required={required ? true : null}
+          />
+        </>
+      );
     default:
       break;
   }

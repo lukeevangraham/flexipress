@@ -3,12 +3,13 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     startDate: DataTypes.DATE,
     endDate: DataTypes.DATE,
-    repeatsEveryXDays: DataTypes.SMALLINT,
+    repeatsEveryXDays: { type: DataTypes.SMALLINT, allowNull: true },
     location: DataTypes.STRING,
-    description: DataTypes.TEXT
+    description: DataTypes.TEXT,
   });
 
   Event.associate = (models) => {
+    Event.belongsTo(models.Image);
     Event.belongsTo(models.Organization, {
       foreignKey: {
         allowNull: false,

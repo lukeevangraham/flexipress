@@ -85,7 +85,10 @@ const CreateEvent = () => {
       elementType: "image",
       elementConfig: {
         placeholder: "Image",
+        url: "",
+        file: "",
       },
+      value: "",
       validation: {
         required: false,
       },
@@ -96,17 +99,33 @@ const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const eventFormValues = {
-      name: eventForm.name.value,
-      startDate: eventForm.startDate.value,
-      endDate: eventForm.endDate.value,
-      repeatsEveryXDays: eventForm.repeatsEveryXDays.value,
-      location: eventForm.location.value,
-      description: eventForm.description.value,
-      orgId: authUser.orgId,
-    };
 
-    const eventResponse = await server.post("/event", eventFormValues);
+    console.log("Form: ", eventForm);
+
+    let eventFormValues = new FormData();
+
+    eventFormValues.append("name", eventForm.name.value);
+    eventFormValues.append("startDate", eventForm.startDate.value);
+    eventFormValues.append("endDate", eventForm.endDate.value);
+    eventFormValues.append(
+      "repeatsEveryXDays",
+      eventForm.repeatsEveryXDays.value
+    );
+    eventFormValues.append("location", eventForm.location.value);
+    eventFormValues.append("description", eventForm.description.value);
+    eventFormValues.append("image", eventForm.image.elementConfig.file);
+    eventFormValues.append("userId", authUser.id);
+    eventFormValues.append("orgId", authUser.orgId);
+
+    for (var pair of eventFormValues.entries()) {
+      console.log(pair[0] + ", " + pair[1]);
+    }
+
+    const eventResponse = await server.post("/event", eventFormValues, {
+      headers: {
+        "content-type": "multipart/form-data",
+      },
+    });
 
     console.log("event response: ", eventResponse);
   };
@@ -121,6 +140,11 @@ const CreateEvent = () => {
 
     if (updatedFormElement.elementType === "date") {
       updatedFormElement.value = e;
+    } else if (updatedFormElement.elementType === "image") {
+      updatedFormElement.elementConfig.url = URL.createObjectURL(
+        e.target.files[0]
+      );
+      updatedFormElement.elementConfig.file = e.target.files[0];
     } else {
       updatedFormElement.value = e.target.value;
     }
@@ -128,6 +152,7 @@ const CreateEvent = () => {
     updatedFormElement.touched = true;
     updatedEventForm[inputIdentifier] = updatedFormElement;
     setEventForm(updatedEventForm);
+    // console.log("FORM: ", eventForm);
   };
 
   const formElementsArray = [];
@@ -139,7 +164,7 @@ const CreateEvent = () => {
   }
 
   const form = (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} encType="multipart/form-data">
       {formElementsArray.map((formElement) => (
         <Input
           key={formElement.id}
@@ -160,6 +185,7 @@ const CreateEvent = () => {
     <>
       <h1>Events</h1>
       <h2>Create a new event</h2>
+      {/* {console.log("FORM: ", eventForm)} */}
       {form}
     </>
   );

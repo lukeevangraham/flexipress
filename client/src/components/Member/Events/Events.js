@@ -26,6 +26,7 @@ const Events = () => {
       <Link to="/events/create">Create New Event</Link>
       <br />
       <br />
+      {console.log("EL: ", eventList)}
       <h2>Event list</h2>
       {eventList
         ? eventList.map((event) => (
