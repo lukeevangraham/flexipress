@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     repeatsEveryXDays: { type: DataTypes.SMALLINT, allowNull: true },
     location: DataTypes.STRING,
     description: DataTypes.TEXT,
+    published: DataTypes.BOOLEAN
   });
 
   Event.associate = (models) => {

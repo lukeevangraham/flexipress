@@ -19,12 +19,12 @@ const App = () => {
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
 
   useEffect(() => {
-    server.get("/user_data").then(res => {
+    server.get("/user_data").then((res) => {
       if (res.data.id) {
         setIsLoggedIn(true);
         setAuthUser(res.data);
       }
-    })
+    });
     // axios.get("http://localhost:3000/api/user_data").then((res) => {
     //   if (res.data.id) {
     //     setIsLoggedIn(true);
@@ -46,6 +46,7 @@ const App = () => {
         <Route path="/" element={<Member />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/create" element={<CreateEvent />} />
+        <Route path="/events/edit/:id" element={<CreateEvent />} />
         <Route path="/articles" element={<Articles />} />
         <Route path="/member" element={<Member />} />
         <Route path="*" element={<Navigate to="/" />} replace />

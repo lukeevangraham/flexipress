@@ -3,12 +3,19 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
+import { useLocation } from "react-router-dom";
 
 import classes from "./Create.module.scss";
 // import event from "../../../../../../models/event";
 
-const CreateEvent = () => {
+const CreateEvent = ({ selectedEvent }) => {
+  console.log("Selected: ", selectedEvent);
+
   const { authUser } = useAuth();
+
+  const [publish, setPublish] = useState(false);
+  const [publishEnabled, setPublishEnabled] = useState(false);
+  const [saveEnabled, setSaveEnabled] = useState(null);
 
   const [eventForm, setEventForm] = useState({
     name: {
@@ -17,7 +24,7 @@ const CreateEvent = () => {
         type: "text",
         placeholder: "Event name",
       },
-      value: "",
+      value: selectedEvent ? selectedEvent.name : "",
       validation: {
         required: true,
       },
@@ -30,7 +37,7 @@ const CreateEvent = () => {
         showTimeInput: true,
         placeholder: "Start date & time",
       },
-      value: new Date(),
+      value: selectedEvent ? new Date(selectedEvent.startDate) : new Date(),
       validation: {
         required: true,
       },
@@ -43,7 +50,7 @@ const CreateEvent = () => {
         showTimeInput: true,
         placeholder: "End date & time",
       },
-      value: new Date(),
+      value: selectedEvent ? new Date(selectedEvent.endDate) : new Date(),
       validation: {
         required: true,
       },
@@ -54,7 +61,7 @@ const CreateEvent = () => {
         type: "number",
         placeholder: "Repeats every X days",
       },
-      value: "",
+      value: selectedEvent.repeatsEveryXDays ? selectedEvent.repeatsEveryXDays : "",
       validation: {
         required: false,
       },
@@ -65,7 +72,7 @@ const CreateEvent = () => {
         type: "text",
         placeholder: "Location",
       },
-      value: "",
+      value: selectedEvent ? selectedEvent.location : "",
       validation: {
         required: true,
       },
@@ -76,7 +83,7 @@ const CreateEvent = () => {
         minRows: 5,
         placeholder: "Description",
       },
-      value: "",
+      value: selectedEvent ? selectedEvent.description : "",
       validation: {
         required: true,
       },
@@ -85,7 +92,7 @@ const CreateEvent = () => {
       elementType: "image",
       elementConfig: {
         placeholder: "Image",
-        url: "",
+        url: selectedEvent ? selectedEvent.Image.url : "",
         file: "",
       },
       value: "",
@@ -100,7 +107,7 @@ const CreateEvent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Form: ", eventForm);
+    // console.log("Form: ", eventForm);
 
     let eventFormValues = new FormData();
 
@@ -116,9 +123,10 @@ const CreateEvent = () => {
     eventFormValues.append("image", eventForm.image.elementConfig.file);
     eventFormValues.append("userId", authUser.id);
     eventFormValues.append("orgId", authUser.orgId);
+    eventFormValues.append("published", publish);
 
     for (var pair of eventFormValues.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
+      console.log(pair[0] + ": " + pair[1]);
     }
 
     const eventResponse = await server.post("/event", eventFormValues, {
@@ -127,10 +135,17 @@ const CreateEvent = () => {
       },
     });
 
-    console.log("event response: ", eventResponse);
+    const res = eventResponse;
+
+    if (res.status === 200) {
+      setPublishEnabled(true);
+    }
+
+    console.log("event response: ", res);
   };
 
   const inputChangedHandler = (e, inputIdentifier) => {
+    setSaveEnabled(true);
     const updatedEventForm = {
       ...eventForm,
     };
@@ -164,7 +179,7 @@ const CreateEvent = () => {
   }
 
   const form = (
-    <form onSubmit={handleSubmit} encType="multipart/form-data">
+    <form encType="multipart/form-data">
       {formElementsArray.map((formElement) => (
         <Input
           key={formElement.id}
@@ -176,18 +191,23 @@ const CreateEvent = () => {
         />
       ))}
       {error ? <div className={classes.error}>{error}</div> : null}
-      <Button>
-        <>Save</>
-      </Button>
     </form>
   );
   return (
-    <>
-      <h1>Events</h1>
-      <h2>Create a new event</h2>
+    <div className={classes.EventSubmission}>
+      {/* <h1>Events</h1> */}
+      <div className={classes.EventSubmission__TopInfo}>
+        <h2>{selectedEvent ? `Edit an` : `Create a new`} event</h2>
+        <div className={classes.EventSubmission__TopInfo__Buttons}>
+          <Button disabled={publishEnabled ? false : true}>Publish</Button>
+          <Button disabled={saveEnabled ? false : true} clicked={handleSubmit}>
+            Save
+          </Button>
+        </div>
+      </div>
       {/* {console.log("FORM: ", eventForm)} */}
       {form}
-    </>
+    </div>
   );
 };
 

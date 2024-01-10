@@ -1,48 +1,59 @@
 @import "../../../assets/sass/variables";
 
 .btn {
-    &,
-    &:link,
-    &:visited {
-        border: none;
-        cursor: pointer;
-        padding: 1.5rem 4rem;
-        display: inline-block;
-        border-radius: 1.4rem;
-        text-decoration: none;
-        transition: all 0.2s;
-        font-size: $default-font-size;
-        text-transform: uppercase;
-        font-family: inherit;
-    }
+  &,
+  &:link,
+  &:visited {
+    border: none;
+    cursor: pointer;
+    padding: 1.5rem 4rem;
+    display: inline-block;
+    border-radius: 1.4rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-size: $default-font-size;
+    text-transform: uppercase;
+    font-family: inherit;
+  }
 
-    &:hover {
-        transform: translateY(-0.3rem);
-        box-shadow: 0 1.7rem 2rem rgba($color-black, 0.2);
-    }
+  &:hover {
+    transform: translateY(-0.3rem);
+    box-shadow: 0 1.7rem 2rem rgba($color-black, 0.2);
+  }
 
-    &:active,
-    &:focus {
-        outline: none;
-        transform: translateY((-0.1rem));
-        box-shadow: 0 0.5rem 1rem rgba($color-black, 0.2);
-    }
+  &:active,
+  &:focus {
+    outline: none;
+    transform: translateY((-0.1rem));
+    box-shadow: 0 0.5rem 1rem rgba($color-black, 0.2);
+  }
 }
 .green {
+  background-color: $color-secondary;
+  color: $color-quaternary;
+  &:hover {
     background-color: $color-secondary;
-    color: $color-quaternary;
-    &:hover {
-        background-color: $color-secondary;
-    }
+  }
+}
+
+.disabled {
+  background-color: #cfcfcf;
+  color: #9c9c9c;
+  opacity: 0.67;
+  &:hover {
+    transform: none;
+    box-shadow: none;
+    cursor: default;
+  }
 }
 
 .secondary {
-    background-color: $color-quaternary;
-    border: 1px solid $color-secondary;
-    color: $color-secondary;
+  background-color: $color-quaternary;
+  border: 1px solid $color-secondary;
+  color: $color-secondary;
 
-    &:hover {
-        background-color: $color-secondary;
-        color: $color-quaternary;
-    }
+  &:hover {
+    background-color: $color-secondary;
+    color: $color-quaternary;
+  }
 }

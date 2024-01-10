@@ -1,0 +1,13 @@
+.EventSubmission {
+  &__TopInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0 2rem 0;
+
+    &__Buttons {
+      display: flex;
+      gap: 1rem;
+    }
+  }
+}

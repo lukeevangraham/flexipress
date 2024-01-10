@@ -35,6 +35,7 @@ module.exports = (app, cloudinary, upload) => {
           : null,
         location: req.body.location,
         description: req.body.description,
+        published: req.body.published,
         OrganizationId: req.body.orgId,
         ImageId: dbImage.id,
       });
