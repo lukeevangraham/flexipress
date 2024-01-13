@@ -8,8 +8,8 @@ import { useLocation } from "react-router-dom";
 import classes from "./Create.module.scss";
 // import event from "../../../../../../models/event";
 
-const CreateEvent = ({ selectedEvent }) => {
-  console.log("Selected: ", selectedEvent);
+const CreateEvent = ({ selectedEvent, clearSelectedEvent }) => {
+  // console.log("Selected: ", selectedEvent);
 
   const { authUser } = useAuth();
 
@@ -61,7 +61,10 @@ const CreateEvent = ({ selectedEvent }) => {
         type: "number",
         placeholder: "Repeats every X days",
       },
-      value: selectedEvent.repeatsEveryXDays ? selectedEvent.repeatsEveryXDays : "",
+      value:
+        selectedEvent && selectedEvent.repeatsEveryXDays
+          ? selectedEvent.repeatsEveryXDays
+          : "",
       validation: {
         required: false,
       },
@@ -129,11 +132,18 @@ const CreateEvent = ({ selectedEvent }) => {
       console.log(pair[0] + ": " + pair[1]);
     }
 
-    const eventResponse = await server.post("/event", eventFormValues, {
-      headers: {
-        "content-type": "multipart/form-data",
-      },
-    });
+    let eventResponse;
+
+    if (selectedEvent) {
+      eventFormValues.append("id", selectedEvent.id);
+      eventResponse = await server.put("/event", eventFormValues);
+    } else {
+      eventResponse = await server.post("/event", eventFormValues, {
+        headers: {
+          "content-type": "multipart/form-data",
+        },
+      });
+    }
 
     const res = eventResponse;
 
@@ -196,6 +206,10 @@ const CreateEvent = ({ selectedEvent }) => {
   return (
     <div className={classes.EventSubmission}>
       {/* <h1>Events</h1> */}
+      {selectedEvent ? (
+        <Button clicked={() => clearSelectedEvent(null)}>&larr; Back</Button>
+      ) : null}
+
       <div className={classes.EventSubmission__TopInfo}>
         <h2>{selectedEvent ? `Edit an` : `Create a new`} event</h2>
         <div className={classes.EventSubmission__TopInfo__Buttons}>

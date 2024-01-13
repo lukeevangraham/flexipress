@@ -1,5 +1,19 @@
 let db = require("../models");
 
+let formatDataForDB = (requestBody, imageIdFromDb) => ({
+  name: requestBody.name,
+  startDate: requestBody.startDate,
+  endDate: requestBody.endDate,
+  repeatsEveryXDays: requestBody.repeatsEveryXDays
+    ? requestBody.repeatsEveryXDays
+    : null,
+  location: requestBody.location,
+  description: requestBody.description,
+  published: requestBody.published,
+  OrganizationId: requestBody.orgId,
+  ImageId: imageIdFromDb,
+});
+
 module.exports = (app, cloudinary, upload) => {
   app.post("/api/event", upload.single("image"), async function (req, res) {
     console.log("EVENT POST: ", req.file);
@@ -26,19 +40,9 @@ module.exports = (app, cloudinary, upload) => {
         }
       });
 
-      const dbEvent = await db.Event.create({
-        name: req.body.name,
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
-        repeatsEveryXDays: req.body.repeatsEveryXDays
-          ? req.body.repeatsEveryXDays
-          : null,
-        location: req.body.location,
-        description: req.body.description,
-        published: req.body.published,
-        OrganizationId: req.body.orgId,
-        ImageId: dbImage.id,
-      });
+      const dbEvent = await db.Event.create(
+        formatDataForDB(req.body, dbImage.id)
+      );
 
       const valuesToSendToClient = {
         ...dbEvent.dataValues,
@@ -50,6 +54,27 @@ module.exports = (app, cloudinary, upload) => {
       } catch (error) {
         console.log("E: ", error);
       }
+    }
+  });
+
+  app.put("/api/event/", upload.single("image"), async (req, res) => {
+    // console.log("EVENT PUT BODY: ", req.body);
+    console.log("EVENT PUT FILE: ", req.file);
+
+    const dbEvent = await db.Event.update(formatDataForDB(req.body), {
+      where: { id: req.body.id },
+    });
+
+    const valuesToSendToClient = {
+      ...dbEvent.dataValues,
+    };
+
+    console.log("dbEvent: ", dbEvent[0]);
+
+    try {
+      res.json(valuesToSendToClient);
+    } catch (error) {
+      console.log("E: ", error);
     }
   });
 
