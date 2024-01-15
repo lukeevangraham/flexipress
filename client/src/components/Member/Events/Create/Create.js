@@ -8,7 +8,12 @@ import { useLocation } from "react-router-dom";
 import classes from "./Create.module.scss";
 // import event from "../../../../../../models/event";
 
-const CreateEvent = ({ selectedEvent, clearSelectedEvent }) => {
+const CreateEvent = ({
+  selectedEvent,
+  clearSelectedEvent,
+  events,
+  setEvents,
+}) => {
   // console.log("Selected: ", selectedEvent);
 
   const { authUser } = useAuth();
@@ -128,9 +133,9 @@ const CreateEvent = ({ selectedEvent, clearSelectedEvent }) => {
     eventFormValues.append("orgId", authUser.orgId);
     eventFormValues.append("published", publish);
 
-    for (var pair of eventFormValues.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
+    // for (var pair of eventFormValues.entries()) {
+    //   console.log(pair[0] + ": " + pair[1]);
+    // }
 
     let eventResponse;
 
@@ -149,6 +154,17 @@ const CreateEvent = ({ selectedEvent, clearSelectedEvent }) => {
 
     if (res.status === 200) {
       setPublishEnabled(true);
+
+      const revisedEvents = events.map((event) => {
+        return event.id === selectedEvent.id
+          ? {
+              ...res.data,
+            }
+          : event;
+      });
+
+      setEvents(revisedEvents);
+      console.log("RE: ", revisedEvents);
     }
 
     console.log("event response: ", res);

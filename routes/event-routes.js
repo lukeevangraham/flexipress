@@ -15,38 +15,43 @@ let formatDataForDB = (requestBody, imageIdFromDb) => ({
 });
 
 module.exports = (app, cloudinary, upload) => {
+  let uploadImageAndAddImageToDb = async (file, orgId) => {
+    const cloudinaryResponse = await cloudinary.v2.uploader.upload(file.path);
+
+    const newImageObject = {
+      fileName: cloudinaryResponse.original_filename,
+      url: cloudinaryResponse.secure_url,
+      imageId: cloudinaryResponse.public_id,
+      width: cloudinaryResponse.width,
+      height: cloudinaryResponse.height,
+      OrganizationId: orgId,
+    };
+
+    const dbImage = await db.Image.create(newImageObject, (err, image) => {
+      if (err) {
+        res.json(err.message);
+      }
+    });
+
+    return dbImage;
+  };
+
   app.post("/api/event", upload.single("image"), async function (req, res) {
     console.log("EVENT POST: ", req.file);
 
     if (req.file) {
-      const cloudinaryResponse = await cloudinary.v2.uploader.upload(
-        req.file.path
+      const imageRes = await uploadImageAndAddImageToDb(
+        req.file,
+        req.body.orgId
       );
 
-      // console.log("HERE: ", cloudinaryResponse)
-
-      const newImageObject = {
-        fileName: cloudinaryResponse.original_filename,
-        url: cloudinaryResponse.secure_url,
-        imageId: cloudinaryResponse.public_id,
-        width: cloudinaryResponse.width,
-        height: cloudinaryResponse.height,
-        OrganizationId: req.body.orgId,
-      };
-
-      const dbImage = await db.Image.create(newImageObject, (err, image) => {
-        if (err) {
-          res.json(err.message);
-        }
-      });
-
       const dbEvent = await db.Event.create(
-        formatDataForDB(req.body, dbImage.id)
+        formatDataForDB(req.body, imageRes.id)
       );
 
       const valuesToSendToClient = {
         ...dbEvent.dataValues,
-        Image: dbImage.dataValues,
+        Image: imageRes.dataValues,
       };
 
       try {
@@ -58,23 +63,70 @@ module.exports = (app, cloudinary, upload) => {
   });
 
   app.put("/api/event/", upload.single("image"), async (req, res) => {
-    // console.log("EVENT PUT BODY: ", req.body);
-    console.log("EVENT PUT FILE: ", req.file);
+    let valuesToSendToClient = {};
+    let eventRes;
+    let dbEvent;
+    let afterUpdate;
 
-    const dbEvent = await db.Event.update(formatDataForDB(req.body), {
-      where: { id: req.body.id },
-    });
+    const updateTheEvent = async (requestBody, imageId) => {
+      const updateRes = await db.Event.update(
+        formatDataForDB(requestBody, imageId),
+        {
+          where: { id: requestBody.id },
+        }
+      );
+      // return updateRes;
 
-    const valuesToSendToClient = {
-      ...dbEvent.dataValues,
+      if (updateRes[0] == 1) {
+        eventRes = await getTheUpdatedEvent();
+
+        return eventRes;
+      }
     };
 
-    console.log("dbEvent: ", dbEvent[0]);
+    const getTheUpdatedEvent = async () => {
+      const dbEventPostMofidication = await db.Event.findOne({
+        where: { id: req.body.id, OrganizationId: req.body.orgId },
+        include: [db.Image],
+      });
 
-    try {
-      res.json(valuesToSendToClient);
-    } catch (error) {
-      console.log("E: ", error);
+      return dbEventPostMofidication;
+    };
+
+    // IS A NEW IMAGE IS INCLUDED IN THE REVISION?
+    switch (typeof req.file == "undefined") {
+      case true:
+        // NO IMAGE IS INCLUDED IN THE REVISION
+
+        afterUpdate = await updateTheEvent(req.body);
+
+        try {
+          res.json(afterUpdate);
+        } catch (error) {
+          console.log("E: ", error);
+        }
+
+        break;
+
+      case false:
+        // AN IMAGE IS INCLUDED IN THE REVISION
+        const imageRes = await uploadImageAndAddImageToDb(
+          req.file,
+          req.body.orgId
+        );
+
+        afterUpdate = await updateTheEvent(req.body, imageRes.id);
+
+        try {
+          res.json(afterUpdate);
+        } catch (error) {
+          console.log("E: ", error);
+        }
+
+        break;
+
+      default:
+        break;
     }
   });
 

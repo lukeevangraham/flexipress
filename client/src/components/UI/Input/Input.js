@@ -56,7 +56,7 @@ const Input = ({ elementType, elementConfig, value, changed, required }) => {
     case "image":
       inputElement = (
         <>
-          {elementConfig.url ? <img src={elementConfig.url} alt="" /> : null}
+          {elementConfig.url ? <img src={elementConfig.url} className={classes.image} alt="" /> : null}
           <input
             type="file"
             {...elementConfig}

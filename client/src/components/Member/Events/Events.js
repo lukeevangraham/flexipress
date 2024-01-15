@@ -90,7 +90,12 @@ const Events = () => {
       <h1>Events</h1>
       {selectedEvent ? (
         <>
-          <CreateEvent selectedEvent={selectedEvent} clearSelectedEvent={setSelectedEvent} />
+          <CreateEvent
+            selectedEvent={selectedEvent}
+            clearSelectedEvent={setSelectedEvent}
+            events={eventList}
+            setEvents={setEventList}
+          />
         </>
       ) : (
         <>
