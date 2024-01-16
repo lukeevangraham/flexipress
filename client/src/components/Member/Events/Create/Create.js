@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
@@ -9,18 +10,29 @@ import classes from "./Create.module.scss";
 // import event from "../../../../../../models/event";
 
 const CreateEvent = ({
-  selectedEvent,
+  eventFromList,
   clearSelectedEvent,
   events,
   setEvents,
 }) => {
-  // console.log("Selected: ", selectedEvent);
-
   const { authUser } = useAuth();
 
-  const [publish, setPublish] = useState(false);
-  const [publishEnabled, setPublishEnabled] = useState(false);
+  const navigate = useNavigate();
+
+  const [publish, setPublish] = useState(
+    eventFromList && eventFromList.published ? true : false
+  );
+  const [publishEnabled, setPublishEnabled] = useState(
+    eventFromList ? true : false
+  );
   const [saveEnabled, setSaveEnabled] = useState(null);
+  // const [selectedEvent2, setSelectedEvent2] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(
+    eventFromList ? eventFromList : null
+  );
+
+  console.log("EventFromList: ", eventFromList);
+  console.log("Newly Created: ", selectedEvent);
 
   const [eventForm, setEventForm] = useState({
     name: {
@@ -112,8 +124,32 @@ const CreateEvent = ({
 
   const [error, setError] = useState("");
 
+  const handlePublish = async (e) => {
+    e.preventDefault();
+    // console.log("publish clicked", !publish);
+    const publishResponse = await server.put("/event/publish", {
+      eventId: selectedEvent.id,
+      published: !publish,
+      orgId: authUser.orgId,
+    });
+    console.log("RES: ", publishResponse);
+
+    if (events) {
+      const revisedEvents = events.map((event) => {
+        return event.id === selectedEvent.id
+          ? { ...selectedEvent, published: !publish }
+          : event;
+      });
+      setEvents(revisedEvents);
+    }
+
+    setPublish(!publish);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("Publish: ", publish);
 
     // console.log("Form: ", eventForm);
 
@@ -154,17 +190,20 @@ const CreateEvent = ({
 
     if (res.status === 200) {
       setPublishEnabled(true);
+      setSelectedEvent(res.data);
 
-      const revisedEvents = events.map((event) => {
-        return event.id === selectedEvent.id
-          ? {
-              ...res.data,
-            }
-          : event;
-      });
+      if (selectedEvent) {
+        const revisedEvents = events.map((event) => {
+          return event.id === selectedEvent.id
+            ? {
+                ...res.data,
+              }
+            : event;
+        });
 
-      setEvents(revisedEvents);
-      console.log("RE: ", revisedEvents);
+        setEvents(revisedEvents);
+        console.log("RE: ", revisedEvents);
+      }
     }
 
     console.log("event response: ", res);
@@ -223,13 +262,24 @@ const CreateEvent = ({
     <div className={classes.EventSubmission}>
       {/* <h1>Events</h1> */}
       {selectedEvent ? (
-        <Button clicked={() => clearSelectedEvent(null)}>&larr; Back</Button>
+        <Button
+          clicked={
+            events ? () => clearSelectedEvent(null) : () => navigate("/events")
+          }
+        >
+          &larr; Back
+        </Button>
       ) : null}
 
       <div className={classes.EventSubmission__TopInfo}>
         <h2>{selectedEvent ? `Edit an` : `Create a new`} event</h2>
         <div className={classes.EventSubmission__TopInfo__Buttons}>
-          <Button disabled={publishEnabled ? false : true}>Publish</Button>
+          <Button
+            disabled={publishEnabled ? false : true}
+            clicked={handlePublish}
+          >
+            {publish ? `Unpublish` : `Publish`}
+          </Button>
           <Button disabled={saveEnabled ? false : true} clicked={handleSubmit}>
             Save
           </Button>

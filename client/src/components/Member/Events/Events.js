@@ -27,29 +27,6 @@ const Events = () => {
 
       let setupColDefs = [];
 
-      // let setupColDefs = [
-      //   { field: "name", filter: true },
-      //   { field: "startDatePretty", headerName: "Start Date" },
-      // ];
-
-      let prettyDateEventList = [];
-
-      // const prettyDateEventList = eventListRes.data.map((event) => {
-      //   console.log("E: ", event);
-      //   event.startDatePretty = new Date(event.startDate).toLocaleDateString(
-      //     "en-US"
-      //   );
-      // });
-
-      // eventListRes.data.forEach((event) => {
-      //   prettyDateEventList.push({
-      //     ...event,
-      //     startDatePretty: new Date(event.startDate).toLocaleDateString(
-      //       "en-US"
-      //     ),
-      //   });
-      // });
-
       Object.keys(eventListRes.data[0]).forEach((col) => {
         col === "startDate" || col === "endDate"
           ? setupColDefs.push({
@@ -60,10 +37,6 @@ const Events = () => {
             })
           : setupColDefs.push({ field: col });
 
-        // setupColDefs.push({ field: col });
-        // if (col === "startDate") {
-
-        // }
       });
 
       setEventList(eventListRes.data);
@@ -91,7 +64,7 @@ const Events = () => {
       {selectedEvent ? (
         <>
           <CreateEvent
-            selectedEvent={selectedEvent}
+            eventFromList={selectedEvent}
             clearSelectedEvent={setSelectedEvent}
             events={eventList}
             setEvents={setEventList}

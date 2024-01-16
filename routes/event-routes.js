@@ -62,6 +62,21 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
+  app.put("/api/event/publish", async (req, res) => {
+    console.log("REQ.BODY: ", req.body);
+
+    const updatePublishResponse = await db.Event.update(
+      { published: req.body.published },
+      { where: { id: req.body.eventId } }
+    );
+
+    try {
+      res.json(updatePublishResponse);
+    } catch (error) {
+      console.log("E: ", error);
+    }
+  });
+
   app.put("/api/event/", upload.single("image"), async (req, res) => {
     let valuesToSendToClient = {};
     let eventRes;
