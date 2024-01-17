@@ -30,15 +30,16 @@ const Events = () => {
       const eventListRes = await server.get(`/event/org/${authUser.orgId}`);
 
       let setupColDefs = [
-        { field: "name", filter: true, checkboxSelection: true },
+        { field: "name", filter: true, checkboxSelection: true, flex: 3 },
         {
           field: "startDate",
+          flex: 1,
           valueFormatter: (params) => {
             return new Date(params.value).toLocaleDateString();
           },
         },
-        { field: "location" },
-        { field: "published" },
+        { field: "location", flex: 2 },
+        { field: "published", flex: 1 },
       ];
 
       // Object.keys(eventListRes.data[0]).forEach((col) => {
@@ -62,12 +63,11 @@ const Events = () => {
   const deleteEvent = async () => {
     const deleteResponse = await server.delete(`/event/${selectedRows[0].id}`);
 
-    console.log("lets delete an event", deleteResponse);
-
     if (deleteResponse.status === 200) {
       const trimmedEventList = eventList.filter(
         (event) => event.id !== selectedRows[0].id
       );
+      setEventList(trimmedEventList);
       setSelectedRows(null);
     }
   };
@@ -90,7 +90,10 @@ const Events = () => {
         <Modal show={showModal} modalClosed={() => setShowModal(false)}>
           <div className={classes.editModal}>
             <div>Are you sure you want to delete {selectedRows[0].name}?</div>
-            <Button clicked={deleteEvent}>Delete</Button>
+            <div className={classes.editModal__Buttons}>
+              <Button clicked={() => setShowModal(false)}>Cancel</Button>
+              <Button clicked={deleteEvent} color={"ghost"}>Delete</Button>
+            </div>
           </div>
         </Modal>
       ) : null}
@@ -101,6 +104,7 @@ const Events = () => {
             clearSelectedEvent={setClickedEvent}
             events={eventList}
             setEvents={setEventList}
+            setSelectedRows={setSelectedRows}
           />
         </>
       ) : (
@@ -112,7 +116,6 @@ const Events = () => {
           {editSelection}
           <div
             className={`ag-theme-quartz ${classes.grid}`}
-            style={{ height: 500 }}
           >
             <AgGridReact
               ref={gridRef}
@@ -120,16 +123,9 @@ const Events = () => {
               columnDefs={colDefs}
               gridOptions={{ pagination: true }}
               onRowClicked={(event) => setClickedEvent(event.data)}
-              autoSizeStrategy={{
-                type: "fitCellContents",
-                // defaultMinWidth: 600,
-                // columnLimits: [
-                //   {
-                //     colId: "country",
-                //     minWidth: 900,
-                //   },
-                // ],
-              }}
+              // autoSizeStrategy={{
+              //   type: "fitCellContents",
+              // }}
               rowSelection="single"
               onSelectionChanged={() =>
                 setSelectedRows(gridRef.current.api.getSelectedRows())

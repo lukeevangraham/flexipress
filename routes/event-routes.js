@@ -37,8 +37,6 @@ module.exports = (app, cloudinary, upload) => {
   };
 
   app.post("/api/event", upload.single("image"), async function (req, res) {
-    console.log("EVENT POST: ", req.file);
-
     if (req.file) {
       const imageRes = await uploadImageAndAddImageToDb(
         req.file,
@@ -63,8 +61,6 @@ module.exports = (app, cloudinary, upload) => {
   });
 
   app.put("/api/event/publish", async (req, res) => {
-    console.log("REQ.BODY: ", req.body);
-
     const updatePublishResponse = await db.Event.update(
       { published: req.body.published },
       { where: { id: req.body.eventId } }
@@ -157,7 +153,6 @@ module.exports = (app, cloudinary, upload) => {
   });
 
   app.delete("/api/event/:id", async (req, res) => {
-    console.log("Delete hit!", req.params);
     const dbEvent = await db.Event.destroy({
       where: {
         id: req.params.id,

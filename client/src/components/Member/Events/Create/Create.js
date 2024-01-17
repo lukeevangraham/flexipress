@@ -14,6 +14,7 @@ const CreateEvent = ({
   clearSelectedEvent,
   events,
   setEvents,
+  setSelectedRows,
 }) => {
   const { authUser } = useAuth();
 
@@ -30,9 +31,6 @@ const CreateEvent = ({
   const [selectedEvent, setSelectedEvent] = useState(
     eventFromList ? eventFromList : null
   );
-
-  console.log("EventFromList: ", eventFromList);
-  console.log("Newly Created: ", selectedEvent);
 
   const [eventForm, setEventForm] = useState({
     name: {
@@ -235,6 +233,11 @@ const CreateEvent = ({
     // console.log("FORM: ", eventForm);
   };
 
+  const backClickHandler = () => {
+    setSelectedRows(null);
+    clearSelectedEvent(null);
+  };
+
   const formElementsArray = [];
   for (let key in eventForm) {
     formElementsArray.push({
@@ -262,11 +265,7 @@ const CreateEvent = ({
     <div className={classes.EventSubmission}>
       {/* <h1>Events</h1> */}
       {selectedEvent ? (
-        <Button
-          clicked={
-            events ? () => clearSelectedEvent(null) : () => navigate("/events")
-          }
-        >
+        <Button clicked={events ? backClickHandler : () => navigate("/events")}>
           &larr; Back
         </Button>
       ) : null}

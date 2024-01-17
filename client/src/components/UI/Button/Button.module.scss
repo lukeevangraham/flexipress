@@ -36,6 +36,10 @@
   }
 }
 
+.ghost {
+  border: solid 2px $color-tertiary;
+}
+
 .disabled {
   background-color: #cfcfcf;
   color: #9c9c9c;
