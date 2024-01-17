@@ -7,20 +7,30 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import classes from "./Input.module.scss";
 
-const Input = ({ elementType, elementConfig, value, changed, required }) => {
+const Input = ({
+  elementType,
+  elementConfig,
+  value,
+  changed,
+  required,
+  width,
+}) => {
   let inputElement = null;
   const inputClasses = [classes.input];
+
+  console.log("Width: ", width);
 
   switch (elementType) {
     case "input":
       inputElement = (
         <input
-          className={inputClasses.join(" ")}
+          className={`${classes.input}`}
           {...elementConfig}
           value={value}
           onChange={changed}
           name={elementConfig.placeholder}
           required={required ? true : null}
+          style={{ width: width ? width : "100%" }}
         />
       );
       break;
@@ -29,15 +39,10 @@ const Input = ({ elementType, elementConfig, value, changed, required }) => {
         <div>
           <DatePicker
             {...elementConfig}
-            //   selected={startDate}
             selected={value}
             onChange={changed}
             required={required ? true : null}
             name={elementConfig.placeholder}
-            //   onChange={(date) => setStartDate(date)}
-            //   timeInputLabel="Time:"
-            //   dateFormat="MM/dd/yyyy h:mm aa"
-            //   showTimeInput
           />
         </div>
       );
@@ -45,18 +50,22 @@ const Input = ({ elementType, elementConfig, value, changed, required }) => {
     case "textarea":
       inputElement = (
         <TextareaAutosize
+          className={classes.input}
           {...elementConfig}
           value={value}
           onChange={changed}
           name={elementConfig.placeholder}
           required={required ? true : null}
+          style={{ width: width ? width : "100%" }}
         />
       );
       break;
     case "image":
       inputElement = (
         <>
-          {elementConfig.url ? <img src={elementConfig.url} className={classes.image} alt="" /> : null}
+          {elementConfig.url ? (
+            <img src={elementConfig.url} className={classes.image} alt="" />
+          ) : null}
           <input
             type="file"
             {...elementConfig}

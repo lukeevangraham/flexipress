@@ -1,22 +1,22 @@
 @import "../../../../assets/sass/variables";
 
 .signIn {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 1 1fr;
-    align-items: center;
-    background-color: rgba($color-primary, 1);
-    padding-top: 4rem;
-    border-radius: 9px 9px 0 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1 1fr;
+  align-items: center;
+  background-color: $color-primary-lighter;
+  padding-top: 4rem;
+  border-radius: 9px 9px 0 0;
 
-    .form {
-        width: 90%;
-        margin: auto;
-        &__group:not(:last-child) {
-            margin-bottom: 2rem;
-        }
-        &__group:last-child {
-            margin-bottom: 4rem;
-        }
+  .form {
+    width: 90%;
+    margin: auto;
+    &__group:not(:last-child) {
+      margin-bottom: 2rem;
     }
+    &__group:last-child {
+      margin-bottom: 4rem;
+    }
+  }
 }

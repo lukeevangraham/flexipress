@@ -1,17 +1,28 @@
 // COLORS
-$color-primary: #FFECD6;
+$color-primary: #0f2167;
+$color-primary-light: lighten($color-primary, 65%);
+$color-primary-lighter: lighten($color-primary, 73%);
+$color-primary-dark: darken($color-primary, 10%);
+$color-primary-darker: darken($color-primary, 20%);
 
-$color-secondary: #4CB9E7;
+$color-secondary: #1a0f66;
+$color-secondary-light: lighten($color-secondary, 25%);
+$color-secondary-lighter: lighten($color-secondary, 73%);
 
-$color-tertiary: #3559E0;
+$color-tertiary: #0f5766;
+$color-tertiary-light: lighten($color-tertiary, 25%);
+$color-tertiary-lighter: lighten($color-tertiary, 70%);
+$color-tertiary-dark: darken($color-tertiary, 9%);
+$color-tertiary-darker: darken($color-tertiary, 50%);
 
-$color-quaternary: #0F2167;
+// $color-quaternary: #0F2167;
 
 $color-black: #111;
 
+$color-grey: #b4b4b4;
+$color-grey-light: lighten($color-grey,27%);
+
 $color-white: #eee;
-
-
 
 // FONT
 $default-font-size: 1.6rem;

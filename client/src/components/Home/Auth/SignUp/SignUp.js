@@ -135,7 +135,7 @@ const SignUp = () => {
         />
       ))}
       {error ? <div className={classes.error}>{error}</div> : null}
-      <Button type="submit" color={"green"}>
+      <Button type="submit">
         <>Sign Up</>
       </Button>
     </form>

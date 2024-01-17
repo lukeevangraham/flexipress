@@ -43,6 +43,7 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
+      width: "70%",
     },
     startDate: {
       elementType: "date",
@@ -75,6 +76,7 @@ const CreateEvent = ({
       elementConfig: {
         type: "number",
         placeholder: "Repeats every X days",
+        min: 0,
       },
       value:
         selectedEvent && selectedEvent.repeatsEveryXDays
@@ -83,6 +85,7 @@ const CreateEvent = ({
       validation: {
         required: false,
       },
+      width: "19rem",
     },
     location: {
       elementType: "input",
@@ -94,17 +97,19 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
+      width: "35rem"
     },
     description: {
       elementType: "textarea",
       elementConfig: {
-        minRows: 5,
+        minRows: 8,
         placeholder: "Description",
       },
       value: selectedEvent ? selectedEvent.description : "",
       validation: {
         required: true,
       },
+      // width: "50rem"
     },
     image: {
       elementType: "image",
@@ -256,6 +261,7 @@ const CreateEvent = ({
           value={formElement.config.value}
           changed={(e) => inputChangedHandler(e, formElement.id)}
           required={formElement.config.validation.required}
+          width={formElement.config.width}
         />
       ))}
       {error ? <div className={classes.error}>{error}</div> : null}

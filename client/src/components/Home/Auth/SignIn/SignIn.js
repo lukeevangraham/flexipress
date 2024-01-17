@@ -97,7 +97,7 @@ const SignIn = () => {
         />
       ))}
       <div className={classes.form__group}>
-        <Button type="submit" color={"green"}>
+        <Button type="submit">
           <>Sign In</>
         </Button>
       </div>

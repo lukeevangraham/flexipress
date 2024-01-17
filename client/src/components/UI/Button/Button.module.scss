@@ -14,6 +14,8 @@
     font-size: $default-font-size;
     text-transform: uppercase;
     font-family: inherit;
+    background-color: $color-primary;
+    color: $color-white;
   }
 
   &:hover {
@@ -29,8 +31,8 @@
   }
 }
 .green {
-  background-color: $color-secondary;
-  color: $color-quaternary;
+  background-color: orangered;
+  color: $color-primary;
   &:hover {
     background-color: $color-secondary;
   }
@@ -52,12 +54,12 @@
 }
 
 .secondary {
-  background-color: $color-quaternary;
+  background-color: $color-primary-light;
   border: 1px solid $color-secondary;
-  color: $color-secondary;
+  color: $color-white;
 
   &:hover {
-    background-color: $color-secondary;
-    color: $color-quaternary;
+    background-color: $color-primary;
+    color: $color-white;
   }
 }
