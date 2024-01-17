@@ -1,0 +1,22 @@
+@import "../../../assets/sass/variables";
+@import "../../../assets/sass/mixins";
+
+.Modal {
+  // background-color: orangered;
+  position: fixed;
+  z-index: 150;
+  background-color: $color-white;
+  width: 70%;
+  padding: 1.6rem;
+  left: 15%;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 1rem 4rem darken($color-white, 50%);
+  border-radius: 5px;
+
+  @include respond(tab-port) {
+    // width: 100%;
+    left: 5%;
+    width: 90% !important;
+  }
+}

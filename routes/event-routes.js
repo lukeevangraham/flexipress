@@ -155,4 +155,19 @@ module.exports = (app, cloudinary, upload) => {
 
     res.json(dbEvent);
   });
+
+  app.delete("/api/event/:id", async (req, res) => {
+    console.log("Delete hit!", req.params);
+    const dbEvent = await db.Event.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    try {
+      res.json(dbEvent);
+    } catch (error) {
+      console.log("E: ", error);
+    }
+  });
 };
