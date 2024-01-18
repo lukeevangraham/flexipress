@@ -4,6 +4,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import ImageEdit from "../ImageEdit/ImageEdit";
 
 import "react-datepicker/dist/react-datepicker.css";
+import "./customDatePickerWidth.css";
 
 import classes from "./Input.module.scss";
 
@@ -14,11 +15,9 @@ const Input = ({
   changed,
   required,
   width,
+  groupStyle,
 }) => {
   let inputElement = null;
-  const inputClasses = [classes.input];
-
-  console.log("Width: ", width);
 
   switch (elementType) {
     case "input":
@@ -30,13 +29,12 @@ const Input = ({
           onChange={changed}
           name={elementConfig.placeholder}
           required={required ? true : null}
-          style={{ width: width ? width : "100%" }}
         />
       );
       break;
     case "date":
       inputElement = (
-        <div>
+        <div className="customDatePickerWidth">
           <DatePicker
             {...elementConfig}
             selected={value}
@@ -76,12 +74,25 @@ const Input = ({
           />
         </>
       );
+    case "select":
+      inputElement = (
+        <>
+          <select name={elementConfig.placeholder} className={classes.input}>
+            {elementConfig.options
+              ? elementConfig.options.map((month, index) => (
+                  <option key={index}>{month}</option>
+                ))
+              : null}
+          </select>
+        </>
+      );
+
     default:
       break;
   }
 
   return (
-    <div className={classes.inputGroup}>
+    <div className={classes.inputGroup} style={groupStyle ? groupStyle : null}>
       {inputElement}
       <label htmlFor={elementConfig.placeholder} className={classes.label}>
         {elementConfig.placeholder}

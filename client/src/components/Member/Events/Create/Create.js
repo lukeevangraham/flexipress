@@ -43,20 +43,104 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
-      width: "70%",
+      groupStyle: { gridColumn: "1 / 7" },
     },
-    startDate: {
-      elementType: "date",
+    // startDate: {
+    //   elementType: "date",
+    //   elementConfig: {
+    //     timeInputLabel: "Time:",
+    //     dateFormat: "MM/dd/yyyy h:mm aa",
+    //     showTimeInput: true,
+    //     placeholder: "Start date & time",
+    //   },
+    //   value: selectedEvent ? new Date(selectedEvent.startDate) : new Date(),
+    //   validation: {
+    //     required: true,
+    //   },
+    // },
+    startMonth: {
+      elementType: "select",
       elementConfig: {
-        timeInputLabel: "Time:",
-        dateFormat: "MM/dd/yyyy h:mm aa",
-        showTimeInput: true,
-        placeholder: "Start date & time",
+        type: "month",
+        placeholder: "Start date",
+        options: [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ],
       },
-      value: selectedEvent ? new Date(selectedEvent.startDate) : new Date(),
-      validation: {
-        required: true,
+      value: selectedEvent ? selectedEvent : "",
+      validation: { required: true },
+      groupStyle: { gridColumnStart: 1 },
+    },
+    startDay: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "",
+        min: 1,
+        max: 31,
       },
+      value: selectedEvent ? selectedEvent : "01",
+      validation: { required: true },
+      groupStyle: { gridColumn: "2 / span 2" },
+    },
+    startYear: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "",
+        min: new Date().toLocaleDateString("en-US", { year: "numeric" }),
+      },
+      value: selectedEvent
+        ? selectedEvent
+        : new Date().toLocaleDateString("en-US", { year: "numeric" }),
+      validation: { required: true },
+      groupStyle: { gridColumn: "4 / span 3" },
+    },
+    startHour: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "Start time",
+        min: 1,
+        max: 12,
+      },
+      value: selectedEvent ? selectedEvent : "12",
+      validation: { required: true },
+      groupStyle: { gridColumn: "7 / span 2" },
+    },
+    startMin: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "",
+        min: 0,
+        max: 59,
+      },
+      value: selectedEvent ? selectedEvent : "00",
+      validation: { required: true },
+      groupStyle: { gridColumn: "9 / span 2" },
+    },
+    startAmPm: {
+      elementType: "select",
+      elementConfig: {
+        type: "amPm",
+        placeholder: "",
+        options: ["am", "pm"],
+      },
+      value: selectedEvent ? selectedEvent : "am",
+      validation: { required: true },
+      groupStyle: { gridColumn: "11 / span 2" }
     },
     endDate: {
       elementType: "date",
@@ -70,6 +154,7 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
+      groupStyle: { gridColumnStart: 1 },
     },
     repeatsEveryXDays: {
       elementType: "input",
@@ -85,7 +170,7 @@ const CreateEvent = ({
       validation: {
         required: false,
       },
-      width: "19rem",
+      groupStyle: { gridColumn: "1 / 4" },
     },
     location: {
       elementType: "input",
@@ -97,7 +182,7 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
-      width: "35rem"
+      groupStyle: { gridColumnStart: 1 },
     },
     description: {
       elementType: "textarea",
@@ -109,7 +194,7 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
-      // width: "50rem"
+      groupStyle: { gridColumn: "1 / 13" },
     },
     image: {
       elementType: "image",
@@ -122,6 +207,7 @@ const CreateEvent = ({
       validation: {
         required: false,
       },
+      groupStyle: { gridColumnStart: 1 },
     },
   });
 
@@ -262,6 +348,7 @@ const CreateEvent = ({
           changed={(e) => inputChangedHandler(e, formElement.id)}
           required={formElement.config.validation.required}
           width={formElement.config.width}
+          groupStyle={formElement.config.groupStyle}
         />
       ))}
       {error ? <div className={classes.error}>{error}</div> : null}

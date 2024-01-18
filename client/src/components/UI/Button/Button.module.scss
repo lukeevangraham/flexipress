@@ -56,10 +56,10 @@
 .secondary {
   background-color: $color-primary-light;
   border: 1px solid $color-secondary;
-  color: $color-white;
+  color: $color-black;
 
   &:hover {
-    background-color: $color-primary;
-    color: $color-white;
+    background-color: $color-primary-lighter;
+    // color: $color-white;
   }
 }

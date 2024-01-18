@@ -11,4 +11,11 @@
       gap: 1rem;
     }
   }
+
+  form {
+    display: grid;
+    grid-template-rows: min-content;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1rem;
+  }
 }
