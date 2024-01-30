@@ -1,5 +1,5 @@
 .EventSubmission {
-  width: 60rem;
+  width: 70rem;
   &__TopInfo {
     display: flex;
     justify-content: space-between;
@@ -15,7 +15,7 @@
   form {
     display: grid;
     grid-template-rows: min-content;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     gap: 1rem;
   }
 }

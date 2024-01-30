@@ -78,9 +78,9 @@ const CreateEvent = ({
           "December",
         ],
       },
-      value: selectedEvent ? selectedEvent : "",
+      value: selectedEvent ? selectedEvent : "January",
       validation: { required: true },
-      groupStyle: { gridColumnStart: 1 },
+      groupStyle: { gridColumn: "1 / span 2", gridRow: "2" },
     },
     startDay: {
       elementType: "input",
@@ -92,7 +92,7 @@ const CreateEvent = ({
       },
       value: selectedEvent ? selectedEvent : "01",
       validation: { required: true },
-      groupStyle: { gridColumn: "2 / span 2" },
+      groupStyle: { gridColumn: "3 / span 1", gridRow: "2" },
     },
     startYear: {
       elementType: "input",
@@ -105,7 +105,7 @@ const CreateEvent = ({
         ? selectedEvent
         : new Date().toLocaleDateString("en-US", { year: "numeric" }),
       validation: { required: true },
-      groupStyle: { gridColumn: "4 / span 3" },
+      groupStyle: { gridColumn: "4 / span 2", gridRow: "2" },
     },
     startHour: {
       elementType: "input",
@@ -117,7 +117,7 @@ const CreateEvent = ({
       },
       value: selectedEvent ? selectedEvent : "12",
       validation: { required: true },
-      groupStyle: { gridColumn: "7 / span 2" },
+      groupStyle: { gridColumn: "6 / span 1", gridRow: "2" },
     },
     startMin: {
       elementType: "input",
@@ -129,7 +129,7 @@ const CreateEvent = ({
       },
       value: selectedEvent ? selectedEvent : "00",
       validation: { required: true },
-      groupStyle: { gridColumn: "9 / span 2" },
+      groupStyle: { gridColumn: "7 / span 1", gridRow: "2" },
     },
     startAmPm: {
       elementType: "select",
@@ -140,21 +140,105 @@ const CreateEvent = ({
       },
       value: selectedEvent ? selectedEvent : "am",
       validation: { required: true },
-      groupStyle: { gridColumn: "11 / span 2" }
+      groupStyle: { gridColumn: "8 / span 1", gridRow: "2" },
     },
-    endDate: {
-      elementType: "date",
+    // endDate: {
+    //   elementType: "date",
+    //   elementConfig: {
+    //     timeInputLabel: "Time:",
+    //     dateFormat: "MM/dd/yyyy h:mm aa",
+    //     showTimeInput: true,
+    //     placeholder: "End date & time",
+    //   },
+    //   value: selectedEvent ? new Date(selectedEvent.endDate) : new Date(),
+    //   validation: {
+    //     required: true,
+    //   },
+    //   groupStyle: { gridColumnStart: 1 },
+    // },
+    endMonth: {
+      elementType: "select",
       elementConfig: {
-        timeInputLabel: "Time:",
-        dateFormat: "MM/dd/yyyy h:mm aa",
-        showTimeInput: true,
-        placeholder: "End date & time",
+        type: "month",
+        placeholder: "End date",
+        options: [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ],
       },
-      value: selectedEvent ? new Date(selectedEvent.endDate) : new Date(),
-      validation: {
-        required: true,
+      value: selectedEvent ? selectedEvent : "",
+      validation: { required: true },
+      groupStyle: { gridColumn: "1 / span 2", gridRow: "3" },
+    },
+    endDay: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "",
+        min: 1,
+        max: 31,
       },
-      groupStyle: { gridColumnStart: 1 },
+      value: selectedEvent ? selectedEvent : "01",
+      validation: { required: true },
+      groupStyle: { gridColumn: "3 / span 1", gridRow: "3" },
+    },
+    endYear: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "",
+        min: new Date().toLocaleDateString("en-US", { year: "numeric" }),
+      },
+      value: selectedEvent
+        ? selectedEvent
+        : new Date().toLocaleDateString("en-US", { year: "numeric" }),
+      validation: { required: true },
+      groupStyle: { gridColumn: "4 / span 2", gridRow: "3" },
+    },
+    endHour: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "End time",
+        min: 1,
+        max: 12,
+      },
+      value: selectedEvent ? selectedEvent : "12",
+      validation: { required: true },
+      groupStyle: { gridColumn: "6 / span 1", gridRow: "3" },
+    },
+    endMin: {
+      elementType: "input",
+      elementConfig: {
+        type: "number",
+        placeholder: "",
+        min: 0,
+        max: 59,
+      },
+      value: selectedEvent ? selectedEvent : "00",
+      validation: { required: true },
+      groupStyle: { gridColumn: "7 / span 1", gridRow: "3" },
+    },
+    endAmPm: {
+      elementType: "select",
+      elementConfig: {
+        type: "amPm",
+        placeholder: "",
+        options: ["am", "pm"],
+      },
+      value: selectedEvent ? selectedEvent : "am",
+      validation: { required: true },
+      groupStyle: { gridColumn: "8 / span 1", gridRow: "3" },
     },
     repeatsEveryXDays: {
       elementType: "input",
@@ -182,7 +266,7 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
-      groupStyle: { gridColumnStart: 1 },
+      groupStyle: { gridColumn: "1 / 4" },
     },
     description: {
       elementType: "textarea",
@@ -194,7 +278,7 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
-      groupStyle: { gridColumn: "1 / 13" },
+      groupStyle: { gridColumn: "1 / -1" },
     },
     image: {
       elementType: "image",
@@ -207,15 +291,21 @@ const CreateEvent = ({
       validation: {
         required: false,
       },
-      groupStyle: { gridColumnStart: 1 },
+      groupStyle: { gridColumn: "1 / -1" },
     },
   });
 
   const [error, setError] = useState("");
 
+  const getMonthFromString = (month) => {
+    console.log("Value: ", eventForm.startMonth.value);
+    console.log("month: ", new Date(`1 ${month} 1999`).getMonth());
+    return new Date(`1 ${month} 1999`).getMonth();
+  };
+
   const handlePublish = async (e) => {
     e.preventDefault();
-    // console.log("publish clicked", !publish);
+
     const publishResponse = await server.put("/event/publish", {
       eventId: selectedEvent.id,
       published: !publish,
@@ -238,7 +328,16 @@ const CreateEvent = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Publish: ", publish);
+    console.log(
+      "HERE: Start Date: ",
+      new Date(
+        eventForm.startYear.value,
+        getMonthFromString(eventForm.startMonth.value),
+        eventForm.startDay.value,
+        eventForm.startHour.value,
+        eventForm.startMin.value
+      ).toLocaleString()
+    );
 
     // console.log("Form: ", eventForm);
 
@@ -315,6 +414,7 @@ const CreateEvent = ({
       );
       updatedFormElement.elementConfig.file = e.target.files[0];
     } else {
+      console.log("doing the else");
       updatedFormElement.value = e.target.value;
     }
 
@@ -322,6 +422,21 @@ const CreateEvent = ({
     updatedEventForm[inputIdentifier] = updatedFormElement;
     setEventForm(updatedEventForm);
     // console.log("FORM: ", eventForm);
+
+    // console.log("Target: ", e.target.value);
+const log = setTimeout(() => {
+      console.log(
+        "Delay: ",
+        new Date(
+          eventForm.startYear.value,
+          getMonthFromString(eventForm.startMonth.value),
+          eventForm.startDay.value,
+          eventForm.startHour.value,
+          eventForm.startMin.value
+        ).toLocaleString()
+      );
+      
+    }, 1000);
   };
 
   const backClickHandler = () => {

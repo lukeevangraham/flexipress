@@ -74,10 +74,17 @@ const Input = ({
           />
         </>
       );
+      break;
     case "select":
       inputElement = (
         <>
-          <select name={elementConfig.placeholder} className={classes.input}>
+          <select
+            name={elementConfig.placeholder}
+            className={classes.input}
+            onChange={changed}
+            value={value}
+            {...elementConfig}
+          >
             {elementConfig.options
               ? elementConfig.options.map((month, index) => (
                   <option key={index}>{month}</option>
