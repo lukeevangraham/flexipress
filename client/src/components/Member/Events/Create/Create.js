@@ -126,6 +126,7 @@ const CreateEvent = ({
         placeholder: "",
         min: 0,
         max: 59,
+        name: "startMin",
       },
       value: selectedEvent ? selectedEvent : "00",
       validation: { required: true },
@@ -176,7 +177,7 @@ const CreateEvent = ({
           "December",
         ],
       },
-      value: selectedEvent ? selectedEvent : "",
+      value: selectedEvent ? selectedEvent : "January",
       validation: { required: true },
       groupStyle: { gridColumn: "1 / span 2", gridRow: "3" },
     },
@@ -224,6 +225,7 @@ const CreateEvent = ({
         placeholder: "",
         min: 0,
         max: 59,
+        name: "startMin",
       },
       value: selectedEvent ? selectedEvent : "00",
       validation: { required: true },
@@ -328,14 +330,18 @@ const CreateEvent = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const startDateNewFormat = new Date(
+      `${eventForm.startDay.value} ${eventForm.startMonth.value} ${eventForm.startYear.value} ${eventForm.startHour.value}:${eventForm.startMin.value} ${eventForm.startAmPm.value}`
+    );
+
+    const endDateNewFormat = new Date(
+      `${eventForm.endDay.value} ${eventForm.endMonth.value} ${eventForm.endYear.value} ${eventForm.endHour.value}:${eventForm.endMin.value} ${eventForm.endAmPm.value}`
+    );
+
     console.log(
       "HERE: Start Date: ",
       new Date(
-        eventForm.startYear.value,
-        getMonthFromString(eventForm.startMonth.value),
-        eventForm.startDay.value,
-        eventForm.startHour.value,
-        eventForm.startMin.value
+        `${eventForm.startDay.value} ${eventForm.startMonth.value} ${eventForm.startYear.value} ${eventForm.startHour.value}:${eventForm.startMin.value} ${eventForm.startAmPm.value}`
       ).toLocaleString()
     );
 
@@ -344,8 +350,9 @@ const CreateEvent = ({
     let eventFormValues = new FormData();
 
     eventFormValues.append("name", eventForm.name.value);
-    eventFormValues.append("startDate", eventForm.startDate.value);
-    eventFormValues.append("endDate", eventForm.endDate.value);
+    // eventFormValues.append("startDate", eventForm.startDate.value);
+    eventFormValues.append("startDate", startDateNewFormat);
+    eventFormValues.append("endDate", endDateNewFormat);
     eventFormValues.append(
       "repeatsEveryXDays",
       eventForm.repeatsEveryXDays.value
@@ -399,6 +406,7 @@ const CreateEvent = ({
 
   const inputChangedHandler = (e, inputIdentifier) => {
     setSaveEnabled(true);
+
     const updatedEventForm = {
       ...eventForm,
     };
@@ -413,6 +421,14 @@ const CreateEvent = ({
         e.target.files[0]
       );
       updatedFormElement.elementConfig.file = e.target.files[0];
+    } else if (
+      updatedFormElement.elementConfig.name === "startMin" ||
+      updatedFormElement.elementConfig.name === "endMin"
+    ) {
+      // AVOID 12:1 AM, MAKE SURE THAT OUR MINUTES HAVE A ZERO IN FRONT OF ONE DIGIT VALUES
+      e.target.value < 10
+        ? (updatedFormElement.value = `0${e.target.value}`)
+        : (updatedFormElement.value = e.target.value);
     } else {
       console.log("doing the else");
       updatedFormElement.value = e.target.value;
@@ -424,19 +440,6 @@ const CreateEvent = ({
     // console.log("FORM: ", eventForm);
 
     // console.log("Target: ", e.target.value);
-const log = setTimeout(() => {
-      console.log(
-        "Delay: ",
-        new Date(
-          eventForm.startYear.value,
-          getMonthFromString(eventForm.startMonth.value),
-          eventForm.startDay.value,
-          eventForm.startHour.value,
-          eventForm.startMin.value
-        ).toLocaleString()
-      );
-      
-    }, 1000);
   };
 
   const backClickHandler = () => {
