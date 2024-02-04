@@ -299,6 +299,9 @@ const CreateEvent = ({
 
   const [error, setError] = useState("");
 
+  const convertTo24HourTime = (hour, min, amPm) =>
+    amPm === "am" ? `${hour}:${min}` : `${Number(hour) + 12}:${min}`;
+
   const getMonthFromString = (month) => {
     console.log("Value: ", eventForm.startMonth.value);
     console.log("month: ", new Date(`1 ${month} 1999`).getMonth());
@@ -330,12 +333,26 @@ const CreateEvent = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const startTimeIn24Hour = convertTo24HourTime(
+      eventForm.startHour.value,
+      eventForm.startMin.value,
+      eventForm.startAmPm.value
+    );
+
+    const endTimeIn24Hour = convertTo24HourTime(
+      eventForm.endHour.value,
+      eventForm.endMin.value,
+      eventForm.endAmPm.value
+    )
+
+    console.log("timesIn24Hour: ", startTimeIn24Hour);
+
     const startDateNewFormat = new Date(
-      `${eventForm.startDay.value} ${eventForm.startMonth.value} ${eventForm.startYear.value} ${eventForm.startHour.value}:${eventForm.startMin.value} ${eventForm.startAmPm.value}`
+      `${eventForm.startDay.value} ${eventForm.startMonth.value} ${eventForm.startYear.value} ${startTimeIn24Hour}`
     );
 
     const endDateNewFormat = new Date(
-      `${eventForm.endDay.value} ${eventForm.endMonth.value} ${eventForm.endYear.value} ${eventForm.endHour.value}:${eventForm.endMin.value} ${eventForm.endAmPm.value}`
+      `${eventForm.endDay.value} ${eventForm.endMonth.value} ${eventForm.endYear.value} ${endTimeIn24Hour}`
     );
 
     console.log(
