@@ -16,6 +16,8 @@ const CreateEvent = ({
   setEvents,
   setSelectedRows,
 }) => {
+  console.log("EventFromList: ", eventFromList);
+
   const { authUser } = useAuth();
 
   const navigate = useNavigate();
@@ -31,6 +33,10 @@ const CreateEvent = ({
   const [selectedEvent, setSelectedEvent] = useState(
     eventFromList ? eventFromList : null
   );
+
+  new Date(selectedEvent.startDate)
+    .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
+    .slice(0, -3);
 
   const [eventForm, setEventForm] = useState({
     name: {
@@ -78,7 +84,11 @@ const CreateEvent = ({
           "December",
         ],
       },
-      value: selectedEvent ? selectedEvent : "January",
+      value: selectedEvent
+        ? new Date(selectedEvent.startDate).toLocaleString("default", {
+            month: "long",
+          })
+        : new Date().toLocaleString("default", { month: "long" }),
       validation: { required: true },
       groupStyle: { gridColumn: "1 / span 2", gridRow: "2" },
     },
@@ -90,7 +100,11 @@ const CreateEvent = ({
         min: 1,
         max: 31,
       },
-      value: selectedEvent ? selectedEvent : "01",
+      value: selectedEvent
+        ? new Date(selectedEvent.startDate).toLocaleDateString("en-US", {
+            day: "2-digit",
+          })
+        : "01",
       validation: { required: true },
       groupStyle: { gridColumn: "3 / span 1", gridRow: "2" },
     },
@@ -102,7 +116,9 @@ const CreateEvent = ({
         min: new Date().toLocaleDateString("en-US", { year: "numeric" }),
       },
       value: selectedEvent
-        ? selectedEvent
+        ? new Date(selectedEvent.startDate).toLocaleDateString("en-US", {
+            year: "numeric",
+          })
         : new Date().toLocaleDateString("en-US", { year: "numeric" }),
       validation: { required: true },
       groupStyle: { gridColumn: "4 / span 2", gridRow: "2" },
@@ -115,7 +131,11 @@ const CreateEvent = ({
         min: 1,
         max: 12,
       },
-      value: selectedEvent ? selectedEvent : "12",
+      value: selectedEvent
+        ? new Date(selectedEvent.startDate)
+            .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
+            .slice(0, -3)
+        : "12",
       validation: { required: true },
       groupStyle: { gridColumn: "6 / span 1", gridRow: "2" },
     },
@@ -128,7 +148,11 @@ const CreateEvent = ({
         max: 59,
         name: "startMin",
       },
-      value: selectedEvent ? selectedEvent : "00",
+      value: selectedEvent
+        ? `${
+            new Date(selectedEvent.startDate).getMinutes() < 10 ? "0" : ""
+          }${new Date(selectedEvent.startDate).getMinutes()}`
+        : "00",
       validation: { required: true },
       groupStyle: { gridColumn: "7 / span 1", gridRow: "2" },
     },
@@ -139,7 +163,12 @@ const CreateEvent = ({
         placeholder: "",
         options: ["am", "pm"],
       },
-      value: selectedEvent ? selectedEvent : "am",
+      value: selectedEvent
+        ? new Date(selectedEvent.startDate)
+            .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
+            .slice(-2)
+            .toLowerCase()
+        : "am",
       validation: { required: true },
       groupStyle: { gridColumn: "8 / span 1", gridRow: "2" },
     },
@@ -302,10 +331,9 @@ const CreateEvent = ({
   const convertTo24HourTime = (hour, min, amPm) =>
     amPm === "am" ? `${hour}:${min}` : `${Number(hour) + 12}:${min}`;
 
-  const getMonthFromString = (month) => {
-    console.log("Value: ", eventForm.startMonth.value);
-    console.log("month: ", new Date(`1 ${month} 1999`).getMonth());
-    return new Date(`1 ${month} 1999`).getMonth();
+  const zeroPad = (value, length) => {
+    length = length || 2; // defaults to 2 if no parameter is passed
+    return (new Array(length).join("0") + value).slice(length * -1);
   };
 
   const handlePublish = async (e) => {
@@ -343,9 +371,7 @@ const CreateEvent = ({
       eventForm.endHour.value,
       eventForm.endMin.value,
       eventForm.endAmPm.value
-    )
-
-    console.log("timesIn24Hour: ", startTimeIn24Hour);
+    );
 
     const startDateNewFormat = new Date(
       `${eventForm.startDay.value} ${eventForm.startMonth.value} ${eventForm.startYear.value} ${startTimeIn24Hour}`
@@ -353,13 +379,6 @@ const CreateEvent = ({
 
     const endDateNewFormat = new Date(
       `${eventForm.endDay.value} ${eventForm.endMonth.value} ${eventForm.endYear.value} ${endTimeIn24Hour}`
-    );
-
-    console.log(
-      "HERE: Start Date: ",
-      new Date(
-        `${eventForm.startDay.value} ${eventForm.startMonth.value} ${eventForm.startYear.value} ${eventForm.startHour.value}:${eventForm.startMin.value} ${eventForm.startAmPm.value}`
-      ).toLocaleString()
     );
 
     // console.log("Form: ", eventForm);
@@ -443,9 +462,10 @@ const CreateEvent = ({
       updatedFormElement.elementConfig.name === "endMin"
     ) {
       // AVOID 12:1 AM, MAKE SURE THAT OUR MINUTES HAVE A ZERO IN FRONT OF ONE DIGIT VALUES
-      e.target.value < 10
-        ? (updatedFormElement.value = `0${e.target.value}`)
-        : (updatedFormElement.value = e.target.value);
+      // updatedEventForm.value = zeroPad(e.target.value)
+      /^\d$/.test(e.target.value)
+        ? (updatedFormElement.value = zeroPad(e.target.value))
+        : (updatedFormElement.value = zeroPad(e.target.value));
     } else {
       console.log("doing the else");
       updatedFormElement.value = e.target.value;
