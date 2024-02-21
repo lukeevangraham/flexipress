@@ -34,9 +34,9 @@ const CreateEvent = ({
     eventFromList ? eventFromList : null
   );
 
-  new Date(selectedEvent.startDate)
-    .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
-    .slice(0, -3);
+  // new Date(selectedEvent.startDate)
+  //   .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
+  //   .slice(0, -3);
 
   const [eventForm, setEventForm] = useState({
     name: {
@@ -104,7 +104,7 @@ const CreateEvent = ({
         ? new Date(selectedEvent.startDate).toLocaleDateString("en-US", {
             day: "2-digit",
           })
-        : "01",
+        : new Date().toLocaleString("default", { day: "numeric" }),
       validation: { required: true },
       groupStyle: { gridColumn: "3 / span 1", gridRow: "2" },
     },
@@ -206,7 +206,11 @@ const CreateEvent = ({
           "December",
         ],
       },
-      value: selectedEvent ? selectedEvent : "January",
+      value: selectedEvent
+        ? new Date(selectedEvent.endDate).toLocaleString("default", {
+            month: "long",
+          })
+        : new Date().toLocaleString("default", { month: "long" }),
       validation: { required: true },
       groupStyle: { gridColumn: "1 / span 2", gridRow: "3" },
     },
@@ -218,7 +222,11 @@ const CreateEvent = ({
         min: 1,
         max: 31,
       },
-      value: selectedEvent ? selectedEvent : "01",
+      value: selectedEvent
+        ? new Date(selectedEvent.endDate).toLocaleDateString("en-US", {
+            day: "2-digit",
+          })
+        : new Date().toLocaleString("default", { day: "numeric" }),
       validation: { required: true },
       groupStyle: { gridColumn: "3 / span 1", gridRow: "3" },
     },
@@ -230,7 +238,9 @@ const CreateEvent = ({
         min: new Date().toLocaleDateString("en-US", { year: "numeric" }),
       },
       value: selectedEvent
-        ? selectedEvent
+        ? new Date(selectedEvent.endDate).toLocaleDateString("en-US", {
+            year: "numeric",
+          })
         : new Date().toLocaleDateString("en-US", { year: "numeric" }),
       validation: { required: true },
       groupStyle: { gridColumn: "4 / span 2", gridRow: "3" },
@@ -243,7 +253,11 @@ const CreateEvent = ({
         min: 1,
         max: 12,
       },
-      value: selectedEvent ? selectedEvent : "12",
+      value: selectedEvent
+        ? new Date(selectedEvent.endDate)
+            .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
+            .slice(0, -3)
+        : "12",
       validation: { required: true },
       groupStyle: { gridColumn: "6 / span 1", gridRow: "3" },
     },
@@ -256,7 +270,11 @@ const CreateEvent = ({
         max: 59,
         name: "startMin",
       },
-      value: selectedEvent ? selectedEvent : "00",
+      value: selectedEvent
+        ? `${
+            new Date(selectedEvent.endDate).getMinutes() < 10 ? "0" : ""
+          }${new Date(selectedEvent.endDate).getMinutes()}`
+        : "00",
       validation: { required: true },
       groupStyle: { gridColumn: "7 / span 1", gridRow: "3" },
     },
@@ -267,7 +285,7 @@ const CreateEvent = ({
         placeholder: "",
         options: ["am", "pm"],
       },
-      value: selectedEvent ? selectedEvent : "am",
+      value: selectedEvent ? new Date(selectedEvent.endDate).toLocaleTimeString("en-US", { hour12: true, hour: "numeric" }).slice(-2).toLowerCase() : "am",
       validation: { required: true },
       groupStyle: { gridColumn: "8 / span 1", gridRow: "3" },
     },
