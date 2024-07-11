@@ -285,7 +285,12 @@ const CreateEvent = ({
         placeholder: "",
         options: ["am", "pm"],
       },
-      value: selectedEvent ? new Date(selectedEvent.endDate).toLocaleTimeString("en-US", { hour12: true, hour: "numeric" }).slice(-2).toLowerCase() : "am",
+      value: selectedEvent
+        ? new Date(selectedEvent.endDate)
+            .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
+            .slice(-2)
+            .toLowerCase()
+        : "am",
       validation: { required: true },
       groupStyle: { gridColumn: "8 / span 1", gridRow: "3" },
     },
