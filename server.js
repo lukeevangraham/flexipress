@@ -3,7 +3,7 @@ const express = require("express");
 const session = require("express-session");
 const PORT = process.env.PORT || 3001;
 const app = express();
-const cors = require('cors')
+// const cors = require('cors')
 const bodyParser = require("body-parser");
 const passport = require("./config/passport");
 const db = require("./models");
@@ -12,7 +12,22 @@ var morgan = require("morgan");
 const multer = require("multer");
 const cloudinary = require("cloudinary");
 
-app.use(cors())
+// app.use(cors())
+
+// Enable CORS
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,HEAD,OPTIONS,POST,PUT,DELETE"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  next();
+});
+
 app.use(morgan("tiny"));
 
 app.use(bodyParser.json({ limit: "50mb", extended: true }));
@@ -28,11 +43,6 @@ app.use(bodyParser.json());
 
 // app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // app.use(express.json({ limit: "50mb" }));
-
-// Serve up static assets (usually on heroku)
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("client/build"));
-}
 
 // We need to use sessions to keep track of our user's login status
 app.use(
@@ -71,6 +81,11 @@ require("./routes/auth-routes")(app);
 require("./routes/event-routes")(app, cloudinary, upload);
 require("./routes/image-api-routes")(app);
 
+// Serve up static assets (usually on heroku)
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+}
+
 // require("./routes/api-routes")(app);
 // require("./routes/image-api-routes")(app, cloudinary, upload);
 // require("./routes/post-api-routes")(app);
@@ -81,20 +96,6 @@ require("./routes/image-api-routes")(app);
 // Define any API routes before this runs
 app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
-
-// Enable CORS
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET,HEAD,OPTIONS,POST,PUT,DELETE"
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  next();
 });
 
 db.sequelize.sync().then(() => {
