@@ -17,9 +17,9 @@
     "operatorsAliases": 0
   },
   "production": {
-    "username": "root",
+    "username": "luke",
     "password": null,
-    "database": "database_production",
+    "database": "flexipress",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "operatorsAliases": 0

@@ -9,6 +9,7 @@ import Member from "./components/Member/Member";
 import Events from "./components/Member/Events/Events";
 import CreateEvent from "./components/Member/Events/Create/Create";
 import Articles from "./components/Member/Articles/Articles";
+import Volunteer from "./components/Member/Volunteer/Volunteer";
 import Sidebar from "./components/Member/Sidebar/Sidebar";
 import { useAuth } from "./contexts/AuthContext";
 import "./App.css";
@@ -48,6 +49,7 @@ const App = () => {
         <Route path="/events/create" element={<CreateEvent />} />
         <Route path="/events/edit/:id" element={<CreateEvent />} />
         <Route path="/articles" element={<Articles />} />
+        <Route path="/volunteer" element={<Volunteer />} />
         <Route path="/member" element={<Member />} />
         <Route path="*" element={<Navigate to="/" />} replace />
       </Routes>

@@ -3,6 +3,7 @@ const express = require("express");
 const session = require("express-session");
 const PORT = process.env.PORT || 3001;
 const app = express();
+const cors = require('cors')
 const bodyParser = require("body-parser");
 const passport = require("./config/passport");
 const db = require("./models");
@@ -11,6 +12,7 @@ var morgan = require("morgan");
 const multer = require("multer");
 const cloudinary = require("cloudinary");
 
+app.use(cors())
 app.use(morgan("tiny"));
 
 app.use(bodyParser.json({ limit: "50mb", extended: true }));

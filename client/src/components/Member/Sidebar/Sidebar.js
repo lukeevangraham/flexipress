@@ -38,6 +38,9 @@ const Sidebar = () => {
               <Link to="/articles">Articles</Link>
             </li>
             {/* <li>Articles</li> */}
+            <li>
+              <Link to="/volunteer">Volunteer Positions</Link>
+            </li>
             <li>Job Openings</li>
             <li>Ministries</li>
             <li>Staff Members</li>
