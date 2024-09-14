@@ -52,6 +52,7 @@ const SignIn = () => {
 
     if (response.data) {
       server.get("/user_data").then((res) => {
+        
         setIsLoggedIn(true);
         setAuthUser(res.data);
         navigate(response.data);
