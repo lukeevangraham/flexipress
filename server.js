@@ -18,12 +18,13 @@ const cloudinary = require("cloudinary");
 // NEW METHOD
 app.use(
   cors({
-    credentials: true,
     origin: [
       "http://localhost:3000",
       "https://flexipress.grahamwebworks.com",
       "http://flexipress.grahamwebworks.com",
     ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 
