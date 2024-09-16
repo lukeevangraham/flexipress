@@ -20,6 +20,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
+      "https://localhost:3000",
       "https://flexipress.grahamwebworks.com",
       "http://flexipress.grahamwebworks.com",
     ],
