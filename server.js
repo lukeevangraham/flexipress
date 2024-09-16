@@ -31,7 +31,7 @@ const cloudinary = require("cloudinary");
 // );
 
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:5959");
+  res.header("Access-Control-Allow-Origin", "https://flexipress.grahamwebworks.com");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
