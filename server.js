@@ -16,7 +16,8 @@ const cloudinary = require("cloudinary");
 
 // Enable CORS
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "http://localhost:5959");
+  res.header("Access-Control-Allow-Credentials", true);
   res.header(
     "Access-Control-Allow-Methods",
     "GET,HEAD,OPTIONS,POST,PUT,DELETE"
@@ -52,8 +53,8 @@ app.use(
     saveUninitialized: true,
   })
 );
-app.use(passport.initialize());
 app.use(passport.session());
+app.use(passport.initialize());
 
 // // IMAGE UPLOAD CONFIGURATION
 

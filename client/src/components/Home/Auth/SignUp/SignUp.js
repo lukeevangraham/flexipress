@@ -71,10 +71,7 @@ const SignUp = () => {
         orgName: signUpForm.orgName.value,
       };
 
-      const signupResponse = await server.post(
-        "/signup",
-        signupFormValues
-      );
+      const signupResponse = await server.post("/signup", signupFormValues);
 
       if (signupResponse.data) {
         server.get("/user_data").then((userDataResponse) => {

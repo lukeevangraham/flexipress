@@ -50,9 +50,15 @@ const SignIn = () => {
       password: signInForm.password.value,
     });
 
+    console.log("RES: ", response.data);
+
     if (response.data) {
+      const userInfo = await server.get("/user_data");
+
+      console.log("HERE: ", userInfo);
+
       server.get("/user_data").then((res) => {
-        
+        console.log("getting user data", res);
         setIsLoggedIn(true);
         setAuthUser(res.data);
         navigate(response.data);

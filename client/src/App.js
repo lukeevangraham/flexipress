@@ -26,12 +26,6 @@ const App = () => {
         setAuthUser(res.data);
       }
     });
-    // axios.get("http://localhost:3000/api/user_data").then((res) => {
-    //   if (res.data.id) {
-    //     setIsLoggedIn(true);
-    //     setAuthUser(res.data);
-    //   }
-    // });
   }, [setIsLoggedIn, setAuthUser]);
 
   let routes = (
