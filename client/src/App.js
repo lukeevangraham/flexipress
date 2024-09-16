@@ -22,8 +22,8 @@ const App = () => {
   useEffect(() => {
     // server
     // .get("/user_data")
-    fetch("http://localhost:3001/api/user_data", {
-      method: "get"
+    fetch("http://localhost:3001/api/user_data/", {
+      method: "get",
     })
       .then((res) => {
         if (res.data.id) {
