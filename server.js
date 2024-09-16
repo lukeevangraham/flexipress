@@ -3,7 +3,7 @@ const express = require("express");
 const session = require("express-session");
 const PORT = process.env.PORT || 3001;
 const app = express();
-// const cors = require('cors')
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const passport = require("./config/passport");
 const db = require("./models");
@@ -15,19 +15,32 @@ const cloudinary = require("cloudinary");
 // app.use(cors())
 
 // Enable CORS
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET,HEAD,OPTIONS,POST,PUT,DELETE"
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  next();
-});
+// NEW METHOD
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      "http://localhost:3000",
+      "https://flexipress.grahamwebworks.com",
+      "http://flexipress.grahamwebworks.com",
+    ],
+  })
+);
+
+// OLD METHOD
+// app.use(function (req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+//   res.header("Access-Control-Allow-Credentials", true);
+//   res.header(
+//     "Access-Control-Allow-Methods",
+//     "GET,HEAD,OPTIONS,POST,PUT,DELETE"
+//   );
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+//   );
+//   next();
+// });
 
 app.use(morgan("tiny"));
 
