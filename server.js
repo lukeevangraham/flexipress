@@ -21,6 +21,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://localhost:3000",
+      "http://localhost:5959",
       "https://flexipress.grahamwebworks.com",
       "http://flexipress.grahamwebworks.com",
     ],
