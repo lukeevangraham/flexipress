@@ -20,12 +20,15 @@ const App = () => {
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
 
   useEffect(() => {
-    server.get("/user_data").then((res) => {
-      if (res.data.id) {
-        setIsLoggedIn(true);
-        setAuthUser(res.data);
-      }
-    });
+    server
+      .get("/user_data")
+      .then((res) => {
+        if (res.data.id) {
+          setIsLoggedIn(true);
+          setAuthUser(res.data);
+        }
+      })
+      .catch((err) => console.log(err));
   }, [setIsLoggedIn, setAuthUser]);
 
   let routes = (
