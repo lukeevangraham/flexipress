@@ -1,4 +1,5 @@
 import axios from "axios";
+import server from "../../../../apis/server";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../contexts/AuthContext";
@@ -70,13 +71,13 @@ const SignUp = () => {
         orgName: signUpForm.orgName.value,
       };
 
-      const signupResponse = await axios.post(
-        "http://localhost:3000/api/signup",
+      const signupResponse = await server.post(
+        "/signup",
         signupFormValues
       );
 
       if (signupResponse.data) {
-        axios.get("http://localhost:3000/api/user_data").then((userDataResponse) => {
+        server.get("/user_data").then((userDataResponse) => {
           if (userDataResponse.data.id) {
             setIsLoggedIn(true);
             setAuthUser(userDataResponse.data);

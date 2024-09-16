@@ -1,4 +1,5 @@
 import axios from "axios";
+import server from "../../../apis/server";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Button from "../../UI/Button/Button";
@@ -15,7 +16,7 @@ const Sidebar = () => {
     e.preventDefault();
     console.log("sign out");
 
-    axios.get("http://localhost:3000/api/logout").then((res) => {
+    server.get("/logout").then((res) => {
       setIsLoggedIn(false);
       setAuthUser(null);
       navigate("/");
