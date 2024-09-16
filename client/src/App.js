@@ -28,7 +28,7 @@ const App = () => {
           setAuthUser(res.data);
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log("ERR: ", err));
   }, [setIsLoggedIn, setAuthUser]);
 
   let routes = (
