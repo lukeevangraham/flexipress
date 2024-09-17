@@ -20,11 +20,11 @@ const App = () => {
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
 
   useEffect(() => {
-    // server
-    // .get("/user_data")
-    fetch("http://localhost:3001/api/user_data/", {
-      method: "get",
-    })
+    // fetch("http://localhost:3001/api/user_data/", {
+    //   method: "get",
+    // })
+    server
+      .get("/user_data")
       .then((res) => {
         if (res.data.id) {
           setIsLoggedIn(true);
