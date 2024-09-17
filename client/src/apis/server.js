@@ -1,6 +1,6 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "https://fpserver.grahamwebworks.com/api",
+  baseURL: process.env.REACT_APP_SERVER_URL,
   withCredentials: true,
 });

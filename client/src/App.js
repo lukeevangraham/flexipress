@@ -101,6 +101,7 @@ const App = () => {
           <>{routes}</>
         )}
         {console.log("U: ", authUser)}
+        {console.log("HERE: ", process.env.SERVER_URL)}
       </BrowserRouter>
     </>
   );
