@@ -74,6 +74,22 @@ const Input = ({
           />
         </>
       );
+      break;
+    case "select":
+      inputElement = (
+        <select
+          className={inputClasses.join(" ")}
+          value={value}
+          onChange={changed}
+        >
+          {elementConfig.option.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.displayValue}
+            </option>
+          ))}
+        </select>
+      );
+      break;
     default:
       break;
   }

@@ -10,6 +10,7 @@ import Events from "./components/Member/Events/Events";
 import CreateEvent from "./components/Member/Events/Create/Create";
 import Articles from "./components/Member/Articles/Articles";
 import Volunteer from "./components/Member/Volunteer/Volunteer";
+import VolunteerCreate from "./components/Member/Volunteer/Create/Create";
 import Sidebar from "./components/Member/Sidebar/Sidebar";
 import { useAuth } from "./contexts/AuthContext";
 import "./App.css";
@@ -50,6 +51,7 @@ const App = () => {
         <Route path="/events/edit/:id" element={<CreateEvent />} />
         <Route path="/articles" element={<Articles />} />
         <Route path="/volunteer" element={<Volunteer />} />
+        <Route path="/volunteer/create" element={<VolunteerCreate />} />
         <Route path="/member" element={<Member />} />
         <Route path="*" element={<Navigate to="/" />} replace />
       </Routes>
@@ -101,7 +103,6 @@ const App = () => {
           <>{routes}</>
         )}
         {console.log("U: ", authUser)}
-        {console.log("HERE: ", process.env.SERVER_URL)}
       </BrowserRouter>
     </>
   );

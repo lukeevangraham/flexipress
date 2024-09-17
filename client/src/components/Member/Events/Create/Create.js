@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
-import { useLocation } from "react-router-dom";
+// import { useLocation } from "react-router-dom";
 
 import classes from "./Create.module.scss";
 // import event from "../../../../../../models/event";
