@@ -18,8 +18,6 @@ const Input = ({
   let inputElement = null;
   const inputClasses = [classes.input];
 
-  console.log("Width: ", width);
-
   switch (elementType) {
     case "input":
       inputElement = (

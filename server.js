@@ -12,6 +12,11 @@ var morgan = require("morgan");
 const multer = require("multer");
 const cloudinary = require("cloudinary");
 
+// Serve up static assets (usually on heroku)
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+}
+
 // app.use(cors())
 
 // Enable CORS
@@ -118,11 +123,6 @@ require("./routes/auth-routes")(app);
 require("./routes/event-routes")(app, cloudinary, upload);
 require("./routes/image-api-routes")(app);
 
-// Serve up static assets (usually on heroku)
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("client/build"));
-}
-
 // require("./routes/api-routes")(app);
 // require("./routes/image-api-routes")(app, cloudinary, upload);
 // require("./routes/post-api-routes")(app);
@@ -132,7 +132,7 @@ if (process.env.NODE_ENV === "production") {
 // Send every request to the React app
 // Define any API routes before this runs
 app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "client/build/index.html"));
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
 db.sequelize.sync().then(() => {
