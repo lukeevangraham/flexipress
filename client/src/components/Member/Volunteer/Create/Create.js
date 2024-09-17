@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
+import Button from "../../../UI/Button/Button";
 
 const VolunteerCreate = ({ volunteerPositionFromList }) => {
   const { authUser } = useAuth();
@@ -30,7 +31,66 @@ const VolunteerCreate = ({ volunteerPositionFromList }) => {
         type: "text",
         placeholder: "Position",
       },
+      value: selectedPosition ? selectedPosition.position : "",
+      validation: {
+        required: true,
+      },
+      width: "70%",
+    },
+    image: {
+      elementType: "image",
+      elementConfig: {
+        placeholder: "Image",
+        url: selectedPosition ? selectedPosition.Image.url : "",
+        file: "",
+      },
       value: "",
+      validation: {
+        required: false,
+      },
+    },
+    frequency: {
+      elementType: "select",
+      elementConfig: {
+        option: [
+          { value: "one-time", displayValue: "One-Time" },
+          { value: "ongoing", displayValue: "Ongoing" },
+        ],
+      },
+      value: selectedPosition ? selectedPosition.frequency : "one-time",
+      validation: { required: true },
+    },
+    description: {
+      elementType: "textarea",
+      elementConfig: {
+        minRows: 8,
+        placeholder: "Description",
+      },
+      value: selectedPosition ? selectedPosition.description : "",
+      validation: {
+        required: true,
+      },
+      // width: "50rem"
+    },
+    primaryContact: {
+      elementType: "input",
+      elementConfig: {
+        type: "text",
+        placeholder: "Primary contact",
+      },
+      value: selectedPosition ? selectedPosition.primaryContact : "",
+      validation: {
+        required: true,
+      },
+      width: "70%",
+    },
+    sponsoringMinistry: {
+      elementType: "input",
+      elementConfig: {
+        type: "text",
+        placeholder: "Sponsoring ministry",
+      },
+      value: selectedPosition ? selectedPosition.sponsoringMinistry : "",
       validation: {
         required: true,
       },
@@ -62,6 +122,30 @@ const VolunteerCreate = ({ volunteerPositionFromList }) => {
     // console.log("FORM: ", eventForm);
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    let volunteerFormValues = new FormData();
+
+    volunteerFormValues.append("position", volunteerForm.position.value);
+    volunteerFormValues.append("image", volunteerForm.image.elementConfig.file);
+    volunteerFormValues.append("frequency", volunteerForm.frequency.value);
+    volunteerFormValues.append("description", volunteerForm.description.value);
+    volunteerFormValues.append(
+      "primaryContact",
+      volunteerForm.primaryContact.value
+    );
+    volunteerFormValues.append(
+      "sponsoringMinistry",
+      volunteerForm.sponsoringMinistry.value
+    );
+    volunteerFormValues.append("userId", authUser.id);
+    volunteerFormValues.append("orgId", authUser.orgId);
+    volunteerFormValues.append("published", publish);
+
+    console.log("Values: ", Object.fromEntries(volunteerFormValues));
+  };
+
   const formElementsArray = [];
   for (let key in volunteerForm) {
     formElementsArray.push({
@@ -86,7 +170,17 @@ const VolunteerCreate = ({ volunteerPositionFromList }) => {
     </form>
   );
 
-  return <div>Volunteer Create{form}</div>;
+  return (
+    <div>
+      Volunteer Create
+      <Button disabled={saveEnabled ? false : true} clicked={handleSubmit}>
+        Save
+      </Button>
+      <br />
+      <br />
+      {form}
+    </div>
+  );
 };
 
 export default VolunteerCreate;
