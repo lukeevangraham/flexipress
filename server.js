@@ -121,6 +121,7 @@ cloudinary.config({
 
 require("./routes/auth-routes")(app);
 require("./routes/event-routes")(app, cloudinary, upload);
+require("./routes/volunteer-routes")(app, cloudinary, upload);
 require("./routes/image-api-routes")(app);
 
 // require("./routes/api-routes")(app);

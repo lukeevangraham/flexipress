@@ -3,8 +3,13 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
+import server from "../../../../apis/server";
 
-const VolunteerCreate = ({ volunteerPositionFromList }) => {
+const VolunteerCreate = ({
+  volunteerPositionFromList,
+  positions,
+  setPositions,
+}) => {
   const { authUser } = useAuth();
   const navigate = useNavigate();
 
@@ -144,6 +149,39 @@ const VolunteerCreate = ({ volunteerPositionFromList }) => {
     volunteerFormValues.append("published", publish);
 
     console.log("Values: ", Object.fromEntries(volunteerFormValues));
+
+    let volunteerResponse;
+
+    if (selectedPosition) {
+      volunteerFormValues.append("id", selectedPosition.id);
+      volunteerResponse = await server.put("/volunteer", volunteerFormValues);
+    } else {
+      volunteerResponse = await server.post("/volunteer", volunteerFormValues, {
+        headers: {
+          "content-type": "multipart/form-data",
+        },
+      });
+    }
+
+    const res = volunteerResponse;
+
+    if (res.status === 200) {
+      setPublishEnabled(true);
+      setSelectedPosition(res.data);
+
+      if (selectedPosition) {
+        const revisedPositions = positions.map((position) => {
+          return position.id === selectedPosition.id
+            ? { ...res.data }
+            : position;
+        });
+
+        setPositions(revisedPositions);
+        console.log("RP: ", revisedPositions);
+      }
+    }
+
+    console.log("volunteer response", res);
   };
 
   const formElementsArray = [];
