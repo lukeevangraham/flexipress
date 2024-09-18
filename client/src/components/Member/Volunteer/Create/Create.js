@@ -127,6 +127,27 @@ const VolunteerCreate = ({
     // console.log("FORM: ", eventForm);
   };
 
+  const handlePublish = async (e) => {
+    e.preventDefault();
+    const publishResponse = await server.put("/volunteer/publish", {
+      positionId: selectedPosition.id,
+      published: !publish,
+      orgId: authUser.orgId,
+    });
+    console.log("RES: ", publishResponse);
+
+    if (positions) {
+      const revisedPositions = positions.map((position) => {
+        return position.id === selectedPosition.id
+          ? { ...selectedPosition, published: !publish }
+          : position;
+      });
+      setPositions(revisedPositions);
+    }
+
+    setPublish(!publish);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -211,6 +232,12 @@ const VolunteerCreate = ({
   return (
     <div>
       Volunteer Create
+      <Button
+            disabled={publishEnabled ? false : true}
+            clicked={handlePublish}
+          >
+            {publish ? `Unpublish` : `Publish`}
+          </Button>
       <Button disabled={saveEnabled ? false : true} clicked={handleSubmit}>
         Save
       </Button>

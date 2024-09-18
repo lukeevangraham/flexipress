@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const Volunteer = () => (
+const VolunteerPositions = () => (
   <>
     <h1>Volunteer Positions</h1>
     <>
@@ -9,4 +9,4 @@ const Volunteer = () => (
   </>
 );
 
-export default Volunteer;
+export default VolunteerPositions;
