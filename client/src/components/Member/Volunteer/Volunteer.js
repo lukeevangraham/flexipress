@@ -7,6 +7,7 @@ import { AgGridReact } from "ag-grid-react";
 import Modal from "../../UI/Modal/Modal";
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
+import VolunteerCreate from "./Create/Create";
 
 import classes from "./Volunteer.module.scss";
 
@@ -84,26 +85,36 @@ const VolunteerPositions = () => {
           </div>
         </Modal>
       ) : null}
-      <>
-        <Link to="/volunteer/create">Create New Volunteer Position</Link>
-      </>
-      <br />
-      <br />
-      <h2>Volunteer Position List</h2>
-      {editSelection}
-      <div className={`ag-theme-quartz ${classes.grid}`}>
-        <AgGridReact
-          ref={gridRef}
-          rowData={volunteerPositions}
-          columnDefs={colDefs}
-          gridOptions={{ pagination: true }}
-          onRowClicked={(position) => setClickedPosition(position.data)}
-          rowSelection="single"
-          onSelectionChanged={() =>
-            setSelectedRows(gridRef.current.api.getSelectedRows())
-          }
+      {clickedPosition ? (
+        <VolunteerCreate
+          volunteerPositionFromList={clickedPosition}
+          clearSelectedPosition={setClickedPosition}
+          positions={volunteerPositions}
+          setPositions={setVolunteerPositions}
+          setSelectedRows={setSelectedRows}
         />
-      </div>
+      ) : (
+        <>
+          <Link to="/volunteer/create">Create New Volunteer Position</Link>
+          <br />
+          <br />
+          <h2>Volunteer Position List</h2>
+          {editSelection}
+          <div className={`ag-theme-quartz ${classes.grid}`}>
+            <AgGridReact
+              ref={gridRef}
+              rowData={volunteerPositions}
+              columnDefs={colDefs}
+              gridOptions={{ pagination: true }}
+              onRowClicked={(position) => setClickedPosition(position.data)}
+              rowSelection="single"
+              onSelectionChanged={() =>
+                setSelectedRows(gridRef.current.api.getSelectedRows())
+              }
+            />
+          </div>
+        </>
+      )}
     </>
   );
 };

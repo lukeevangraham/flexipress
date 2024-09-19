@@ -5,10 +5,14 @@ import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
 
+import classes from "./Create.module.scss";
+
 const VolunteerCreate = ({
   volunteerPositionFromList,
+  clearSelectedPosition,
   positions,
   setPositions,
+  setSelectedRows,
 }) => {
   const { authUser } = useAuth();
   const navigate = useNavigate();
@@ -127,6 +131,11 @@ const VolunteerCreate = ({
     // console.log("FORM: ", eventForm);
   };
 
+  const backClickHandler = () => {
+    setSelectedRows(null);
+    clearSelectedPosition(null);
+  };
+
   const handlePublish = async (e) => {
     e.preventDefault();
     const publishResponse = await server.put("/volunteer/publish", {
@@ -230,19 +239,32 @@ const VolunteerCreate = ({
   );
 
   return (
-    <div>
-      Volunteer Create
-      <Button
+    <div className={classes.PositionSubmission}>
+      {selectedPosition ? (
+        <Button
+          clicked={positions ? backClickHandler : () => navigate("/volunteer")}
+        >
+          &larr; Back
+        </Button>
+      ) : null}
+      <div className={classes.PositionSubmission__TopInfo}>
+        <h2>
+          {selectedPosition ? `Edit a` : `Create a new`} Volunteer position
+        </h2>
+        <div className={classes.PositionSubmission__TopInfo__Buttons}>
+          <Button
             disabled={publishEnabled ? false : true}
             clicked={handlePublish}
           >
             {publish ? `Unpublish` : `Publish`}
           </Button>
-      <Button disabled={saveEnabled ? false : true} clicked={handleSubmit}>
-        Save
-      </Button>
-      <br />
-      <br />
+          <Button disabled={saveEnabled ? false : true} clicked={handleSubmit}>
+            Save
+          </Button>
+        </div>
+        <br />
+        <br />
+      </div>
       {form}
     </div>
   );
