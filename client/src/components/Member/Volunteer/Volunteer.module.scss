@@ -2,3 +2,23 @@
   margin: 1rem 0;
   height: 80vh;
 }
+
+.editGrid {
+  // background-color: orangered;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.editModal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__Buttons {
+    display: flex;
+    gap: 1rem;
+  }
+}

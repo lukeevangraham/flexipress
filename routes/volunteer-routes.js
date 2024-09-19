@@ -1,5 +1,8 @@
 let db = require("../models");
 
+// Requiring our custom middleware for checking if a user is logged in
+var isAuthenticated = require("../config/middleware/isAuthenticated");
+
 let formatDataForDB = (requestBody, imageIdFromDb) => ({
   position: requestBody.position,
   frequency: requestBody.frequency,
@@ -79,5 +82,19 @@ module.exports = (app, cloudinary, upload) => {
     });
 
     res.json(dbVolunteerPositions);
+  });
+
+  // Here we've add our isAuthenticated middleware to this route.
+  // If a user who is not logged in tries to access this route they will be redirected to the signup page
+  app.delete("/api/volunteer/:id", isAuthenticated, async (req, res) => {
+    const dbPosition = await db.VolunteerPosition.destroy({
+      where: { id: req.params.id },
+    });
+
+    try {
+      res.json(dbPosition);
+    } catch (error) {
+      console.log("E: ", error);
+    }
   });
 };

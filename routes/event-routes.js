@@ -1,5 +1,8 @@
 let db = require("../models");
 
+// Requiring our custom middleware for checking if a user is logged in
+var isAuthenticated = require("../config/middleware/isAuthenticated");
+
 let formatDataForDB = (requestBody, imageIdFromDb) => ({
   name: requestBody.name,
   startDate: requestBody.startDate,
@@ -152,7 +155,7 @@ module.exports = (app, cloudinary, upload) => {
     res.json(dbEvent);
   });
 
-  app.delete("/api/event/:id", async (req, res) => {
+  app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
     const dbEvent = await db.Event.destroy({
       where: {
         id: req.params.id,
