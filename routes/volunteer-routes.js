@@ -69,4 +69,15 @@ module.exports = (app, cloudinary, upload) => {
       console.log("E: ", error);
     }
   });
+
+  app.get("/api/volunteer/org/:orgId", async (req, res) => {
+    const dbVolunteerPositions = await db.VolunteerPosition.findAll({
+      where: {
+        OrganizationId: req.params.orgId,
+      },
+      include: [db.Image],
+    });
+
+    res.json(dbVolunteerPositions);
+  });
 };

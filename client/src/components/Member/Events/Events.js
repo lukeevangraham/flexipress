@@ -25,33 +25,22 @@ const Events = () => {
 
   const gridRef = useRef();
 
+  let setupColDefs = [
+    { field: "name", filter: true, checkboxSelection: true, flex: 3 },
+    {
+      field: "startDate",
+      flex: 1,
+      valueFormatter: (params) => {
+        return new Date(params.value).toLocaleDateString();
+      },
+    },
+    { field: "location", flex: 2 },
+    { field: "published", flex: 1 },
+  ];
+
   useEffect(() => {
     const getEvents = async () => {
       const eventListRes = await server.get(`/event/org/${authUser.orgId}`);
-
-      let setupColDefs = [
-        { field: "name", filter: true, checkboxSelection: true, flex: 3 },
-        {
-          field: "startDate",
-          flex: 1,
-          valueFormatter: (params) => {
-            return new Date(params.value).toLocaleDateString();
-          },
-        },
-        { field: "location", flex: 2 },
-        { field: "published", flex: 1 },
-      ];
-
-      // Object.keys(eventListRes.data[0]).forEach((col) => {
-      //   col === "startDate" || col === "endDate"
-      //     ? setupColDefs.push({
-      //         field: col,
-      // valueFormatter: (params) => {
-      //   return new Date(params.value).toLocaleDateString();
-      // },
-      //       })
-      //     : setupColDefs.push({ field: col, filter: true });
-      // });
 
       setEventList(eventListRes.data);
       setColDefs(setupColDefs);
@@ -92,7 +81,9 @@ const Events = () => {
             <div>Are you sure you want to delete {selectedRows[0].name}?</div>
             <div className={classes.editModal__Buttons}>
               <Button clicked={() => setShowModal(false)}>Cancel</Button>
-              <Button clicked={deleteEvent} color={"ghost"}>Delete</Button>
+              <Button clicked={deleteEvent} color={"ghost"}>
+                Delete
+              </Button>
             </div>
           </div>
         </Modal>
@@ -114,9 +105,7 @@ const Events = () => {
           <br />
           <h2>Event list</h2>
           {editSelection}
-          <div
-            className={`ag-theme-quartz ${classes.grid}`}
-          >
+          <div className={`ag-theme-quartz ${classes.grid}`}>
             <AgGridReact
               ref={gridRef}
               rowData={eventList}
