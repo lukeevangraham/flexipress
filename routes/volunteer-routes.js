@@ -84,6 +84,18 @@ module.exports = (app, cloudinary, upload) => {
     res.json(dbVolunteerPositions);
   });
 
+  app.get("/api/volunteer/published/org/:orgId", async (req, res) => {
+    const dbPublishedVolunteerPositions = await db.VolunteerPosition.findAll({
+      where: {
+        OrganizationId: req.params.orgId,
+        published: true,
+      },
+      include: [db.Image],
+    });
+
+    res.json(dbPublishedVolunteerPositions);
+  });
+
   // Here we've add our isAuthenticated middleware to this route.
   // If a user who is not logged in tries to access this route they will be redirected to the signup page
   app.delete("/api/volunteer/:id", isAuthenticated, async (req, res) => {
