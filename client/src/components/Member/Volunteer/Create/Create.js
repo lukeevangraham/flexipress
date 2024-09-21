@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
 
@@ -32,6 +34,8 @@ const VolunteerCreate = ({
   const [selectedPosition, setSelectedPosition] = useState(
     volunteerPositionFromList ? volunteerPositionFromList : null
   );
+
+  const [descriptionValue, setDescriptionValue] = useState("");
 
   const [volunteerForm, setVolunteerForm] = useState({
     position: {
@@ -70,16 +74,7 @@ const VolunteerCreate = ({
       validation: { required: true },
     },
     description: {
-      elementType: "textarea",
-      elementConfig: {
-        minRows: 8,
-        placeholder: "Description",
-      },
-      value: selectedPosition ? selectedPosition.description : "",
-      validation: {
-        required: true,
-      },
-      // width: "50rem"
+      elementType: "richtext",
     },
     primaryContact: {
       elementType: "input",
@@ -121,12 +116,15 @@ const VolunteerCreate = ({
         e.target.files[0]
       );
       updatedFormElement.elementConfig.file = e.target.files[0];
+    } else if (updatedFormElement.elementType === "richtext") {
+      updatedFormElement.value = e.target;
     } else {
       updatedFormElement.value = e.target.value;
     }
 
     updatedFormElement.touched = true;
     updatedVolunteerForm[inputIdentifier] = updatedFormElement;
+
     setVolunteerForm(updatedVolunteerForm);
     // console.log("FORM: ", eventForm);
   };
@@ -160,12 +158,14 @@ const VolunteerCreate = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("FORM : ", volunteerForm);
+
     let volunteerFormValues = new FormData();
 
     volunteerFormValues.append("position", volunteerForm.position.value);
     volunteerFormValues.append("image", volunteerForm.image.elementConfig.file);
     volunteerFormValues.append("frequency", volunteerForm.frequency.value);
-    volunteerFormValues.append("description", volunteerForm.description.value);
+    volunteerFormValues.append("description", descriptionValue);
     volunteerFormValues.append(
       "primaryContact",
       volunteerForm.primaryContact.value
@@ -224,17 +224,31 @@ const VolunteerCreate = ({
 
   const form = (
     <form encType="multipart/form-data">
-      {formElementsArray.map((formElement) => (
-        <Input
-          key={formElement.id}
-          elementType={formElement.config.elementType}
-          elementConfig={formElement.config.elementConfig}
-          value={formElement.config.value}
-          changed={(e) => inputChangedHandler(e, formElement.id)}
-          required={formElement.config.validation.required}
-          width={formElement.config.width}
-        />
-      ))}
+      {formElementsArray.map((formElement) => {
+        if (formElement.config.elementType === "richtext") {
+          return (
+            <ReactQuill
+              theme="snow"
+              value={descriptionValue}
+              onChange={setDescriptionValue}
+              key={formElement.id}
+              className={classes.Quill}
+            />
+          );
+        } else {
+          return (
+            <Input
+              key={formElement.id}
+              elementType={formElement.config.elementType}
+              elementConfig={formElement.config.elementConfig}
+              value={formElement.config.value}
+              changed={(e) => inputChangedHandler(e, formElement.id)}
+              required={formElement.config.validation.required}
+              width={formElement.config.width}
+            />
+          );
+        }
+      })}
     </form>
   );
 

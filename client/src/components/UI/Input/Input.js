@@ -1,8 +1,12 @@
 import React from "react";
 import DatePicker from "react-datepicker";
 import TextareaAutosize from "react-textarea-autosize";
+import SlateComponent from "../Slate/Slate";
+import QuillComponent from "../Quill/Quill";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
+import Tiptap from "../Tiptap/Tiptap";
 import ImageEdit from "../ImageEdit/ImageEdit";
-
 import "react-datepicker/dist/react-datepicker.css";
 
 import classes from "./Input.module.scss";
@@ -90,6 +94,19 @@ const Input = ({
         </select>
       );
       break;
+    // case "richtext":
+    //   inputElement = (
+    //     // <QuillComponent value={value} setValue={changed} {...elementConfig} />
+    //     // <ReactQuill
+    //     //   theme="snow"
+    //     //   value={value}
+    //     //   onChange={changed}
+    //     //   {...elementConfig}
+    //     //   name={elementConfig.placeholder}
+    //     // />
+    //     // <SlateComponent value />
+    //     // <Tiptap />
+    //   );
     default:
       break;
   }
