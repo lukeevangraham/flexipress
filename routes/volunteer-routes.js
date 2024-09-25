@@ -60,6 +60,66 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
+  app.put("/api/volunteer", upload.single("image"), async function (req, res) {
+    let volunteerPositionRes;
+    let afterUpdate;
+
+    const updateThePosition = async (requestBody, imageId) => {
+      const updateRes = await db.VolunteerPosition.update(
+        formatDataForDB(requestBody, imageId),
+        {
+          where: { id: requestBody.id },
+        }
+      );
+
+      if (updateRes[0] == 1) {
+        volunteerPositionRes = await getTheUpdatedVolunteerPosition;
+      }
+    };
+
+    const getTheUpdatedVolunteerPosition = async () => {
+      const dbVolunteerPositionPostModification =
+        await db.VolunteerPosition.findOne({
+          where: { id: req.body.id, OrganizationId: req.body.orgId },
+          include: [db.Image],
+        });
+
+      return dbVolunteerPositionPostModification;
+    };
+
+    // IS A NEW IMAGE INCLUDED IN THE REVISION?
+    switch (typeof req.file == "undefined") {
+      case true:
+        // NO IMAGE IS INCLUDED IN THE REVISION
+
+        afterUpdate = await updateThePosition(req.body);
+        try {
+          res.json(afterUpdate);
+        } catch (error) {
+          throw error;
+        }
+
+        break;
+      case false:
+        // AN IMAGE IS INCLUDED IN THE REVISION
+        const imageRes = await uploadImageAndAddImageToDb(
+          req.file,
+          req.body.orgId
+        );
+
+        afterUpdate = await updateThePosition(req.body, imageRes.id);
+
+        try {
+          res.json(afterUpdate);
+        } catch (error) {
+          throw error;
+        }
+
+      default:
+        break;
+    }
+  });
+
   app.put("/api/volunteer/publish", async (req, res) => {
     const updatePublishResponse = await db.VolunteerPosition.update(
       { published: req.body.published },

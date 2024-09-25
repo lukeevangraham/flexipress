@@ -27,6 +27,7 @@ const VolunteerPositions = () => {
     { field: "sponsoringMinistry" },
     { field: "primaryContact" },
     { field: "frequency" },
+    { field: "updatedAt", valueFormatter: p => new Date(p.value).toLocaleString("en-US") },
   ];
 
   useEffect(() => {

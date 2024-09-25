@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
@@ -16,6 +16,17 @@ const VolunteerCreate = ({
   setPositions,
   setSelectedRows,
 }) => {
+  const [descriptionValue, setDescriptionValue] = useState(
+    volunteerPositionFromList ? volunteerPositionFromList.description : ""
+  );
+  const [saveEnabled, setSaveEnabled] = useState(null);
+
+  useEffect(() => {
+    if (descriptionValue !== volunteerPositionFromList.description) {
+      setSaveEnabled(true);
+    }
+  }, [descriptionValue]);
+
   const { authUser } = useAuth();
   const navigate = useNavigate();
 
@@ -29,13 +40,9 @@ const VolunteerCreate = ({
     volunteerPositionFromList ? true : false
   );
 
-  const [saveEnabled, setSaveEnabled] = useState(null);
-
   const [selectedPosition, setSelectedPosition] = useState(
     volunteerPositionFromList ? volunteerPositionFromList : null
   );
-
-  const [descriptionValue, setDescriptionValue] = useState("");
 
   const [volunteerForm, setVolunteerForm] = useState({
     position: {
@@ -158,8 +165,6 @@ const VolunteerCreate = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("FORM : ", volunteerForm);
-
     let volunteerFormValues = new FormData();
 
     volunteerFormValues.append("position", volunteerForm.position.value);
@@ -177,8 +182,6 @@ const VolunteerCreate = ({
     volunteerFormValues.append("userId", authUser.id);
     volunteerFormValues.append("orgId", authUser.orgId);
     volunteerFormValues.append("published", publish);
-
-    console.log("Values: ", Object.fromEntries(volunteerFormValues));
 
     let volunteerResponse;
 
@@ -207,11 +210,8 @@ const VolunteerCreate = ({
         });
 
         setPositions(revisedPositions);
-        console.log("RP: ", revisedPositions);
       }
     }
-
-    console.log("volunteer response", res);
   };
 
   const formElementsArray = [];
