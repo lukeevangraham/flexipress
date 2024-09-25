@@ -1,9 +1,7 @@
-import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import Button from "../../UI/Button/Button";
 import server from "../../../apis/server";
 import { useAuth } from "../../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import CreateEvent from "./Create/Create";
 import Modal from "../../UI/Modal/Modal";
@@ -14,7 +12,6 @@ import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import classes from "./Events.module.scss";
 
 const Events = () => {
-  const navigate = useNavigate();
   const { authUser } = useAuth();
 
   const [eventList, setEventList] = useState(null);
@@ -25,29 +22,27 @@ const Events = () => {
 
   const gridRef = useRef();
 
-  let setupColDefs = [
-    { field: "name", filter: true, checkboxSelection: true, flex: 3 },
-    {
-      field: "startDate",
-      flex: 1,
-      valueFormatter: (params) => {
-        return new Date(params.value).toLocaleDateString();
-      },
-    },
-    { field: "location", flex: 2 },
-    { field: "published", flex: 1 },
-  ];
-
   useEffect(() => {
     const getEvents = async () => {
       const eventListRes = await server.get(`/event/org/${authUser.orgId}`);
 
       setEventList(eventListRes.data);
-      setColDefs(setupColDefs);
+      setColDefs([
+        { field: "name", filter: true, checkboxSelection: true, flex: 3 },
+        {
+          field: "startDate",
+          flex: 1,
+          valueFormatter: (params) => {
+            return new Date(params.value).toLocaleDateString();
+          },
+        },
+        { field: "location", flex: 2 },
+        { field: "published", flex: 1 },
+      ]);
     };
 
     getEvents();
-  }, [setEventList, setColDefs]);
+  }, [setEventList, setColDefs, authUser]);
 
   const deleteEvent = async () => {
     const deleteResponse = await server.delete(`/event/${selectedRows[0].id}`);

@@ -1,9 +1,6 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import server from "./apis/server";
-
-import Dashboard from "./components/Dashboard/Dashboard";
 import Home from "./components/Home/Home";
 import Member from "./components/Member/Member";
 import Events from "./components/Member/Events/Events";

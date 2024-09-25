@@ -97,7 +97,7 @@ const CreateEvent = ({
       validation: {
         required: true,
       },
-      width: "35rem"
+      width: "35rem",
     },
     description: {
       elementType: "textarea",
@@ -124,8 +124,6 @@ const CreateEvent = ({
       },
     },
   });
-
-  const [error, setError] = useState("");
 
   const handlePublish = async (e) => {
     e.preventDefault();
@@ -264,7 +262,6 @@ const CreateEvent = ({
           width={formElement.config.width}
         />
       ))}
-      {error ? <div className={classes.error}>{error}</div> : null}
     </form>
   );
   return (

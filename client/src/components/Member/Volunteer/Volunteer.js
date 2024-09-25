@@ -27,7 +27,10 @@ const VolunteerPositions = () => {
     { field: "sponsoringMinistry" },
     { field: "primaryContact" },
     { field: "frequency" },
-    { field: "updatedAt", valueFormatter: p => new Date(p.value).toLocaleString("en-US") },
+    {
+      field: "updatedAt",
+      valueFormatter: (p) => new Date(p.value).toLocaleString("en-US"),
+    },
   ];
 
   useEffect(() => {
@@ -37,11 +40,20 @@ const VolunteerPositions = () => {
       );
 
       setVolunteerPositions(volunteerListRes.data);
-      setColDefs(setupColDefs);
+      setColDefs([
+        { field: "position", filter: true, checkboxSelection: true },
+        { field: "sponsoringMinistry" },
+        { field: "primaryContact" },
+        { field: "frequency" },
+        {
+          field: "updatedAt",
+          valueFormatter: (p) => new Date(p.value).toLocaleString("en-US"),
+        },
+      ]);
     };
 
     getVolunteerPositions();
-  }, [setVolunteerPositions, setColDefs]);
+  }, [setVolunteerPositions, setColDefs, authUser, setupColDefs]);
 
   const deletePosition = async () => {
     const deletedResponse = await server.delete(

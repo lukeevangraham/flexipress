@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
-import server from "../apis/server";
+import React, { useState, useContext } from "react";
 
 const AuthContext = React.createContext();
 
@@ -10,10 +9,6 @@ export function useAuth() {
 export function AuthProvider(props) {
   const [authUser, setAuthUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const signIn = async (form) => {
-    console.log("Singing in: ", form);
-  };
 
   const value = {
     authUser,

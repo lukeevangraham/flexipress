@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useState } from "react";
 import server from "../../../../apis/server";
 import { useNavigate } from "react-router-dom";
@@ -51,20 +50,13 @@ const SignIn = () => {
     });
 
     if (response.data) {
-      const userInfo = await server.get("/user_data");
-
       server.get("/user_data").then((res) => {
         console.log("getting user data", res);
         setIsLoggedIn(true);
         setAuthUser(res.data);
         navigate(response.data);
       });
-      // setIsLoggedIn(true);
-      // setIsLoggedIn(true)
     }
-
-    // response.status === "200" ? setIsLoggedIn(true) : null;
-    // navigate(response.data);
   };
 
   const inputChangedHandler = (e, inputIdentifier) => {
