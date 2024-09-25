@@ -22,17 +22,6 @@ const VolunteerPositions = () => {
 
   const gridRef = useRef();
 
-  let setupColDefs = [
-    { field: "position", filter: true, checkboxSelection: true },
-    { field: "sponsoringMinistry" },
-    { field: "primaryContact" },
-    { field: "frequency" },
-    {
-      field: "updatedAt",
-      valueFormatter: (p) => new Date(p.value).toLocaleString("en-US"),
-    },
-  ];
-
   useEffect(() => {
     const getVolunteerPositions = async () => {
       const volunteerListRes = await server.get(
@@ -53,7 +42,7 @@ const VolunteerPositions = () => {
     };
 
     getVolunteerPositions();
-  }, [setVolunteerPositions, setColDefs, authUser, setupColDefs]);
+  }, [setVolunteerPositions, setColDefs, authUser]);
 
   const deletePosition = async () => {
     const deletedResponse = await server.delete(
