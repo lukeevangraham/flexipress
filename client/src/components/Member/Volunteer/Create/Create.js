@@ -3,7 +3,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
 import ReactQuill from "react-quill-new";
-import "react-quill-new/dist/quill.snow.css";
+import 'react-quill-new/dist/quill.snow.css';
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
 
@@ -22,10 +22,12 @@ const VolunteerCreate = ({
   const [saveEnabled, setSaveEnabled] = useState(null);
 
   useEffect(() => {
-    if (descriptionValue !== volunteerPositionFromList.description) {
-      setSaveEnabled(true);
+    if (volunteerPositionFromList) {
+      if (descriptionValue !== volunteerPositionFromList.description) {
+        setSaveEnabled(true);
+      }
     }
-  }, [descriptionValue]);
+  }, [descriptionValue, volunteerPositionFromList]);
 
   const { authUser } = useAuth();
   const navigate = useNavigate();
