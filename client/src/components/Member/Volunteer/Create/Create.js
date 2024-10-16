@@ -3,7 +3,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
 import ReactQuill from "react-quill-new";
-import 'react-quill-new/dist/quill.snow.css';
+import "react-quill-new/dist/quill.snow.css";
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
 
@@ -97,6 +97,18 @@ const VolunteerCreate = ({
       },
       width: "70%",
     },
+    primaryContactEmail: {
+      elementType: "input",
+      elementConfig: {
+        elementType: "email",
+        placeholder: "Primary contact email",
+      },
+      value: selectedPosition ? selectedPosition.primaryContactEmail : "",
+      validation: {
+        required: true,
+      },
+      width: "70%",
+    },
     sponsoringMinistry: {
       elementType: "input",
       elementConfig: {
@@ -176,6 +188,10 @@ const VolunteerCreate = ({
     volunteerFormValues.append(
       "primaryContact",
       volunteerForm.primaryContact.value
+    );
+    volunteerFormValues.append(
+      "primaryContactEmail",
+      volunteerForm.primaryContactEmail.value
     );
     volunteerFormValues.append(
       "sponsoringMinistry",
