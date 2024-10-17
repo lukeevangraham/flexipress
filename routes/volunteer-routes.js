@@ -176,6 +176,14 @@ module.exports = (app, cloudinary, upload) => {
         published: true,
       },
       include: [db.Image],
+      attributes: [
+        "id",
+        "position",
+        "frequency",
+        "description",
+        "primaryContact",
+        "sponsoringMinistry",
+      ],
     });
 
     res.json(dbPublishedVolunteerPositions);
@@ -195,6 +203,14 @@ module.exports = (app, cloudinary, upload) => {
           published: true,
         },
         include: [db.Image],
+        attributes: [
+          "id",
+          "position",
+          "frequency",
+          "description",
+          "primaryContact",
+          "sponsoringMinistry",
+        ],
       });
 
       res.json(dbPublishedVolunteerPosition);
