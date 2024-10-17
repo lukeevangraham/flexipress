@@ -1,4 +1,5 @@
 let db = require("../models");
+const transporter = require("../config/nodemailer");
 
 // Requiring our custom middleware for checking if a user is logged in
 var isAuthenticated = require("../config/middleware/isAuthenticated");
@@ -200,22 +201,44 @@ module.exports = (app, cloudinary, upload) => {
     }
   );
 
-
   app.put("/api/volunteer/submit/:id", async (req, res) => {
-    console.log("Body: ", req.body)
-    console.log("Position ID: ", req.params.id)
+    console.log("Body: ", req.body);
+    console.log("Position ID: ", req.params.id);
 
     const dbPosition = await db.VolunteerPosition.findOne({
       where: {
-        id: req.params.id
+        id: req.params.id,
       },
-    })
+    });
 
-    console.log("Position", dbPosition)
-  })
+    let mailOptions = {
+      from: "luke@grahamwebworks.com",
+      to: dbPosition.primaryContactEmail,
+      subject: `Volunteer Submission for ${dbPosition.position}`,
+      text: `Someone filled out the volunteer form for the ${
+        dbPosition.position
+      } position. Woohoo!  Here's their info:
+      
+      Name: ${req.body.name},
+      Email: ${req.body.email},
+      Message: ${req.body.message ? req.body.message : ""}
+      
+      
+      `,
+    };
 
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent", info.response);
+      }
+    });
 
-
+    res.json({
+      message: "Message sent!",
+    });
+  });
 
   // Here we've add our isAuthenticated middleware to this route.
   // If a user who is not logged in tries to access this route they will be redirected to the signup page
