@@ -32,6 +32,7 @@ module.exports = function (app) {
       email: req.body.email,
       password: req.body.password,
       OrganizationId: orgResponse.dataValues.id,
+      role: req.body.role,
     })
       .then(function () {
         res.redirect(307, "/api/login");
@@ -54,7 +55,7 @@ module.exports = function (app) {
   app.get("/api/user_data", async function (req, res) {
     if (!req.user) {
       // The user is not logged in, send back an empty object
-      console.log("not logged in")
+      console.log("not logged in");
       res.json({});
     } else {
       // Otherwise send back the user's email and id

@@ -37,6 +37,13 @@
 
   &__User {
     // background-color: orangered;
+
+    &__Settings {
+      text-transform: uppercase;
+    }
+    & > *:not(:last-child) {
+      margin: 1rem 0;
+    }
   }
 
   &__userButton {

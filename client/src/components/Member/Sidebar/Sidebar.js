@@ -65,6 +65,9 @@ const Sidebar = () => {
         </div>
       </div>
       <div className={classes.Sidebar__User}>
+        <div className={classes.Sidebar__User__Settings}>
+          <Link to="/settings">Settings</Link>
+        </div>
         <div>{authUser.email}</div>
         <div className={classes.Sidebar__userButton}>
           <Button clicked={signOut}>

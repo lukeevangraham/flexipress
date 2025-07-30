@@ -68,6 +68,7 @@ const SignUp = () => {
         email: signUpForm.email.value,
         password: signUpForm.password.value,
         orgName: signUpForm.orgName.value,
+        role: "admin",
       };
 
       const signupResponse = await server.post("/signup", signupFormValues);
