@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Organization.associate = (models) => {
     Organization.hasMany(models.User);
+    Organization.hasMany(models.InvitedUser);
   };
 
   return Organization;

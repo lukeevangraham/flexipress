@@ -10,6 +10,7 @@ import Volunteer from "./components/Member/Volunteer/Volunteer";
 import VolunteerCreate from "./components/Member/Volunteer/Create/Create";
 import Settings from "./components/Member/Settings/Settings";
 import Users from "./components/Member/Settings/Users/Users";
+import AddUser from "./components/Member/Settings/Users/Add/AddUser";
 import Roles from "./components/Member/Settings/Roles/Roles";
 import Sidebar from "./components/Member/Sidebar/Sidebar";
 import { useAuth } from "./contexts/AuthContext";
@@ -54,6 +55,7 @@ const App = () => {
         <Route path="/volunteer/create" element={<VolunteerCreate />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/users" element={<Users />} />
+        <Route path="/settings/users/add" element={<AddUser />} />
         <Route path="/settings/roles" element={<Roles />} />
         <Route path="/member" element={<Member />} />
         <Route path="*" element={<Navigate to="/" />} replace />

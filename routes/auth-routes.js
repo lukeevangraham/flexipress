@@ -2,6 +2,7 @@
 var db = require("../models");
 var passport = require("../config/passport");
 var bcrypt = require("bcrypt-nodejs");
+const transporter = require("../config/nodemailer");
 
 module.exports = function (app) {
   // Using the passport.authenticate middleware with our local strategy.
@@ -132,4 +133,41 @@ module.exports = function (app) {
       ).then((dbUser) => res.json(dbUser));
     }
   );
+
+  app.post("/api/invite", async (req, res) => {
+    if (!req.user) {
+      // The user is not logged in, send back an empty object
+      res.json({});
+      return;
+    } else {
+      // Otherwise:
+
+      // ADD THE USER EMAIL TO LIST OF INVITED USERS
+      const dbInvite = await db.InvitedUser.create({
+        email: req.body.email,
+        OrganizationId: req.user.OrganizationId,
+      });
+
+      // MAIL AN INVITE TO THAT USER
+
+      let mailOptions = {
+        from: "luke@grahamwebworks.com",
+        to: req.body.email,
+        subject: `You've been invited to join ${req.user.orgName}`,
+        text: `You've been invited to join ${req.user.orgName} as a website collaborator. Click the link below to sign up:
+  http://localhost:3000/signup?email=${req.body.email}&orgId=${req.user.orgId}&role=${req.user.role}
+  `,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent", info.response);
+          console.log("INVITE: ", req.body);
+          console.log("RES: ", dbInvite);
+        }
+      });
+    }
+  });
 };
