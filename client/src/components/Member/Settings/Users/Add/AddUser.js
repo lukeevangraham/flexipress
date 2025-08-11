@@ -64,7 +64,9 @@ const AddUser = () => {
     const addUserResponse = await server.post("/invite", newUserFormValues);
     // console.log("Add User Response: ", addUserResponse);
 
-    addUserResponse.status === 200 ? setMessageStatus(2) : null;
+    if (addUserResponse.status === 200) {
+      setMessageStatus(2);
+    }
   };
 
   const formElementsArray = [];
