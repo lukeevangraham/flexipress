@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 // import { AuthContext } from "../../../store/auth-context";
 import SignIn from "./SignIn/SignIn";
 import SignUp from "./SignUp/SignUp";
@@ -10,9 +11,18 @@ const Auth = () => {
   // const UserCtx = useContext(AuthContext)
   let [signupChosen, setSignupChosen] = useState(false);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const providedEmail = searchParams.get("email");
+  const providedOrgId = searchParams.get("orgId");
+
   return (
     <div className={classes.Auth}>
-      {signupChosen ? <SignUp /> : <SignIn />}
+      {signupChosen || providedEmail ? (
+        <SignUp providedEmail={providedEmail} providedOrgId={providedOrgId} />
+      ) : (
+        <SignIn />
+      )}
       <div className={classes.signUpWrapper}>
         {signupChosen ? (
           <Button color="secondary" clicked={() => setSignupChosen(false)}>

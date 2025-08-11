@@ -7,6 +7,8 @@ import Button from "../../../../UI/Button/Button";
 const AddUser = () => {
   const { authUser } = useAuth();
 
+  const [messageStatus, setMessageStatus] = useState();
+
   const [newUserForm, setNewUserForm] = useState({
     firstName: {
       elementType: "input",
@@ -49,6 +51,8 @@ const AddUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setMessageStatus(1);
+
     const newUserFormValues = {
       firstName: newUserForm.firstName.value,
       lastName: newUserForm.lastName.value,
@@ -58,7 +62,9 @@ const AddUser = () => {
     };
 
     const addUserResponse = await server.post("/invite", newUserFormValues);
-    console.log("Add User Response: ", addUserResponse);
+    // console.log("Add User Response: ", addUserResponse);
+
+    addUserResponse.status === 200 ? setMessageStatus(2) : null;
   };
 
   const formElementsArray = [];

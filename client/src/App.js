@@ -39,6 +39,7 @@ const App = () => {
   let routes = (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/accept" element={<Home />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );

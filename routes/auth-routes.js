@@ -25,24 +25,52 @@ module.exports = function (app) {
   // how we configured our Sequelize User Model. If the user is created successfully, proceed to log the user in,
   // otherwise send back an error
   app.post("/api/signup", async function (req, res) {
-    const orgResponse = await db.Organization.create({
-      orgName: req.body.orgName,
-    });
-
-    db.User.create({
-      email: req.body.email,
-      password: req.body.password,
-      OrganizationId: orgResponse.dataValues.id,
-      role: req.body.role,
-    })
-      .then(function () {
-        res.redirect(307, "/api/login");
-      })
-      .catch(function (err) {
-        console.log(err);
-        res.json(err);
-        // res.status(422).json(err.errors[0].message);
+    // validate if orgID provided
+    if (req.body.providedOrgId) {
+      const validatedInvite = await db.InvitedUser.findOne({
+        where: {
+          email: req.body.email,
+          OrganizationId: req.body.providedOrgId,
+        },
       });
+
+      if (validatedInvite) {
+        db.User.create({
+          email: req.body.email,
+          password: req.body.password,
+          OrganizationId: req.body.providedOrgId,
+          role: req.body.role,
+        })
+          .then(function () {
+            res.redirect(307, "/api/login");
+          })
+          .catch(function (err) {
+            console.log(err);
+            res.json(err);
+            // res.status(422).json(err.errors[0].message);
+          });
+      } else {
+        res.status(422).json({ message: "Invalid invite or organization ID." });
+      }
+    } else {
+      const orgResponse = await db.Organization.create({
+        orgName: req.body.orgName,
+      });
+      db.User.create({
+        email: req.body.email,
+        password: req.body.password,
+        OrganizationId: orgResponse.dataValues.id,
+        role: req.body.role,
+      })
+        .then(function () {
+          res.redirect(307, "/api/login");
+        })
+        .catch(function (err) {
+          console.log(err);
+          res.json(err);
+          // res.status(422).json(err.errors[0].message);
+        });
+    }
   });
 
   // Route for logging user out
@@ -137,6 +165,7 @@ module.exports = function (app) {
   app.post("/api/invite", async (req, res) => {
     if (!req.user) {
       // The user is not logged in, send back an empty object
+      console.log("not from a user");
       res.json({});
       return;
     } else {
@@ -151,11 +180,11 @@ module.exports = function (app) {
       // MAIL AN INVITE TO THAT USER
 
       let mailOptions = {
-        from: "luke@grahamwebworks.com",
+        from: "donotreply@grahamwebworks.com",
         to: req.body.email,
-        subject: `You've been invited to join ${req.user.orgName}`,
-        text: `You've been invited to join ${req.user.orgName} as a website collaborator. Click the link below to sign up:
-  http://localhost:3000/signup?email=${req.body.email}&orgId=${req.user.orgId}&role=${req.user.role}
+        subject: `You've been invited to join ${req.body.orgName}`,
+        text: `You've been invited to join ${req.body.orgName} as a website collaborator. Click the link below to sign up:
+  ${process.env.ACTIVE_DOMAIN}/accept?email=${req.body.email}&orgId=${req.body.orgId}
   `,
       };
 
@@ -163,11 +192,41 @@ module.exports = function (app) {
         if (error) {
           console.log(error);
         } else {
-          console.log("Email sent", info.response);
-          console.log("INVITE: ", req.body);
-          console.log("RES: ", dbInvite);
+          // console.log("Email sent", info);
+          res.json({
+            message: "Invite sent successfully",
+            inviteId: dbInvite.id,
+          });
         }
       });
+    }
+  });
+
+  app.post("/api/validate_invite", async (req, res) => {
+    try {
+      const validationResponse = await db.InvitedUser.findOne({
+        where: {
+          email: req.body.email,
+          OrganizationId: req.body.orgId,
+        },
+      });
+
+      if (validationResponse) {
+        const orgInfo = await db.Organization.findOne({
+          where: {
+            id: validationResponse.dataValues.OrganizationId,
+          },
+        });
+
+        res.json({
+          valid: true,
+          orgName: orgInfo.dataValues.orgName,
+          orgId: orgInfo.dataValues.id,
+        });
+      }
+    } catch (error) {
+      console.log("ERR: ", error);
+      res.json({ valid: false });
     }
   });
 };

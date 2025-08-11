@@ -1,5 +1,5 @@
 import server from "../../../../apis/server";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../contexts/AuthContext";
 import Input from "../../../UI/Input/Input";
@@ -7,8 +7,34 @@ import Button from "../../../UI/Button/Button";
 
 import classes from "./SignUp.module.scss";
 
-const SignUp = () => {
+const SignUp = ({ providedEmail, providedOrgId }) => {
   const navigate = useNavigate();
+
+  const [validatedInvite, setValidatedInvite] = useState(false);
+
+  // console.log("providedEmail: ", providedEmail);
+  // console.log("providedOrgId: ", providedOrgId);
+
+  useEffect(() => {
+    server
+      .post("/validate_invite", {
+        email: providedEmail,
+        orgId: providedOrgId,
+      })
+      .then((res) => {
+        if (res.data.valid) {
+          setValidatedInvite(true);
+          setSignUpForm((prevForm) => ({
+            ...prevForm,
+            orgName: {
+              ...prevForm.orgName,
+              value: res.data.orgName,
+            },
+          }));
+        }
+      })
+      .catch((err) => console.log("ERR: ", err));
+  }, [providedEmail, providedOrgId, setValidatedInvite, navigate]);
 
   const { setIsLoggedIn, setAuthUser } = useAuth();
 
@@ -30,7 +56,7 @@ const SignUp = () => {
         type: "email",
         placeholder: "Email Address",
       },
-      value: "",
+      value: providedEmail ? providedEmail : "",
       validation: {
         required: true,
       },
@@ -68,7 +94,8 @@ const SignUp = () => {
         email: signUpForm.email.value,
         password: signUpForm.password.value,
         orgName: signUpForm.orgName.value,
-        role: "admin",
+        providedOrgId: providedOrgId,
+        role: providedOrgId ? "editor" : "admin",
       };
 
       const signupResponse = await server.post("/signup", signupFormValues);
