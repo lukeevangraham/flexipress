@@ -14,7 +14,7 @@ const cloudinary = require("cloudinary");
 
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, './client/build')));
+  app.use(express.static(path.join(__dirname, "./client/build")));
 }
 
 // app.use(cors())
@@ -123,6 +123,7 @@ require("./routes/auth-routes")(app);
 require("./routes/event-routes")(app, cloudinary, upload);
 require("./routes/volunteer-routes")(app, cloudinary, upload);
 require("./routes/image-api-routes")(app);
+require("./routes/singles-routes")(app);
 
 // require("./routes/api-routes")(app);
 // require("./routes/image-api-routes")(app, cloudinary, upload);

@@ -53,7 +53,9 @@ const Sidebar = () => {
           </div>
           <ul>
             <li>Global</li>
-            <li>Home</li>
+            <li>
+              <Link to="/singles/home">Home</Link>
+            </li>
             <li>About</li>
             <li>Contact</li>
             <li>Giving</li>

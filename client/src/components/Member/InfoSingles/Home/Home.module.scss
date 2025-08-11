@@ -1,0 +1,12 @@
+@import "../../../../assets/sass/variables";
+
+.HomeInfoSingle {
+  &__QuillContainer {
+    margin-top: 1rem;
+    width: 60rem;
+    &__Quill {
+      background-color: $color-grey-light;
+      margin-bottom: 2rem;
+    }
+  }
+}

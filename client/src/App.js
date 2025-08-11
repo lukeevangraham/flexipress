@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
 import server from "./apis/server";
 import Home from "./components/Home/Home";
 import Member from "./components/Member/Member";
@@ -13,7 +14,7 @@ import Users from "./components/Member/Settings/Users/Users";
 import AddUser from "./components/Member/Settings/Users/Add/AddUser";
 import Roles from "./components/Member/Settings/Roles/Roles";
 import Sidebar from "./components/Member/Sidebar/Sidebar";
-import { useAuth } from "./contexts/AuthContext";
+import HomeInfoSingle from "./components/Member/InfoSingles/Home/Home";
 import "./App.css";
 
 import classes from "./App.module.scss";
@@ -59,6 +60,7 @@ const App = () => {
         <Route path="/settings/users/add" element={<AddUser />} />
         <Route path="/settings/roles" element={<Roles />} />
         <Route path="/member" element={<Member />} />
+        <Route path="/singles/home" element={<HomeInfoSingle />} />
         <Route path="*" element={<Navigate to="/" />} replace />
       </Routes>
     );
