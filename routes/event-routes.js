@@ -12,11 +12,13 @@ let formatDataForDB = (requestBody, imageIdFromDb) => ({
     : null,
   location: requestBody.location,
   description: requestBody.description,
+  embedCode: requestBody.embedCode,
   published: requestBody.published,
   OrganizationId: requestBody.orgId,
   ImageId: imageIdFromDb,
   MinistryId: requestBody.ministryId,
 });
+// { include: ["MinistryEvents"] }
 
 module.exports = (app, cloudinary, upload) => {
   let uploadImageAndAddImageToDb = async (file, orgId) => {
@@ -49,9 +51,18 @@ module.exports = (app, cloudinary, upload) => {
         req.body.orgId
       );
 
+      console.log("Image: ", imageRes.dataValues.id);
+
       const dbEvent = await db.Event.create(
         formatDataForDB(req.body, imageRes.id)
       );
+
+      // req.body.ministryId.split(",").forEach(async (ministryId) => {
+      //   await db.MinistryEvent.create({
+      //     EventId: dbEvent.id,
+      //     MinistryId: ministryId,
+      //   });
+      // });
 
       const valuesToSendToClient = {
         ...dbEvent.dataValues,

@@ -144,6 +144,7 @@ const CreateEvent = ({
       elementType: "select",
       elementConfig: {
         options: selectOptions,
+        multiple: true,
         // ministriesList.map()
         placeholder: "Ministries",
       },
@@ -284,6 +285,11 @@ const CreateEvent = ({
       updatedFormElement.elementConfig.file = e.target.files[0];
     } else if (updatedFormElement.elementType === "richtext") {
       updatedFormElement.value = e.target;
+    } else if (updatedFormElement.elementType === "select") {
+      const selectedOptions = Array.from(e.target.selectedOptions).map(
+        (option) => option.value
+      );
+      updatedFormElement.value = selectedOptions;
     } else {
       updatedFormElement.value = e.target.value;
     }

@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
     Ministry.hasMany(models.VolunteerPosition, {
       onDelete: "cascade",
     });
-    Ministry.hasMany(models.Event);
     Ministry.belongsTo(models.Organization, {
       foreignKey: {
         allowNull: false,

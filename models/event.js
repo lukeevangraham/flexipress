@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
     });
-    Event.hasMany(models.Ministry);
+    Event.belongsTo(models.Ministry);
   };
 
   return Event;
