@@ -42,7 +42,9 @@ const Sidebar = () => {
               <Link to="/volunteer">Volunteer Positions</Link>
             </li>
             <li>Job Openings</li>
-            <li>Ministries</li>
+            <li>
+              <Link to="/ministries">Ministries</Link>
+            </li>
             <li>Staff Members</li>
             <li>Sermons</li>
           </ul>

@@ -5,6 +5,8 @@ import server from "./apis/server";
 import Home from "./components/Home/Home";
 import Member from "./components/Member/Member";
 import Events from "./components/Member/Events/Events";
+import Ministries from "./components/Member/Ministries/Ministries";
+import AddMinistry from "./components/Member/Ministries/Add/AddMinistry";
 import CreateEvent from "./components/Member/Events/Create/Create";
 import Articles from "./components/Member/Articles/Articles";
 import Volunteer from "./components/Member/Volunteer/Volunteer";
@@ -53,6 +55,8 @@ const App = () => {
         <Route path="/events/create" element={<CreateEvent />} />
         <Route path="/events/edit/:id" element={<CreateEvent />} />
         <Route path="/articles" element={<Articles />} />
+        <Route path="/ministries" element={<Ministries />} />
+        <Route path="/ministries/add" element={<AddMinistry />} />
         <Route path="/volunteer" element={<Volunteer />} />
         <Route path="/volunteer/create" element={<VolunteerCreate />} />
         <Route path="/settings" element={<Settings />} />
