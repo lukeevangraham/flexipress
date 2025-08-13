@@ -1,3 +1,5 @@
+@import "../../../../assets/sass/variables";
+
 .EventSubmission {
   width: 60rem;
   &__TopInfo {
@@ -10,5 +12,10 @@
       display: flex;
       gap: 1rem;
     }
+  }
+
+  &__Quill {
+    background-color: $color-grey-light;
+    margin-bottom: 2rem;
   }
 }

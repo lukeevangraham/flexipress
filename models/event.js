@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     repeatsEveryXDays: { type: DataTypes.SMALLINT, allowNull: true },
     location: DataTypes.STRING,
     description: DataTypes.TEXT,
-    published: DataTypes.BOOLEAN
+    embedCode: DataTypes.TEXT,
+    published: DataTypes.BOOLEAN,
   });
 
   Event.associate = (models) => {
@@ -16,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
     });
+    Event.hasMany(models.Ministry);
   };
 
   return Event;

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
+import ReactQuill from "react-quill-new";
 // import { useLocation } from "react-router-dom";
 
 import classes from "./Create.module.scss";
@@ -31,6 +32,19 @@ const CreateEvent = ({
   const [selectedEvent, setSelectedEvent] = useState(
     eventFromList ? eventFromList : null
   );
+
+  const [descriptionValue, setDescriptionValue] = useState(
+    eventFromList ? eventFromList.description : ""
+  );
+
+  const selectOptions = [
+    { value: "Youth", displayValue: "Youth" },
+    { value: "children", displayValue: "Children" },
+    { value: "worship", displayValue: "Worship" },
+    { value: "outreach", displayValue: "Outreach" },
+    { value: "missions", displayValue: "Missions" },
+    { value: "other", displayValue: "Other" },
+  ];
 
   const [eventForm, setEventForm] = useState({
     name: {
@@ -100,16 +114,7 @@ const CreateEvent = ({
       width: "35rem",
     },
     description: {
-      elementType: "textarea",
-      elementConfig: {
-        minRows: 8,
-        placeholder: "Description",
-      },
-      value: selectedEvent ? selectedEvent.description : "",
-      validation: {
-        required: true,
-      },
-      // width: "50rem"
+      elementType: "richtext",
     },
     image: {
       elementType: "image",
@@ -123,7 +128,57 @@ const CreateEvent = ({
         required: false,
       },
     },
+    embedCode: {
+      elementType: "textarea",
+      elementConfig: {
+        minRows: 8,
+        placeholder: "Embed Code (optional)",
+      },
+      value: selectedEvent ? selectedEvent.embedCode : undefined,
+      validation: {
+        required: false,
+      },
+      // width: "50rem"
+    },
+    ministries: {
+      elementType: "select",
+      elementConfig: {
+        options: selectOptions,
+        // ministriesList.map()
+        placeholder: "Ministries",
+      },
+      value: selectedEvent ? selectedEvent.ministries : "",
+      validation: {
+        required: false,
+      },
+      // width: "20rem",
+    },
   });
+
+  useEffect(() => {
+    const getMinistries = async () => {
+      const ministriesListRes = await server.get(
+        `/ministries/${authUser.orgId}`
+      );
+      setEventForm((prev) => ({
+        ...prev,
+        ministries: {
+          ...prev.ministries,
+          elementConfig: {
+            options: ministriesListRes.data.map((m) => ({
+              value: m.id,
+              displayValue: m.name,
+            })),
+          },
+          value:
+            ministriesListRes.data.length > 0
+              ? ministriesListRes.data[0].id
+              : "",
+        },
+      }));
+    };
+    getMinistries();
+  }, [authUser, setEventForm, server]);
 
   const handlePublish = async (e) => {
     e.preventDefault();
@@ -147,12 +202,12 @@ const CreateEvent = ({
     setPublish(!publish);
   };
 
+  console.log("Form: ", eventForm.description);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Publish: ", publish);
-
-    // console.log("Form: ", eventForm);
+    // console.log("Publish: ", publish);
 
     let eventFormValues = new FormData();
 
@@ -164,11 +219,12 @@ const CreateEvent = ({
       eventForm.repeatsEveryXDays.value
     );
     eventFormValues.append("location", eventForm.location.value);
-    eventFormValues.append("description", eventForm.description.value);
+    eventFormValues.append("description", descriptionValue);
     eventFormValues.append("image", eventForm.image.elementConfig.file);
     eventFormValues.append("userId", authUser.id);
     eventFormValues.append("orgId", authUser.orgId);
     eventFormValues.append("published", publish);
+    eventFormValues.append("ministryId", eventForm.ministries.value);
 
     // for (var pair of eventFormValues.entries()) {
     //   console.log(pair[0] + ": " + pair[1]);
@@ -226,6 +282,8 @@ const CreateEvent = ({
         e.target.files[0]
       );
       updatedFormElement.elementConfig.file = e.target.files[0];
+    } else if (updatedFormElement.elementType === "richtext") {
+      updatedFormElement.value = e.target;
     } else {
       updatedFormElement.value = e.target.value;
     }
@@ -251,17 +309,39 @@ const CreateEvent = ({
 
   const form = (
     <form encType="multipart/form-data">
-      {formElementsArray.map((formElement) => (
-        <Input
-          key={formElement.id}
-          elementType={formElement.config.elementType}
-          elementConfig={formElement.config.elementConfig}
-          value={formElement.config.value}
-          changed={(e) => inputChangedHandler(e, formElement.id)}
-          required={formElement.config.validation.required}
-          width={formElement.config.width}
-        />
-      ))}
+      {formElementsArray.map((formElement) => {
+        if (formElement.config.elementType === "richtext") {
+          return (
+            <ReactQuill
+              theme="snow"
+              value={descriptionValue}
+              onChange={setDescriptionValue}
+              key={formElement.id}
+              className={classes.EventSubmission__Quill}
+              modules={{
+                toolbar: [
+                  [{ header: [1, 2, false] }],
+                  ["bold", "italic", "underline"],
+                  ["link", "image"],
+                  ["clean"],
+                ],
+              }}
+            />
+          );
+        } else {
+          return (
+            <Input
+              key={formElement.id}
+              elementType={formElement.config.elementType}
+              elementConfig={formElement.config.elementConfig}
+              value={formElement.config.value}
+              changed={(e) => inputChangedHandler(e, formElement.id)}
+              required={formElement.config.validation.required}
+              width={formElement.config.width}
+            />
+          );
+        }
+      })}
     </form>
   );
   return (

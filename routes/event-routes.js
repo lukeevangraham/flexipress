@@ -15,6 +15,7 @@ let formatDataForDB = (requestBody, imageIdFromDb) => ({
   published: requestBody.published,
   OrganizationId: requestBody.orgId,
   ImageId: imageIdFromDb,
+  MinistryId: requestBody.ministryId,
 });
 
 module.exports = (app, cloudinary, upload) => {
@@ -40,6 +41,8 @@ module.exports = (app, cloudinary, upload) => {
   };
 
   app.post("/api/event", upload.single("image"), async function (req, res) {
+    console.log("Body: ", req.body);
+
     if (req.file) {
       const imageRes = await uploadImageAndAddImageToDb(
         req.file,
