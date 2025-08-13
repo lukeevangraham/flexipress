@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import server from "../../../apis/server";
 import { AgGridReact } from "ag-grid-react";
 
+import classes from "./Ministries.module.scss";
+
 const Ministries = () => {
   const { authUser } = useAuth();
   const [ministries, setMinistries] = useState([]);
@@ -34,18 +36,16 @@ const Ministries = () => {
   }, [setMinistries, setColDefs, authUser]);
 
   return (
-    <div>
+    <div className={classes.Ministries}>
       <div>
         <h1>Ministries</h1>
-        <div>
-          <Link to="/ministries/add">
-            Add a new ministry to {authUser.orgName}'s Flexipress
-          </Link>
-        </div>
-        <div
-          className="ag-theme-quartz"
-          style={{ height: 400, width: "100%", marginTop: "20px" }}
-        >
+
+        <Link to="/ministries/add">Add a new ministry</Link>
+
+        <br />
+        <br />
+        <h2>Ministries List</h2>
+        <div className={`ag-theme-quartz ${classes.grid}`}>
           <AgGridReact
             ref={gridRef}
             rowData={ministries}
