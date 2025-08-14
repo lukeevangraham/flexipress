@@ -16,6 +16,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
     });
+    Ministry.belongsToMany(models.Event, {
+      through: "MinistryEvent",
+    });
   };
 
   return Ministry;

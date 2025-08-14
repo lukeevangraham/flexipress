@@ -226,6 +226,7 @@ const CreateEvent = ({
     eventFormValues.append("orgId", authUser.orgId);
     eventFormValues.append("published", publish);
     eventFormValues.append("ministryId", eventForm.ministries.value);
+    eventFormValues.append("embedCode", eventForm.embedCode.value);
 
     // for (var pair of eventFormValues.entries()) {
     //   console.log(pair[0] + ": " + pair[1]);

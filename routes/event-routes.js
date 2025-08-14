@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 let db = require("../models");
 
 // Requiring our custom middleware for checking if a user is logged in
@@ -16,9 +17,7 @@ let formatDataForDB = (requestBody, imageIdFromDb) => ({
   published: requestBody.published,
   OrganizationId: requestBody.orgId,
   ImageId: imageIdFromDb,
-  MinistryId: requestBody.ministryId,
 });
-// { include: ["MinistryEvents"] }
 
 module.exports = (app, cloudinary, upload) => {
   let uploadImageAndAddImageToDb = async (file, orgId) => {
@@ -43,19 +42,29 @@ module.exports = (app, cloudinary, upload) => {
   };
 
   app.post("/api/event", upload.single("image"), async function (req, res) {
-    console.log("Body: ", req.body);
-
     if (req.file) {
       const imageRes = await uploadImageAndAddImageToDb(
         req.file,
         req.body.orgId
       );
 
-      console.log("Image: ", imageRes.dataValues.id);
-
       const dbEvent = await db.Event.create(
         formatDataForDB(req.body, imageRes.id)
       );
+
+      const dbMinistry = await db.Ministry.findAll({
+        where: {
+          id: {
+            [Op.in]: req.body.ministryId.split(","),
+          },
+        },
+      });
+
+      dbMinistry.forEach(async (ministry) => {
+        ministry.addEvent(dbEvent);
+      });
+
+      // console.log("Ministry: ", dbMinistry);
 
       // req.body.ministryId.split(",").forEach(async (ministryId) => {
       //   await db.MinistryEvent.create({

@@ -79,6 +79,7 @@ const Input = ({
           className={inputClasses.join(" ")}
           value={value}
           onChange={changed}
+          multiple
         >
           {elementConfig.options.map((option) => (
             <option key={option.value} value={option.value}>
