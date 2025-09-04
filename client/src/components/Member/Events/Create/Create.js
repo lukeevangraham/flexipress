@@ -37,14 +37,14 @@ const CreateEvent = ({
     eventFromList ? eventFromList.description : ""
   );
 
-  const selectOptions = [
-    { value: "Youth", displayValue: "Youth" },
-    { value: "children", displayValue: "Children" },
-    { value: "worship", displayValue: "Worship" },
-    { value: "outreach", displayValue: "Outreach" },
-    { value: "missions", displayValue: "Missions" },
-    { value: "other", displayValue: "Other" },
-  ];
+  // const selectOptions = [
+  //   { value: "Youth", displayValue: "Youth" },
+  //   { value: "children", displayValue: "Children" },
+  //   { value: "worship", displayValue: "Worship" },
+  //   { value: "outreach", displayValue: "Outreach" },
+  //   { value: "missions", displayValue: "Missions" },
+  //   { value: "other", displayValue: "Other" },
+  // ];
 
   const [eventForm, setEventForm] = useState({
     name: {
@@ -143,12 +143,14 @@ const CreateEvent = ({
     ministries: {
       elementType: "select",
       elementConfig: {
-        options: selectOptions,
+        options: [],
         multiple: true,
         // ministriesList.map()
         placeholder: "Ministries",
       },
-      value: selectedEvent ? selectedEvent.ministries : "",
+      value: selectedEvent
+        ? selectedEvent.Ministries.map((m) => m.id.toString())
+        : [],
       validation: {
         required: false,
       },
@@ -171,10 +173,6 @@ const CreateEvent = ({
               displayValue: m.name,
             })),
           },
-          value:
-            ministriesListRes.data.length > 0
-              ? ministriesListRes.data[0].id
-              : "",
         },
       }));
     };
@@ -202,8 +200,6 @@ const CreateEvent = ({
 
     setPublish(!publish);
   };
-
-  console.log("Form: ", eventForm.description);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -261,11 +257,8 @@ const CreateEvent = ({
         });
 
         setEvents(revisedEvents);
-        console.log("RE: ", revisedEvents);
       }
     }
-
-    console.log("event response: ", res);
   };
 
   const inputChangedHandler = (e, inputIdentifier) => {

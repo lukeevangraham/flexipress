@@ -52,30 +52,18 @@ module.exports = (app, cloudinary, upload) => {
         formatDataForDB(req.body, imageRes.id)
       );
 
-      const dbMinistry = await db.Ministry.findAll({
-        where: {
-          id: {
-            [Op.in]: req.body.ministryId.split(","),
-          },
-        },
-      });
+      const dbEventWithMins = await dbEvent.addMinistries(
+        req.body.ministryId.split(",").map((id) => parseInt(id))
+      );
 
-      dbMinistry.forEach(async (ministry) => {
-        ministry.addEvent(dbEvent);
-      });
-
-      // console.log("Ministry: ", dbMinistry);
-
-      // req.body.ministryId.split(",").forEach(async (ministryId) => {
-      //   await db.MinistryEvent.create({
-      //     EventId: dbEvent.id,
-      //     MinistryId: ministryId,
-      //   });
-      // });
+      console.log("dbEventWithMins: ", dbEventWithMins);
 
       const valuesToSendToClient = {
         ...dbEvent.dataValues,
         Image: imageRes.dataValues,
+        Ministries: req.body.ministryId
+          .split(",")
+          .map((id) => ({ id: parseInt(id) })), // Mock ministry objects with only IDs
       };
 
       try {
@@ -86,19 +74,6 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
-  app.put("/api/event/publish", async (req, res) => {
-    const updatePublishResponse = await db.Event.update(
-      { published: req.body.published },
-      { where: { id: req.body.eventId } }
-    );
-
-    try {
-      res.json(updatePublishResponse);
-    } catch (error) {
-      console.log("E: ", error);
-    }
-  });
-
   app.put("/api/event/", upload.single("image"), async (req, res) => {
     let valuesToSendToClient = {};
     let eventRes;
@@ -106,7 +81,7 @@ module.exports = (app, cloudinary, upload) => {
     let afterUpdate;
 
     const updateTheEvent = async (requestBody, imageId) => {
-      const updateRes = await db.Event.update(
+      const updatedEvent = await db.Event.update(
         formatDataForDB(requestBody, imageId),
         {
           where: { id: requestBody.id },
@@ -114,7 +89,15 @@ module.exports = (app, cloudinary, upload) => {
       );
       // return updateRes;
 
-      if (updateRes[0] == 1) {
+      // console.log("updatedEventWithMins: ", updatedEventWithMins);
+
+      if (updatedEvent[0] == 1) {
+        eventRes = await getTheUpdatedEvent();
+
+        eventRes.setMinistries(
+          req.body.ministryId.split(",").map((id) => parseInt(id))
+        );
+
         eventRes = await getTheUpdatedEvent();
 
         return eventRes;
@@ -124,7 +107,7 @@ module.exports = (app, cloudinary, upload) => {
     const getTheUpdatedEvent = async () => {
       const dbEventPostMofidication = await db.Event.findOne({
         where: { id: req.body.id, OrganizationId: req.body.orgId },
-        include: [db.Image],
+        include: [{ model: db.Image }, { model: db.Ministry }],
       });
 
       return dbEventPostMofidication;
@@ -167,12 +150,25 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
+  app.put("/api/event/publish", async (req, res) => {
+    const updatePublishResponse = await db.Event.update(
+      { published: req.body.published },
+      { where: { id: req.body.eventId } }
+    );
+
+    try {
+      res.json(updatePublishResponse);
+    } catch (error) {
+      console.log("E: ", error);
+    }
+  });
+
   app.get("/api/event/org/:orgId", async (req, res) => {
     const dbEvent = await db.Event.findAll({
       where: {
         OrganizationId: req.params.orgId,
       },
-      include: [db.Image],
+      include: [{ model: db.Image }, { model: db.Ministry }],
     });
 
     res.json(dbEvent);
