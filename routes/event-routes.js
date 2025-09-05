@@ -56,8 +56,6 @@ module.exports = (app, cloudinary, upload) => {
         req.body.ministryId.split(",").map((id) => parseInt(id))
       );
 
-      console.log("dbEventWithMins: ", dbEventWithMins);
-
       const valuesToSendToClient = {
         ...dbEvent.dataValues,
         Image: imageRes.dataValues,

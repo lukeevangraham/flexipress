@@ -1,11 +1,14 @@
 @import "./assets/sass/variables";
 
 .App {
-  display: flex;
-  flex-wrap: nowrap;
+  // display: flex;
+  // flex-wrap: nowrap;
+  // position: relative;
   &__Main {
     background-color: $color-tertiary-lighter;
     padding: 2rem;
     flex-grow: 1;
+    min-height: 100vh;
+    margin-left: 20rem;
   }
 }

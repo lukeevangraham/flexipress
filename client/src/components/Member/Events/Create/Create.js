@@ -134,7 +134,7 @@ const CreateEvent = ({
         minRows: 8,
         placeholder: "Embed Code (optional)",
       },
-      value: selectedEvent ? selectedEvent.embedCode : undefined,
+      value: selectedEvent ? selectedEvent.embedCode : "",
       validation: {
         required: false,
       },
