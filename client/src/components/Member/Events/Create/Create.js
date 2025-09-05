@@ -187,7 +187,6 @@ const CreateEvent = ({
       published: !publish,
       orgId: authUser.orgId,
     });
-    console.log("RES: ", publishResponse);
 
     if (events) {
       const revisedEvents = events.map((event) => {
@@ -248,6 +247,7 @@ const CreateEvent = ({
       setSelectedEvent(res.data);
 
       if (selectedEvent) {
+        console.log("res: ", res.data);
         const revisedEvents = events.map((event) => {
           return event.id === selectedEvent.id
             ? {
@@ -291,7 +291,6 @@ const CreateEvent = ({
     updatedFormElement.touched = true;
     updatedEventForm[inputIdentifier] = updatedFormElement;
     setEventForm(updatedEventForm);
-    // console.log("FORM: ", eventForm);
   };
 
   const backClickHandler = () => {

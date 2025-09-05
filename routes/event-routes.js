@@ -78,6 +78,7 @@ module.exports = (app, cloudinary, upload) => {
     let valuesToSendToClient = {};
     let eventRes;
     let dbEvent;
+
     let afterUpdate;
 
     const updateTheEvent = async (requestBody, imageId) => {
@@ -87,20 +88,21 @@ module.exports = (app, cloudinary, upload) => {
           where: { id: requestBody.id },
         }
       );
-      // return updateRes;
-
-      // console.log("updatedEventWithMins: ", updatedEventWithMins);
 
       if (updatedEvent[0] == 1) {
         eventRes = await getTheUpdatedEvent();
 
-        eventRes.setMinistries(
+        const setMinsResponse = await eventRes.setMinistries(
           req.body.ministryId.split(",").map((id) => parseInt(id))
         );
 
-        eventRes = await getTheUpdatedEvent();
+        if (setMinsResponse.length > 0) {
+          const dbEventWithMins = await getTheUpdatedEvent();
 
-        return eventRes;
+          return dbEventWithMins;
+        } else {
+          return eventRes;
+        }
       }
     };
 
