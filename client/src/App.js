@@ -9,6 +9,9 @@ import Ministries from "./components/Member/Ministries/Ministries";
 import AddMinistry from "./components/Member/Ministries/Add/AddMinistry";
 import CreateEvent from "./components/Member/Events/Create/Create";
 import Articles from "./components/Member/Articles/Articles";
+import ArticleCreate from "./components/Member/Articles/Create/Create";
+// import Set from "./components/Member/Set/Set";
+// import SetCreate from "./components/Member/Set/Create/Create";
 import Volunteer from "./components/Member/Volunteer/Volunteer";
 import VolunteerCreate from "./components/Member/Volunteer/Create/Create";
 import Settings from "./components/Member/Settings/Settings";
@@ -55,6 +58,10 @@ const App = () => {
         <Route path="/events/create" element={<CreateEvent />} />
         <Route path="/events/edit/:id" element={<CreateEvent />} />
         <Route path="/articles" element={<Articles />} />
+        <Route
+          path="/articles/create"
+          element={<ArticleCreate set={"articles"} />}
+        />
         <Route path="/ministries" element={<Ministries />} />
         <Route path="/ministries/add" element={<AddMinistry />} />
         <Route path="/volunteer" element={<Volunteer />} />

@@ -3,7 +3,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
-import server from "../../../../apis/server";
+import server, { getMinistries } from "../../../../apis/server";
 import ReactQuill from "react-quill-new";
 // import { useLocation } from "react-router-dom";
 
@@ -159,25 +159,25 @@ const CreateEvent = ({
   });
 
   useEffect(() => {
-    const getMinistries = async () => {
-      const ministriesListRes = await server.get(
-        `/ministries/${authUser.orgId}`
-      );
-      setEventForm((prev) => ({
-        ...prev,
-        ministries: {
-          ...prev.ministries,
-          elementConfig: {
-            options: ministriesListRes.data.map((m) => ({
-              value: m.id,
-              displayValue: m.name,
-            })),
-          },
-        },
-      }));
-    };
-    getMinistries();
-  }, [authUser, setEventForm, server]);
+    // const getMinistries = async () => {
+    //   const ministriesListRes = await server.get(
+    //     `/ministries/${authUser.orgId}`
+    //   );
+    //   setEventForm((prev) => ({
+    //     ...prev,
+    //     ministries: {
+    //       ...prev.ministries,
+    //       elementConfig: {
+    //         options: ministriesListRes.data.map((m) => ({
+    //           value: m.id,
+    //           displayValue: m.name,
+    //         })),
+    //       },
+    //     },
+    //   }));
+    // };
+    getMinistries(authUser, setEventForm);
+  }, [authUser, setEventForm]);
 
   const handlePublish = async (e) => {
     e.preventDefault();

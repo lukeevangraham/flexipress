@@ -2,7 +2,12 @@
 
 .Sidebar {
   // background-color: orangered;
-  background-color: $color-primary-light;
+  // background-color: $color-primary-light;
+  background-image: linear-gradient(
+    135deg,
+    $color-primary-light,
+    $color-primary-lighter
+  );
   max-width: 20rem;
   display: flex;
   flex-direction: column;
@@ -12,8 +17,10 @@
 
   &__Org {
     // background-color: yellowgreen;
-    // margin-bottom: 1rem;
+    margin-bottom: 1rem;
     text-transform: uppercase;
+    font-weight: 800;
+    font-size: 2.074rem;
   }
 
   &__Info {

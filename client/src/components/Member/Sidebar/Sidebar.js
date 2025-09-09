@@ -24,7 +24,9 @@ const Sidebar = () => {
 
   return (
     <div className={classes.Sidebar}>
-      <div className={classes.Sidebar__Org}>{authUser.orgName}</div>
+      <div className={classes.Sidebar__Org}>
+        <Link to="/">{authUser.orgName}</Link>
+      </div>
       <div className={classes.Sidebar__Info}>
         <div className={classes.Sidebar__Info__InfoGroup}>
           <div className={classes.Sidebar__Info__InfoGroup__Name}>
@@ -34,9 +36,9 @@ const Sidebar = () => {
             <li>
               <Link to="/events">Events</Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/articles">Articles</Link>
-            </li>
+            </li> */}
             {/* <li>Articles</li> */}
             <li>
               <Link to="/volunteer">Volunteer Positions</Link>
@@ -47,6 +49,9 @@ const Sidebar = () => {
             </li>
             <li>Staff Members</li>
             <li>Sermons</li>
+            <li>
+              <Link to="/articles">Articles</Link>
+            </li>
           </ul>
         </div>
         <div className={classes.Sidebar__Info__InfoGroup}>

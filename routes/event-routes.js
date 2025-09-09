@@ -163,7 +163,7 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
-  app.get("/api/event/org/:orgId", async (req, res) => {
+  app.get("/api/events/org/:orgId", async (req, res) => {
     const dbEvent = await db.Event.findAll({
       where: {
         OrganizationId: req.params.orgId,

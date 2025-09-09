@@ -24,7 +24,7 @@ const Events = () => {
 
   useEffect(() => {
     const getEvents = async () => {
-      const eventListRes = await server.get(`/event/org/${authUser.orgId}`);
+      const eventListRes = await server.get(`/events/org/${authUser.orgId}`);
 
       setEventList(eventListRes.data);
       setColDefs([

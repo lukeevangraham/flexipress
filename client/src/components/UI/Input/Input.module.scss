@@ -14,6 +14,7 @@
     display: block;
     transition: all 0.3s;
     background-color: $color-grey-light;
+    // text-transform: capitalize;
 
     &:focus {
       outline: none;
@@ -38,6 +39,7 @@
     display: block;
     transition: all 0.3s;
     color: $color-primary-dark;
+    text-transform: capitalize;
   }
 
   .input:placeholder-shown + label {

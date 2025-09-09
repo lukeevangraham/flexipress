@@ -11,7 +11,7 @@ const Member = () => {
 
   return (
     <>
-      <div>Member</div>
+      <h1>Member</h1>
     </>
   );
 };
