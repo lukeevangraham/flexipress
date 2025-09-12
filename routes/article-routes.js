@@ -46,34 +46,73 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
-  app.post("/api/article", upload.single("image"), async (req, res) => {
-    if (req.file) {
-      const imagesRes = await uploadImageAndAddImageToDb(
-        req.file,
-        req.body.orgId
-      );
+  app.post(
+    "/api/article",
+    isAuthenticated,
+    upload.single("image"),
+    async (req, res) => {
+      if (req.file) {
+        const imagesRes = await uploadImageAndAddImageToDb(
+          req.file,
+          req.body.orgId
+        );
 
-      req.body.ImageId = imagesRes.id;
+        req.body.ImageId = imagesRes.id;
 
-      const dbArticle = await db.Article.create(req.body);
+        const dbArticle = await db.Article.create(req.body);
 
-      const dbArticleWithMins = await dbArticle.addMinistries(
-        req.body.ministries.split(",").map((id) => parseInt(id))
-      );
+        const dbArticleWithMins = await dbArticle.addMinistries(
+          req.body.ministries.split(",").map((id) => parseInt(id))
+        );
 
-      const valuesToSendToClient = {
-        ...dbArticle.dataValues,
-        Image: imagesRes.dataValues,
-        Ministries: req.body.ministries
-          .split(",")
-          .map((id) => ({ id: parseInt(id) })),
-      };
+        const valuesToSendToClient = {
+          ...dbArticle.dataValues,
+          Image: imagesRes.dataValues,
+          Ministries: req.body.ministries
+            .split(",")
+            .map((id) => ({ id: parseInt(id) })),
+        };
 
-      try {
-        res.json(valuesToSendToClient);
-      } catch (error) {
-        console.log("E: ", error);
+        try {
+          res.json(valuesToSendToClient);
+        } catch (error) {
+          console.log("E: ", error);
+        }
       }
+    }
+  );
+
+  app.put("/api/article/publish", isAuthenticated, async (req, res) => {
+    const dbArticle = await db.Article.update(
+      { published: req.body.published },
+      {
+        where: { id: req.body.articleId },
+      }
+    );
+
+    const updatedArticle = await db.Article.findOne({
+      where: { id: req.body.articleId },
+      include: [db.Image, db.Ministry],
+    });
+
+    try {
+      res.json(updatedArticle);
+    } catch (error) {
+      console.log("E: ", error);
+    }
+  });
+
+  app.delete("/api/article/:id", isAuthenticated, async (req, res) => {
+    const dbArticle = await db.Article.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    try {
+      res.json(dbArticle);
+    } catch (error) {
+      console.log("E: ", error);
     }
   });
 };

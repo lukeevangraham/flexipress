@@ -159,25 +159,8 @@ const CreateEvent = ({
   });
 
   useEffect(() => {
-    // const getMinistries = async () => {
-    //   const ministriesListRes = await server.get(
-    //     `/ministries/${authUser.orgId}`
-    //   );
-    //   setEventForm((prev) => ({
-    //     ...prev,
-    //     ministries: {
-    //       ...prev.ministries,
-    //       elementConfig: {
-    //         options: ministriesListRes.data.map((m) => ({
-    //           value: m.id,
-    //           displayValue: m.name,
-    //         })),
-    //       },
-    //     },
-    //   }));
-    // };
     getMinistries(authUser, setEventForm);
-  }, [authUser, setEventForm]);
+  }, [authUser, setEventForm, getMinistries]);
 
   const handlePublish = async (e) => {
     e.preventDefault();

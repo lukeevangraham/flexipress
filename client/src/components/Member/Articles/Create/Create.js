@@ -44,7 +44,7 @@ const ArticleCreate = ({
         type: "text",
         placeholder: "Article title",
       },
-      value: selectedArticle ? selectedArticle.name : "",
+      value: selectedArticle ? selectedArticle.title : "",
       validation: {
         required: true,
       },
@@ -56,7 +56,7 @@ const ArticleCreate = ({
         type: "text",
         placeholder: "Article author",
       },
-      value: selectedArticle ? selectedArticle.name : "",
+      value: selectedArticle ? selectedArticle.author : "",
       validation: {
         required: true,
       },
@@ -78,12 +78,14 @@ const ArticleCreate = ({
     datePublished: {
       elementType: "date",
       elementConfig: {
-        // timeInputLabel: "Time:",
-        dateFormat: "MM/dd/yyyy",
-        // showTimeInput: true,
+        timeInputLabel: "Time:",
+        dateFormat: "MM/dd/yyyy h:mm aa",
+        showTimeInput: true,
         placeholder: "Publish date",
       },
-      value: selectedArticle ? new Date(selectedArticle.startDate) : new Date(),
+      value: selectedArticle
+        ? new Date(selectedArticle.datePublished)
+        : new Date(),
       validation: {
         required: true,
       },
@@ -120,7 +122,7 @@ const ArticleCreate = ({
 
   useEffect(() => {
     getMinistries(authUser, setArticleForm);
-  }, [authUser, setArticleForm]);
+  }, [authUser, setArticleForm, getMinistries]);
 
   const inputChangedHandler = (e, inputIdentifier) => {
     setSaveEnabled(true);
@@ -154,58 +156,32 @@ const ArticleCreate = ({
     setArticleForm(updatedArticleForm);
   };
 
-  const formElementsArray = [];
-  for (let key in articleForm) {
-    formElementsArray.push({
-      id: key,
-      config: articleForm[key],
-    });
-  }
-
-  const form = (
-    <form encType="multipart/form-data">
-      {formElementsArray.map((formElement) => {
-        if (formElement.config.elementType === "richtext") {
-          return (
-            <ReactQuill
-              theme="snow"
-              value={bodyValue}
-              onChange={setBodyValue}
-              key={formElement.id}
-              className={classes.EventSubmission__Quill}
-              modules={{
-                toolbar: [
-                  [{ header: [1, 2, false] }],
-                  ["bold", "italic", "underline"],
-                  ["link", "image"],
-                  ["clean"],
-                ],
-              }}
-            />
-          );
-        } else {
-          return (
-            <Input
-              key={formElement.id}
-              elementType={formElement.config.elementType}
-              elementConfig={formElement.config.elementConfig}
-              value={formElement.config.value}
-              changed={(e) => inputChangedHandler(e, formElement.id)}
-              required={formElement.config.validation.required}
-              width={formElement.config.width}
-            />
-          );
-        }
-      })}
-    </form>
-  );
-
   const handlePublish = async (e) => {
     e.preventDefault();
-    console.log("handle this publish");
+
+    const publishResponse = await server.put(`/article/publish`, {
+      articleId: selectedArticle.id,
+      published: !publish,
+      orgId: authUser.orgId,
+    });
+
+    console.log("PR: ", publishResponse);
+
+    if (articles) {
+      const revisedArticles = articles.map((article) => {
+        return article.id === selectedArticle.id
+          ? publishResponse.data
+          : article;
+      });
+
+      setArticles(revisedArticles);
+      // setSelectedRows([]);
+      // setSelectedArticle(publishResponse.data);
+    }
+    setPublish(!publish);
   };
+
   const handleSubmit = async (e) => {
-    console.log("handle this submit");
     e.preventDefault();
 
     let articleFormValues = new FormData();
@@ -215,6 +191,7 @@ const ArticleCreate = ({
     articleFormValues.append("body", bodyValue);
     articleFormValues.append("embedCode", articleForm.embedCode.value);
     articleFormValues.append("datePublished", articleForm.datePublished.value);
+    articleFormValues.append("published", publish);
     articleFormValues.append("image", articleForm.image.elementConfig.file);
     articleFormValues.append("ministries", articleForm.ministries.value);
     articleFormValues.append("OrganizationId", authUser.orgId);
@@ -248,6 +225,52 @@ const ArticleCreate = ({
       }
     }
   };
+
+  const formElementsArray = [];
+  for (let key in articleForm) {
+    formElementsArray.push({
+      id: key,
+      config: articleForm[key],
+    });
+  }
+
+  const form = (
+    <form encType="multipart/form-data">
+      {formElementsArray.map((formElement) => {
+        if (formElement.config.elementType === "richtext") {
+          return (
+            <ReactQuill
+              theme="snow"
+              value={bodyValue}
+              onChange={setBodyValue}
+              key={formElement.id}
+              className={classes.ArticleCreate__Quill}
+              modules={{
+                toolbar: [
+                  [{ header: [1, 2, false] }],
+                  ["bold", "italic", "underline"],
+                  ["link", "image"],
+                  ["clean"],
+                ],
+              }}
+            />
+          );
+        } else {
+          return (
+            <Input
+              key={formElement.id}
+              elementType={formElement.config.elementType}
+              elementConfig={formElement.config.elementConfig}
+              value={formElement.config.value}
+              changed={(e) => inputChangedHandler(e, formElement.id)}
+              required={formElement.config.validation.required}
+              width={formElement.config.width}
+            />
+          );
+        }
+      })}
+    </form>
+  );
 
   return (
     <div className={classes.ArticleCreate}>

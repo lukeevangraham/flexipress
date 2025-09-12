@@ -34,6 +34,9 @@ const Sidebar = () => {
           </div>
           <ul>
             <li>
+              <Link to="/articles">Articles</Link>
+            </li>
+            <li>
               <Link to="/events">Events</Link>
             </li>
             {/* <li>
@@ -49,9 +52,6 @@ const Sidebar = () => {
             </li>
             <li>Staff Members</li>
             <li>Sermons</li>
-            <li>
-              <Link to="/articles">Articles</Link>
-            </li>
           </ul>
         </div>
         <div className={classes.Sidebar__Info__InfoGroup}>
