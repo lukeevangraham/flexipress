@@ -72,83 +72,88 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
-  app.put("/api/event/", upload.single("image"), async (req, res) => {
-    let valuesToSendToClient = {};
-    let eventRes;
-    let dbEvent;
+  app.put(
+    "/api/event/",
+    isAuthenticated,
+    upload.single("image"),
+    async (req, res) => {
+      let valuesToSendToClient = {};
+      let eventRes;
+      let dbEvent;
 
-    let afterUpdate;
+      let afterUpdate;
 
-    const updateTheEvent = async (requestBody, imageId) => {
-      const updatedEvent = await db.Event.update(
-        formatDataForDB(requestBody, imageId),
-        {
-          where: { id: requestBody.id },
-        }
-      );
-
-      if (updatedEvent[0] == 1) {
-        eventRes = await getTheUpdatedEvent();
-
-        const setMinsResponse = await eventRes.setMinistries(
-          req.body.ministryId.split(",").map((id) => parseInt(id))
+      const updateTheEvent = async (requestBody, imageId) => {
+        const updatedEvent = await db.Event.update(
+          formatDataForDB(requestBody, imageId),
+          {
+            where: { id: requestBody.id },
+          }
         );
 
-        if (setMinsResponse.length > 0) {
-          const dbEventWithMins = await getTheUpdatedEvent();
+        if (updatedEvent[0] == 1) {
+          eventRes = await getTheUpdatedEvent();
 
-          return dbEventWithMins;
-        } else {
-          return eventRes;
+          const setMinsResponse = await eventRes.setMinistries(
+            req.body.ministryId.split(",").map((id) => parseInt(id))
+          );
+
+          if (setMinsResponse.length > 0) {
+            const dbEventWithMins = await getTheUpdatedEvent();
+
+            return dbEventWithMins;
+          } else {
+            return eventRes;
+          }
         }
+      };
+
+      const getTheUpdatedEvent = async () => {
+        const dbEventPostMofidication = await db.Event.findOne({
+          where: { id: req.body.id, OrganizationId: req.body.orgId },
+          include: [{ model: db.Image }, { model: db.Ministry }],
+        });
+
+        return dbEventPostMofidication;
+      };
+
+      // IS A NEW IMAGE IS INCLUDED IN THE REVISION?
+      switch (typeof req.file == "undefined") {
+        case true:
+          // NO IMAGE IS INCLUDED IN THE REVISION
+
+          afterUpdate = await updateTheEvent(req.body);
+
+          try {
+            res.json(afterUpdate);
+          } catch (error) {
+            console.log("E: ", error);
+          }
+
+          break;
+
+        case false:
+          // AN IMAGE IS INCLUDED IN THE REVISION
+          const imageRes = await uploadImageAndAddImageToDb(
+            req.file,
+            req.body.orgId
+          );
+
+          afterUpdate = await updateTheEvent(req.body, imageRes.id);
+
+          try {
+            res.json(afterUpdate);
+          } catch (error) {
+            console.log("E: ", error);
+          }
+
+          break;
+
+        default:
+          break;
       }
-    };
-
-    const getTheUpdatedEvent = async () => {
-      const dbEventPostMofidication = await db.Event.findOne({
-        where: { id: req.body.id, OrganizationId: req.body.orgId },
-        include: [{ model: db.Image }, { model: db.Ministry }],
-      });
-
-      return dbEventPostMofidication;
-    };
-
-    // IS A NEW IMAGE IS INCLUDED IN THE REVISION?
-    switch (typeof req.file == "undefined") {
-      case true:
-        // NO IMAGE IS INCLUDED IN THE REVISION
-
-        afterUpdate = await updateTheEvent(req.body);
-
-        try {
-          res.json(afterUpdate);
-        } catch (error) {
-          console.log("E: ", error);
-        }
-
-        break;
-
-      case false:
-        // AN IMAGE IS INCLUDED IN THE REVISION
-        const imageRes = await uploadImageAndAddImageToDb(
-          req.file,
-          req.body.orgId
-        );
-
-        afterUpdate = await updateTheEvent(req.body, imageRes.id);
-
-        try {
-          res.json(afterUpdate);
-        } catch (error) {
-          console.log("E: ", error);
-        }
-
-        break;
-
-      default:
-        break;
     }
-  });
+  );
 
   app.put("/api/event/publish", async (req, res) => {
     const updatePublishResponse = await db.Event.update(

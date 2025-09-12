@@ -214,9 +214,9 @@ const ArticleCreate = ({
     if (res.status === 200) {
       setPublishEnabled(true);
       setSelectedArticle(res.data);
+      setSaveEnabled(false);
 
       if (selectedArticle) {
-        console.log("res: ", res.data);
         const revisedArticles = articles.map((article) => {
           return article.id === selectedArticle.id ? { ...res.data } : article;
         });
@@ -224,6 +224,11 @@ const ArticleCreate = ({
         setArticles(revisedArticles);
       }
     }
+  };
+
+  const backClickHandler = () => {
+    setSelectedRows(null);
+    clearSelectedArticle(null);
   };
 
   const formElementsArray = [];
@@ -274,6 +279,14 @@ const ArticleCreate = ({
 
   return (
     <div className={classes.ArticleCreate}>
+      {selectedArticle ? (
+        <Button
+          clicked={articles ? backClickHandler : () => navigate("/articles")}
+        >
+          &larr; Back
+        </Button>
+      ) : null}
+
       <div className={classes.ArticleCreate__TopInfo}>
         <h2>{selectedArticle ? `Edit an` : `Create a new`} article</h2>
         <div className={classes.ArticleCreate__TopInfo__Buttons}>

@@ -228,6 +228,7 @@ const CreateEvent = ({
     if (res.status === 200) {
       setPublishEnabled(true);
       setSelectedEvent(res.data);
+      setSaveEnabled(false);
 
       if (selectedEvent) {
         console.log("res: ", res.data);

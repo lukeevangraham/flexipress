@@ -82,6 +82,67 @@ module.exports = (app, cloudinary, upload) => {
     }
   );
 
+  app.put(
+    "/api/article/",
+    isAuthenticated,
+    upload.single("image"),
+    async (req, res) => {
+      let valuesToSendToClient = {};
+      let articleRes;
+      let dbArticle;
+
+      let afterUpdate;
+
+      const updateTheArticle = async (requestBody, imageId) => {
+        const updatedArticle = await db.Article.update(
+          { ...requestBody, ImageId: imageId },
+          {
+            where: { id: requestBody.id },
+          }
+        );
+      };
+
+      if (req.file) {
+        const imageRes = await uploadImageAndAddImageToDb(
+          req.file,
+          req.body.orgId
+        );
+
+        await updateTheArticle(req.body, imageRes.id);
+
+        dbArticle = await db.Article.findOne({
+          where: { id: req.body.id },
+          include: [db.Image, db.Ministry],
+        });
+
+        valuesToSendToClient = {
+          ...dbArticle.dataValues,
+          Image: imageRes.dataValues,
+          Ministries: dbArticle.Ministries,
+        };
+      } else {
+        await updateTheArticle(req.body, req.body.imageId);
+
+        dbArticle = await db.Article.findOne({
+          where: { id: req.body.id },
+          include: [db.Image, db.Ministry],
+        });
+
+        valuesToSendToClient = {
+          ...dbArticle.dataValues,
+          Image: dbArticle.Image,
+          Ministries: dbArticle.Ministries,
+        };
+      }
+
+      try {
+        res.json(valuesToSendToClient);
+      } catch (error) {
+        console.log("E: ", error);
+      }
+    }
+  );
+
   app.put("/api/article/publish", isAuthenticated, async (req, res) => {
     const dbArticle = await db.Article.update(
       { published: req.body.published },
