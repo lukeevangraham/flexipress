@@ -38,6 +38,13 @@ const Events = () => {
         },
         { field: "location", flex: 2 },
         { field: "published", flex: 1 },
+        {
+          field: "updatedAt",
+          flex: 1,
+          valueFormatter: (params) => {
+            return new Date(params.value).toLocaleDateString();
+          },
+        },
       ]);
     };
 
@@ -69,6 +76,7 @@ const Events = () => {
 
   return (
     <>
+      {console.log({ EventList: eventList })}
       <h1>Events</h1>
       {selectedRows && selectedRows.length ? (
         <Modal show={showModal} modalClosed={() => setShowModal(false)}>
@@ -114,6 +122,7 @@ const Events = () => {
               onSelectionChanged={() =>
                 setSelectedRows(gridRef.current.api.getSelectedRows())
               }
+              domLayout="autoHeight"
             />
           </div>
         </>
