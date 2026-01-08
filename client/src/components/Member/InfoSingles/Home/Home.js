@@ -1,16 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import Button from "../../../UI/Button/Button";
 import server from "../../../../apis/server";
+import { AgGridReact } from "ag-grid-react"; // React Grid Logic
+import "ag-grid-community/styles/ag-grid.css"; // Core CSS
+import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 
 import classes from "./Home.module.scss";
 
 const HomeInfoSingle = () => {
   const [topTextValue, setTopTextValue] = useState("");
+  const [eventList, setEventList] = useState(null);
+  const [featuredEventColDefs, setFeaturedEventColDefs] = useState(null);
+  const [selectedRows, setSelectedRows] = useState(null);
   const [existingSingleId, setExistingSingleId] = useState(null);
   const { authUser } = useAuth();
+
+  const gridRef = useRef();
 
   useEffect(() => {
     const fetchHomeInfo = async () => {
@@ -26,7 +34,19 @@ const HomeInfoSingle = () => {
       }
     };
 
+    const fetchEvents = async () => {
+      const eventListRes = await server.get(
+        `/events/org/${authUser.orgId}?published=true`
+      );
+
+      setEventList(eventListRes.data);
+      setFeaturedEventColDefs([
+        { field: "name", filter: true, checkboxSelection: true, flex: 3 },
+      ]);
+    };
+
     fetchHomeInfo();
+    fetchEvents();
   }, [setTopTextValue, authUser.orgId]);
 
   const handleSubmit = async (e) => {
@@ -58,11 +78,17 @@ const HomeInfoSingle = () => {
     }
   };
 
+  const editSelection = (
+    <>
+      {selectedRows && selectedRows.length ? <div>Event Selected</div> : null}
+    </>
+  );
+
   return (
     <div className={classes.HomeInfoSingle}>
       <h1>Home Info</h1>
       <Button clicked={handleSubmit}>Save</Button>
-      <div>Top Text</div>
+      <h4>Top Text</h4>
       <div className={classes.HomeInfoSingle__QuillContainer}>
         <ReactQuill
           theme="snow"
@@ -70,6 +96,26 @@ const HomeInfoSingle = () => {
           onChange={setTopTextValue}
           className={classes.HomeInfoSingle__QuillContainer__Quill}
         />
+      </div>
+      <div>
+        <h4>Featured Event(s)</h4>
+        <div className={`ag-theme-quartz ${classes.grid}`}>
+          <AgGridReact
+            ref={gridRef}
+            rowData={eventList}
+            columnDefs={featuredEventColDefs}
+            // gridOptions={{ pagination: true }}
+            // onRowClicked={(event) => setClickedEvent(event.data)}
+            // autoSizeStrategy={{
+            //   type: "fitCellContents",
+            // }}
+            rowSelection="single"
+            onSelectionChanged={() =>
+              setSelectedRows(gridRef.current.api.getSelectedRows())
+            }
+            domLayout="autoHeight"
+          />
+        </div>
       </div>
     </div>
   );

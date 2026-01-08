@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.TEXT,
     embedCode: DataTypes.TEXT,
     published: DataTypes.BOOLEAN,
+    isFeaturedOnHome: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   });
 
   Event.associate = (models) => {

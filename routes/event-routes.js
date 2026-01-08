@@ -169,14 +169,32 @@ module.exports = (app, cloudinary, upload) => {
   });
 
   app.get("/api/events/org/:orgId", async (req, res) => {
-    const dbEvent = await db.Event.findAll({
-      where: {
-        OrganizationId: req.params.orgId,
-      },
-      include: [{ model: db.Image }, { model: db.Ministry }],
-    });
+    console.log("query params:", req.query);
 
-    res.json(dbEvent);
+    try {
+      // 1. Destructure the published status from req.query
+      const { published } = req.query;
+
+      // 2. Build a dynamic 'where' object
+      const whereClause = {
+        OrganizationId: req.params.orgId,
+      };
+
+      // 3. Only add 'published' to the filter if it exists in the query string
+      if (published !== undefined) {
+        // Convert string "true"/"false" to boolean if your DB uses booleans
+        whereClause.published = published === "true";
+      }
+
+      const dbEvent = await db.Event.findAll({
+        where: whereClause,
+        include: [{ model: db.Image }, { model: db.Ministry }],
+      });
+
+      res.json(dbEvent);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
