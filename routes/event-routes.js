@@ -168,6 +168,7 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
+  // GET EVENTS BY ORG ID WITH OPTIONAL PUBLISHED FILTER
   app.get("/api/events/org/:orgId", async (req, res) => {
     console.log("query params:", req.query);
 
@@ -208,6 +209,34 @@ module.exports = (app, cloudinary, upload) => {
       res.json(dbEvent);
     } catch (error) {
       console.log("E: ", error);
+    }
+  });
+
+  app.patch("/api/events/:id/feature", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { isFeaturedOnHome } = req.body;
+
+      // 1. Update the record in the db
+      const updateResult = await db.Event.update(
+        { isFeaturedOnHome },
+        { where: { id } }
+      );
+
+      // 2. Check if the update was successful
+      if (updateResult[0] === 1) {
+        // 3. Fetch the updated event
+        const updatedEvent = await db.Event.findOne({ where: { id } });
+        // 4. Send the updated event back to the client
+        res.json(updatedEvent);
+      } else {
+        res.status(404).json({ error: "Event not found or no changes made." });
+      }
+    } catch (error) {
+      console.error("Error updating featured status:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while updating the event." });
     }
   });
 };
