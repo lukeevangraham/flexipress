@@ -102,7 +102,7 @@ const HomeInfoSingle = () => {
   ];
 
   const availableColDefs = [
-    { field: "name", flex: 3 },
+    { field: "name", filter: true, flex: 3 },
     {
       headerName: "Action",
       cellRenderer: (params) => (
