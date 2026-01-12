@@ -170,8 +170,6 @@ module.exports = (app, cloudinary, upload) => {
 
   // GET EVENTS BY ORG ID WITH OPTIONAL PUBLISHED FILTER
   app.get("/api/events/org/:orgId", async (req, res) => {
-    console.log("query params:", req.query);
-
     try {
       // 1. Destructure the published status from req.query
       const { published } = req.query;
@@ -183,7 +181,7 @@ module.exports = (app, cloudinary, upload) => {
 
       // 3. Only add 'published' to the filter if it exists in the query string
       if (published !== undefined) {
-        // Convert string "true"/"false" to boolean if your DB uses booleans
+        // Convert string "true"/"false" to boolean if DB uses booleans
         whereClause.published = published === "true";
       }
 
@@ -195,20 +193,6 @@ module.exports = (app, cloudinary, upload) => {
       res.json(dbEvent);
     } catch (error) {
       res.status(500).json({ error: error.message });
-    }
-  });
-
-  app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
-    const dbEvent = await db.Event.destroy({
-      where: {
-        id: req.params.id,
-      },
-    });
-
-    try {
-      res.json(dbEvent);
-    } catch (error) {
-      console.log("E: ", error);
     }
   });
 
@@ -237,6 +221,20 @@ module.exports = (app, cloudinary, upload) => {
       res
         .status(500)
         .json({ error: "An error occurred while updating the event." });
+    }
+  });
+
+  app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
+    const dbEvent = await db.Event.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    try {
+      res.json(dbEvent);
+    } catch (error) {
+      console.log("E: ", error);
     }
   });
 };

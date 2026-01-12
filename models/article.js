@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
     metaTitle: DataTypes.STRING,
     metaDescription: DataTypes.STRING,
     published: DataTypes.BOOLEAN,
+    isFeaturedOnHome: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   });
 
   Article.associate = (models) => {

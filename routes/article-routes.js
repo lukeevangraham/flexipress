@@ -31,18 +31,32 @@ module.exports = (app, cloudinary, upload) => {
     }
   );
 
+  // GET ARTICLES BY ORG ID WITH OPTIONAL PUBLISHED FILTER
   app.get("/api/articles/org/:orgId", async (req, res) => {
-    const dbArticle = await db.Article.findAll({
-      where: {
+    try {
+      // 1. Destructure the published status from req.query
+      const { published } = req.query;
+
+      // 2. Buildf a dynamic 'where' object
+      const whereClause = {
         OrganizationId: req.params.orgId,
-      },
-      include: [db.Image, db.Ministry],
-      order: [["createdAt", "DESC"]],
-    });
-    if (dbArticle) {
+      };
+
+      // 3. Only add 'published' to the filter if it exists in the query string
+      if (published !== undefined) {
+        // convert string "true"/"false" to boolean if DB uses booleans
+        whereClause.published = published === "true";
+      }
+
+      const dbArticle = await db.Article.findAll({
+        where: whereClause,
+        include: [db.Image, db.Ministry],
+        order: [["createdAt", "DESC"]],
+      });
+
       res.json(dbArticle);
-    } else {
-      res.status(404).end();
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   });
 
@@ -160,6 +174,24 @@ module.exports = (app, cloudinary, upload) => {
       res.json(updatedArticle);
     } catch (error) {
       console.log("E: ", error);
+    }
+  });
+
+  app.patch("/api/articles/:id/feature", isAuthenticated, async (req, res) => {
+    try {
+      const { isFeaturedOnHome } = req.body;
+      await db.Article.update(
+        { isFeaturedOnHome },
+        {
+          where: { id: req.params.id },
+        }
+      );
+      res.status(200).json({ message: "Featured status updated successfully" });
+    } catch (error) {
+      console.error("Error updating featured status:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while updating the article." });
     }
   });
 

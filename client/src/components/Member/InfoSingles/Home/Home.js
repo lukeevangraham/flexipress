@@ -3,6 +3,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import Button from "../../../UI/Button/Button";
+import FeatureManager from "../../../Member/FeatureManager/FeatureManager";
 import server from "../../../../apis/server";
 import { AgGridReact } from "ag-grid-react"; // React Grid Logic
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
@@ -13,7 +14,8 @@ import classes from "./Home.module.scss";
 const HomeInfoSingle = () => {
   const [topTextValue, setTopTextValue] = useState("");
   const [eventList, setEventList] = useState([]);
-  const [featuredEventColDefs, setFeaturedEventColDefs] = useState(null);
+  const [articleList, setArticleList] = useState([]);
+  // const [featuredEventColDefs, setFeaturedEventColDefs] = useState(null);
   const [selectedRows, setSelectedRows] = useState(null);
   const [existingSingleId, setExistingSingleId] = useState(null);
   const { authUser } = useAuth();
@@ -40,77 +42,119 @@ const HomeInfoSingle = () => {
       );
 
       setEventList(eventListRes.data);
-      // setFeaturedEventColDefs([
-      //   { field: "name", filter: true, checkboxSelection: true, flex: 3 },
-      // ]);
+    };
+
+    const fetchArticles = async () => {
+      const articleListRes = await server.get(
+        `/articles/org/${authUser.orgId}?published=true`
+      );
+
+      setArticleList(articleListRes.data);
     };
 
     fetchHomeInfo();
     fetchEvents();
-  }, [setTopTextValue, authUser.orgId]);
+    fetchArticles();
+  }, [
+    setTopTextValue,
+    setArticleList,
+    setEventList,
+    setExistingSingleId,
+    authUser.orgId,
+  ]);
 
-  // 1. Derived Lists: These update automatically when eventList changes
-  const featuredEvents = useMemo(
-    () => eventList.filter((e) => e.isFeaturedOnHome),
-    [eventList]
-  );
+  // // 1. Derived Lists: These update automatically when eventList changes
+  // const featuredEvents = useMemo(
+  //   () => eventList.filter((e) => e.isFeaturedOnHome),
+  //   [eventList]
+  // );
 
-  const availableEvents = useMemo(
-    () => eventList.filter((e) => !e.isFeaturedOnHome),
-    [eventList]
-  );
+  // const availableEvents = useMemo(
+  //   () => eventList.filter((e) => !e.isFeaturedOnHome),
+  //   [eventList]
+  // );
 
-  // 2. The Toggle Function
-  const toggleFeature = useCallback(async (event) => {
-    const newStatus = !event.isFeaturedOnHome;
+  // NEW TOGGLE FUNCTION FOR GENERIC FEATURE MANAGER
+  const handleToggle = async (item, list, setList, type) => {
+    console.log("type: ", type);
+    const newStatus = !item.isFeaturedOnHome;
 
-    // Optimistic UI Update: Move it in the UI immediately
-    setEventList((prev) =>
-      prev.map((item) =>
-        item.id === event.id ? { ...item, isFeaturedOnHome: newStatus } : item
+    // 1. UI Update
+    setList(
+      list.map((i) =>
+        i.id === item.id ? { ...i, isFeaturedOnHome: newStatus } : i
       )
     );
 
+    // 2. DB Update
     try {
-      // PERSIST TO TB
-      await server.patch(`/events/${event.id}/feature`, {
+      await server.patch(`/${type}/${item.id}/feature`, {
         isFeaturedOnHome: newStatus,
       });
     } catch (error) {
-      console.error("Error updating featured status:", error);
+      console.error("Failed to save", error);
       // Revert UI change on error
-      setEventList((prev) =>
-        prev.map((item) =>
-          item.id === event.id
-            ? { ...item, isFeaturedOnHome: event.isFeaturedOnHome }
-            : item
+      setList(
+        list.map((i) =>
+          i.id === item.id
+            ? { ...i, isFeaturedOnHome: item.isFeaturedOnHome }
+            : i
         )
       );
     }
-  }, []);
+  };
 
-  // DEALING WITH COLUMN DEFS
-  const featuredColDefs = [
-    { field: "name", filter: true, flex: 3 },
-    {
-      headerName: "Action",
-      cellRenderer: (params) => (
-        <Button clicked={() => toggleFeature(params.data)}>Remove</Button>
-      ),
-      width: 120,
-    },
-  ];
+  // // 2. The Toggle Function
+  // const toggleFeature = useCallback(async (event) => {
+  //   const newStatus = !event.isFeaturedOnHome;
 
-  const availableColDefs = [
-    { field: "name", filter: true, flex: 3 },
-    {
-      headerName: "Action",
-      cellRenderer: (params) => (
-        <Button clicked={() => toggleFeature(params.data)}>Feature</Button>
-      ),
-      width: 120,
-    },
-  ];
+  //   // Optimistic UI Update: Move it in the UI immediately
+  //   setEventList((prev) =>
+  //     prev.map((item) =>
+  //       item.id === event.id ? { ...item, isFeaturedOnHome: newStatus } : item
+  //     )
+  //   );
+
+  //   try {
+  //     // PERSIST TO TB
+  //     await server.patch(`/events/${event.id}/feature`, {
+  //       isFeaturedOnHome: newStatus,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error updating featured status:", error);
+  //     // Revert UI change on error
+  //     setEventList((prev) =>
+  //       prev.map((item) =>
+  //         item.id === event.id
+  //           ? { ...item, isFeaturedOnHome: event.isFeaturedOnHome }
+  //           : item
+  //       )
+  //     );
+  //   }
+  // }, []);
+
+  // // DEALING WITH COLUMN DEFS
+  // const featuredColDefs = [
+  //   { field: "name", filter: true, flex: 3 },
+  //   {
+  //     headerName: "Action",
+  //     cellRenderer: (params) => (
+  //       <Button clicked={() => toggleFeature(params.data)}>Remove</Button>
+  //     ),
+  //     width: 120,
+  //   },
+  // ];
+
+  // const availableColDefs = [
+  //   { field: "name", filter: true, flex: 3 },
+  //   {
+  //     headerName: "Action",
+  //     cellRenderer: (params) => (
+  //       <Button clicked={() => toggleFeature(params.data)}>Feature</Button>
+  //     ),
+  //     width: 120,
+  //   },
+  // ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -149,7 +193,7 @@ const HomeInfoSingle = () => {
 
   return (
     <div className={classes.HomeInfoSingle}>
-      <h1>Home Info</h1>
+      <h1>Home Page Management</h1>
       <Button clicked={handleSubmit}>Save</Button>
       <h4>Top Text</h4>
       <div className={classes.HomeInfoSingle__QuillContainer}>
@@ -161,8 +205,31 @@ const HomeInfoSingle = () => {
         />
       </div>
 
+      {/* FEATURE EVENTS */}
+      <FeatureManager
+        title={"Event Spotlight"}
+        itemType="Event"
+        rowData={eventList}
+        onToggle={(item) =>
+          handleToggle(item, eventList, setEventList, "events")
+        }
+      />
+
+      <hr />
+
+      {/* FEATURE ARTICLES */}
+      <FeatureManager
+        title={"Article Spotlight"}
+        itemType="Article"
+        nameField="title"
+        rowData={articleList}
+        onToggle={(item) =>
+          handleToggle(item, articleList, setArticleList, "articles")
+        }
+      />
+
       {/* SECTION 1: THE FEATURED EVENTS */}
-      <div>
+      {/* <div>
         <h4>Currently Featured Events</h4>
         <div className={`ag-theme-quartz ${classes.grid}`}>
           <AgGridReact
@@ -172,10 +239,10 @@ const HomeInfoSingle = () => {
             overlayNoRowsTemplate="No events featured yet."
           />
         </div>
-      </div>
+      </div> */}
 
       {/* SECTION 2: AVAILABLE EVENTS TO FEATURE */}
-      <div>
+      {/* <div>
         <h4>Add Featured Event (Search below)</h4>
         <div className={`ag-theme-quartz ${classes.grid}`}>
           <AgGridReact
@@ -187,7 +254,7 @@ const HomeInfoSingle = () => {
             overlayNoRowsTemplate="No available events to feature."
           />
         </div>
-      </div>
+      </div> */}
 
       {/* <div>
         <h4>Featured Event(s)</h4>
