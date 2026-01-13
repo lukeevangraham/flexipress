@@ -87,7 +87,7 @@ const FeatureManager = ({
           columnDefs={availableColDefs}
           domLayout="autoHeight"
           pagination={true}
-          paginationPageSize={25}
+          paginationPageSize={10}
           paginationPageSizeSelector={false}
         />
       </div>
