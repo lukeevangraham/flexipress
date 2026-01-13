@@ -2,7 +2,7 @@ import React from "react";
 
 import classes from "./Button.module.scss";
 
-const Button = ({ color, children, clicked, disabled }) => (
+const Button = ({ color, children, clicked, disabled, small }) => (
   <>
     {disabled ? (
       <button
@@ -12,7 +12,12 @@ const Button = ({ color, children, clicked, disabled }) => (
         {children}
       </button>
     ) : (
-      <button className={`${classes.btn} ${classes[color]}`} onClick={clicked}>
+      <button
+        className={`${classes.btn} ${classes[color]} ${
+          small ? classes.small : ""
+        }`}
+        onClick={clicked}
+      >
         {children}
       </button>
     )}

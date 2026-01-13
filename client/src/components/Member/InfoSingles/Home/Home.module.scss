@@ -1,12 +1,26 @@
 @import "../../../../assets/sass/variables";
+@import "../../../../assets/sass/mixins";
 
 .HomeInfoSingle {
+  // background-color: orangered;
   &__QuillContainer {
     margin-top: 1rem;
     width: 60rem;
     &__Quill {
       background-color: $color-grey-light;
       margin-bottom: 2rem;
+    }
+  }
+
+  &__FeaturedItems {
+    width: 100%;
+    display: flex;
+    gap: 2rem;
+    & > * {
+      flex: 1 1 0px;
+    }
+    @include respond(tab-port) {
+      flex-direction: column;
     }
   }
 }

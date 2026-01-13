@@ -38,6 +38,14 @@
   }
 }
 
+.grey {
+  background-color: $color-grey;
+  color: $color-white;
+  &:hover {
+    background-color: $color-grey-dark;
+  }
+}
+
 .ghost {
   border: solid 2px $color-tertiary;
 }
@@ -61,5 +69,16 @@
   &:hover {
     background-color: $color-primary;
     color: $color-white;
+  }
+}
+
+.small {
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  // font-size: 1.2rem;
+
+  &:hover {
+    transform: translateY(0);
+    box-shadow: 0 1rem 1.5rem rgba($color-black, 0.2);
   }
 }

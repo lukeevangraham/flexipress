@@ -1,3 +1,37 @@
+@import "../../../assets/sass/variables";
+
 .FeatureManager {
-  // background-color: orangered;
+  width: 100%;
+  background-color: rgba($color-black, 0.07);
+  border-radius: 1rem;
+  padding: 2rem;
+
+  :global {
+    // 1. Target the actual resize handle element
+    .ag-header-cell-resize {
+      display: none !important;
+    }
+
+    // 2. Nuclear option for all header separators
+    .ag-header-cell::after,
+    .ag-header-group-cell::after {
+      display: none !important;
+      content: none !important;
+      width: 0 !important;
+    }
+
+    // 3. Remove any remaining vertical borders
+    .ag-header-cell,
+    .ag-cell {
+      border-right: none !important;
+    }
+  }
+
+  &__Featured {
+    margin-bottom: 2rem;
+  }
+
+  h4 {
+    margin: 1rem 0;
+  }
 }
