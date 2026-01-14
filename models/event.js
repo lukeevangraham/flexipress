@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     published: DataTypes.BOOLEAN,
     slug: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       unique: true,
     },
     isFeaturedOnHome: {
