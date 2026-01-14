@@ -196,6 +196,32 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
+  // GET A SINGLE EVENT BY ORG AND SLUG (Public Scoped Route)
+  app.get("/api/event/org/:orgId/slug/:slug", async (req, res) => {
+    try {
+      const dbEvent = await db.Event.findOne({
+        where: {
+          OrganizationId: req.params.orgId, // Multi-tenant safety
+          slug: req.params.slug, // URL-friendly identifier
+          published: true, // Only live events
+        },
+        include: [{ model: db.Image }, { model: db.Ministry }],
+      });
+
+      if (!dbEvent) {
+        return res
+          .status(404)
+          .json({ message: "Event not found for this organization." });
+      }
+
+      res.json(dbEvent);
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ALLOWS THE HOME SINGLE TO ADJUST WHETHER AN EVENT IS FEATURED ON THE HOME PAGE
   app.patch("/api/events/:id/feature", isAuthenticated, async (req, res) => {
     try {
       const { id } = req.params;
