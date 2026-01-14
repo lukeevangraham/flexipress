@@ -1,3 +1,5 @@
+const slugify = require("slugify");
+
 module.exports = (sequelize, DataTypes) => {
   let Event = sequelize.define("Event", {
     name: DataTypes.STRING,
@@ -8,10 +10,25 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.TEXT,
     embedCode: DataTypes.TEXT,
     published: DataTypes.BOOLEAN,
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
+    },
     isFeaturedOnHome: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+  });
+
+  Event.addHook("beforeValidate", (event) => {
+    if (event.name) {
+      event.slug = slugify(event.name, {
+        lower: true,
+        strict: true,
+        remove: /[*+~.()'"!:@]/g,
+      });
+    }
   });
 
   Event.associate = (models) => {

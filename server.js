@@ -1,3 +1,4 @@
+const slugify = require("slugify");
 require("dotenv/config");
 const express = require("express");
 const session = require("express-session");
@@ -139,7 +140,40 @@ app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({ alter: true }).then(async () => {
+  console.log("Database synced.");
+
+  // --- ONE-TIME SLUG MIGRATION ---
+  try {
+    // Find all events where slug is null or an empty string
+    const eventsToUpdate = await db.Event.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [{ slug: null }, { slug: "" }],
+      },
+    });
+
+    if (eventsToUpdate.length > 0) {
+      console.log(
+        `🚀 Migrating ${eventsToUpdate.length} events to include slugs...`
+      );
+
+      for (let event of eventsToUpdate) {
+        // Generate slug from the 'name' field
+        const newSlug = slugify(event.name, { lower: true, strict: true });
+
+        // Update the record
+        await event.update({ slug: newSlug });
+        console.log(`✅ Updated: "${event.name}" -> ${newSlug}`);
+      }
+      console.log("🏁 Slug migration complete!");
+    }
+  } catch (err) {
+    console.error(
+      "❌ Migration Error: Ensure the 'slug' column exists in your DB.",
+      err
+    );
+  }
+
   app.listen(PORT, function () {
     console.log(`🌎 ==> API server now on port ${PORT}!`);
   });
