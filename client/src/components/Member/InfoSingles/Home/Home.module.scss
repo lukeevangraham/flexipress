@@ -12,6 +12,35 @@
     }
   }
 
+  &__HeadlineRow {
+    width: 100%;
+    margin: 20px 0 40px 0;
+    padding: 20px;
+    background-color: $color-grey-lighter;
+    border-radius: 8px;
+    border: 1px solid #e1e1e1;
+
+    select {
+      width: 100%;
+      max-width: 500px; // Keeps it from becoming too wide on desktop
+      padding: 12px;
+      font-size: 1.4rem;
+      border-radius: 4px;
+    }
+  }
+
+  .HelpText {
+    margin-top: 8px;
+    color: #666;
+    font-style: italic;
+  }
+
+  // .Divider {
+  //   border: 0;
+  //   border-top: 1px solid #eee;
+  //   margin: 40px 0;
+  // }
+
   &__FeaturedItems {
     width: 100%;
     display: flex;

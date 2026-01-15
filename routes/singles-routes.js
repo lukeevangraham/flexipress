@@ -9,6 +9,13 @@ module.exports = (app) => {
     try {
       const homeInfo = await db.SingleHome.findOne({
         where: { OrganizationId: req.params.orgId },
+        include: [
+          {
+            model: db.Event,
+            as: "HeadlineEvent",
+            include: [{ model: db.Image }],
+          },
+        ],
       });
       res.json(homeInfo);
     } catch (error) {
@@ -39,6 +46,7 @@ module.exports = (app) => {
         topText: req.body.topText,
         OrganizationId: req.body.orgId,
         UserId: req.body.userId,
+        HeadlineEventId: req.body.HeadlineEventId,
       });
       res.json(newHomeInfo);
     } catch (error) {

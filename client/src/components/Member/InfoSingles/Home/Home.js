@@ -15,8 +15,8 @@ const HomeInfoSingle = () => {
   const [topTextValue, setTopTextValue] = useState("");
   const [eventList, setEventList] = useState([]);
   const [articleList, setArticleList] = useState([]);
-  // const [featuredEventColDefs, setFeaturedEventColDefs] = useState(null);
-  const [selectedRows, setSelectedRows] = useState(null);
+  const [headlineEventId, setHeadlineEventId] = useState("");
+  // const [selectedRows, setSelectedRows] = useState(null);
   const [existingSingleId, setExistingSingleId] = useState(null);
   const { authUser } = useAuth();
 
@@ -30,6 +30,7 @@ const HomeInfoSingle = () => {
         if (response.data) {
           setTopTextValue(response.data.topText || "");
           setExistingSingleId(response.data.id);
+          setHeadlineEventId(response.data.HeadlineEventId || "");
         }
       } catch (error) {
         console.error("Error fetching home info:", error);
@@ -96,26 +97,29 @@ const HomeInfoSingle = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const payload = {
+      topText: topTextValue,
+      HeadlineEventId: headlineEventId === "" ? null : headlineEventId, // Send null if empty
+    };
+
     if (existingSingleId) {
-      // Update existing home info
       try {
-        const response = await server.put(`/single/home/${existingSingleId}`, {
-          topText: topTextValue,
-        });
+        const response = await server.put(
+          `/single/home/${existingSingleId}`,
+          payload
+        );
         console.log("Home info updated:", response.data);
       } catch (error) {
         console.error("Error updating home info:", error);
       }
     } else {
-      // Create new home info
-
       try {
         const response = await server.post("/single/home", {
-          topText: topTextValue,
+          ...payload,
           orgId: authUser.orgId,
           userId: authUser.id,
         });
-        console.log("Home info saved:", response.data);
+        setExistingSingleId(response.data.id); // Set the ID after first creation
       } catch (error) {
         console.error("Error saving home info:", error);
       }
@@ -135,6 +139,31 @@ const HomeInfoSingle = () => {
           className={classes.HomeInfoSingle__QuillContainer__Quill}
         />
       </div>
+
+      {/* <hr className={classes.Divider} /> */}
+
+      <div className={classes.HomeInfoSingle__HeadlineRow}>
+        <h2>Headline Event (Hero Section)</h2>
+        <div className={classes.HeadlineBox}>
+          <select
+            value={headlineEventId}
+            onChange={(e) => setHeadlineEventId(e.target.value)}
+          >
+            <option value="">-- No Headline Event Selected --</option>
+            {eventList.map((event) => (
+              <option key={event.id} value={event.id}>
+                {event.name}
+              </option>
+            ))}
+          </select>
+          <p className={classes.HelpText}>
+            Note: This event will be featured prominently at the very top of the
+            homepage.
+          </p>
+        </div>
+      </div>
+
+      {/* <hr className={classes.Divider} /> */}
 
       <div className={classes.HomeInfoSingle__FeaturedItems}>
         {/* FEATURE EVENTS */}
