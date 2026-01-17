@@ -168,15 +168,21 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
-  // GET EVENTS BY ORG ID WITH OPTIONAL PUBLISHED & FEATURED FILTERS
+  // GET EVENTS BY ORG ID WITH OPTIONAL FILTERS
   app.get("/api/events/org/:orgId", async (req, res) => {
     try {
-      // 1. Destructure both 'published' and 'featured' from the query
-      const { published, featured } = req.query;
+      const { published, featured, ministryId } = req.query;
 
-      // 2. Build a dynamic 'where' object
+      // 1. Start with the basic tenant/org filter
       const whereClause = {
         OrganizationId: req.params.orgId,
+        // 2. Add the Hybrid Filter for Efficiency
+        [Op.or]: [
+          // Keep events that haven't ended yet
+          { endDate: { [Op.gte]: new Date() } },
+          // KEEP ALL recurring events (so the client-side mapper can calculate next occurrence)
+          { repeatsEveryXDays: { [Op.gt]: 0 } },
+        ],
       };
 
       // 3. Handle 'published' filter
@@ -184,15 +190,20 @@ module.exports = (app, cloudinary, upload) => {
         whereClause.published = published === "true";
       }
 
-      // 4. NEW: Handle 'featured' filter for the Home Page
+      // 4. Handle 'featured' filter
       if (featured !== undefined) {
         whereClause.isFeaturedOnHome = featured === "true";
       }
 
+      // Only apply the 'where' if ministryId actually exists
+      const ministryInclude = {
+        model: db.Ministry,
+        ...(ministryId && { where: { id: ministryId } }),
+      };
+
       const dbEvent = await db.Event.findAll({
         where: whereClause,
-        include: [{ model: db.Image }, { model: db.Ministry }],
-        // 5. Add ordering so events appear in chronological order
+        include: [{ model: db.Image }, ministryInclude],
         order: [["startDate", "ASC"]],
       });
 
