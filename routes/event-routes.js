@@ -268,6 +268,26 @@ module.exports = (app, cloudinary, upload) => {
     }
   });
 
+  // API SEARCH ROUTE
+  app.get("/api/search/:orgId/:query", async (req, res) => {
+    try {
+      const results = await db.Event.findAll({
+        where: {
+          OrganizationId: req.params.orgId,
+          published: true,
+          [Op.or]: [
+            { name: { [Op.like]: `%${req.params.query}%` } },
+            { description: { [Op.like]: `%${req.params.query}%` } },
+          ],
+        },
+        include: [db.Ministry], // Include ministry so we can show it in search results
+      });
+      res.json(results);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
     const dbEvent = await db.Event.destroy({
       where: {
