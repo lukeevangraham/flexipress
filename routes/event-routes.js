@@ -45,15 +45,15 @@ module.exports = (app, cloudinary, upload) => {
     if (req.file) {
       const imageRes = await uploadImageAndAddImageToDb(
         req.file,
-        req.body.orgId
+        req.body.orgId,
       );
 
       const dbEvent = await db.Event.create(
-        formatDataForDB(req.body, imageRes.id)
+        formatDataForDB(req.body, imageRes.id),
       );
 
       const dbEventWithMins = await dbEvent.addMinistries(
-        req.body.ministryId.split(",").map((id) => parseInt(id))
+        req.body.ministryId.split(",").map((id) => parseInt(id)),
       );
 
       const valuesToSendToClient = {
@@ -88,14 +88,14 @@ module.exports = (app, cloudinary, upload) => {
           formatDataForDB(requestBody, imageId),
           {
             where: { id: requestBody.id },
-          }
+          },
         );
 
         if (updatedEvent[0] == 1) {
           eventRes = await getTheUpdatedEvent();
 
           const setMinsResponse = await eventRes.setMinistries(
-            req.body.ministryId.split(",").map((id) => parseInt(id))
+            req.body.ministryId.split(",").map((id) => parseInt(id)),
           );
 
           if (setMinsResponse.length > 0) {
@@ -136,7 +136,7 @@ module.exports = (app, cloudinary, upload) => {
           // AN IMAGE IS INCLUDED IN THE REVISION
           const imageRes = await uploadImageAndAddImageToDb(
             req.file,
-            req.body.orgId
+            req.body.orgId,
           );
 
           afterUpdate = await updateTheEvent(req.body, imageRes.id);
@@ -152,13 +152,13 @@ module.exports = (app, cloudinary, upload) => {
         default:
           break;
       }
-    }
+    },
   );
 
   app.put("/api/event/publish", async (req, res) => {
     const updatePublishResponse = await db.Event.update(
       { published: req.body.published },
-      { where: { id: req.body.eventId } }
+      { where: { id: req.body.eventId } },
     );
 
     try {
@@ -248,7 +248,7 @@ module.exports = (app, cloudinary, upload) => {
       // 1. Update the record in the db
       const updateResult = await db.Event.update(
         { isFeaturedOnHome },
-        { where: { id } }
+        { where: { id } },
       );
 
       // 2. Check if the update was successful
@@ -280,7 +280,7 @@ module.exports = (app, cloudinary, upload) => {
             { description: { [Op.like]: `%${req.params.query}%` } },
           ],
         },
-        include: [db.Ministry], // Include ministry so we can show it in search results
+        include: [db.Ministry, db.Image], // Include ministry so we can show it in search results
       });
       res.json(results);
     } catch (error) {
