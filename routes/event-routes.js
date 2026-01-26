@@ -4,20 +4,26 @@ let db = require("../models");
 // Requiring our custom middleware for checking if a user is logged in
 var isAuthenticated = require("../config/middleware/isAuthenticated");
 
-let formatDataForDB = (requestBody, imageIdFromDb) => ({
-  name: requestBody.name,
-  startDate: requestBody.startDate,
-  endDate: requestBody.endDate,
-  repeatsEveryXDays: requestBody.repeatsEveryXDays
-    ? requestBody.repeatsEveryXDays
-    : null,
-  location: requestBody.location,
-  description: requestBody.description,
-  embedCode: requestBody.embedCode,
-  published: requestBody.published,
-  OrganizationId: requestBody.orgId,
-  ImageId: imageIdFromDb,
-});
+let formatDataForDB = (requestBody, imageIdFromDb) => {
+  const data = {
+    name: requestBody.name,
+    startDate: requestBody.startDate,
+    endDate: requestBody.endDate,
+    repeatsEveryXDays: requestBody.repeatsEveryXDays || null,
+    location: requestBody.location,
+    description: requestBody.description,
+    embedCode: requestBody.embedCode,
+    published: requestBody.published,
+    OrganizationId: requestBody.orgId,
+  };
+
+  // Only include ImageId in the update object if a new one was actually uploaded
+  if (imageIdFromDb) {
+    data.ImageId = imageIdFromDb;
+  }
+
+  return data;
+};
 
 module.exports = (app, cloudinary, upload) => {
   let uploadImageAndAddImageToDb = async (file, orgId) => {
@@ -77,80 +83,72 @@ module.exports = (app, cloudinary, upload) => {
     isAuthenticated,
     upload.single("image"),
     async (req, res) => {
-      let valuesToSendToClient = {};
-      let eventRes;
-      let dbEvent;
-
       let afterUpdate;
+
+      const getTheUpdatedEvent = async () => {
+        return await db.Event.findOne({
+          where: { id: req.body.id, OrganizationId: req.body.orgId },
+          include: [{ model: db.Image }, { model: db.Ministry }],
+        });
+      };
 
       const updateTheEvent = async (requestBody, imageId) => {
         const updatedEvent = await db.Event.update(
           formatDataForDB(requestBody, imageId),
-          {
-            where: { id: requestBody.id },
-          },
+          { where: { id: requestBody.id } },
         );
 
         if (updatedEvent[0] == 1) {
-          eventRes = await getTheUpdatedEvent();
-
-          const setMinsResponse = await eventRes.setMinistries(
+          let eventRes = await getTheUpdatedEvent();
+          await eventRes.setMinistries(
             req.body.ministryId.split(",").map((id) => parseInt(id)),
           );
-
-          if (setMinsResponse.length > 0) {
-            const dbEventWithMins = await getTheUpdatedEvent();
-
-            return dbEventWithMins;
-          } else {
-            return eventRes;
-          }
+          return await getTheUpdatedEvent();
         }
       };
 
-      const getTheUpdatedEvent = async () => {
-        const dbEventPostMofidication = await db.Event.findOne({
-          where: { id: req.body.id, OrganizationId: req.body.orgId },
-          include: [{ model: db.Image }, { model: db.Ministry }],
-        });
+      // --- LOGIC START ---
 
-        return dbEventPostMofidication;
-      };
+      // 1. Check if a new file is present
+      const isNewImage = typeof req.file !== "undefined";
 
-      // IS A NEW IMAGE IS INCLUDED IN THE REVISION?
-      switch (typeof req.file == "undefined") {
-        case true:
-          // NO IMAGE IS INCLUDED IN THE REVISION
+      if (!isNewImage) {
+        // CASE: NO NEW IMAGE
+        afterUpdate = await updateTheEvent(req.body);
+        return res.json(afterUpdate);
+      } else {
+        // CASE: NEW IMAGE UPLOADED
+        try {
+          // A. Capture the OLD event/image data first
+          const oldEvent = await db.Event.findOne({
+            where: { id: req.body.id },
+            include: [db.Image],
+          });
+          const oldImage = oldEvent ? oldEvent.Image : null;
 
-          afterUpdate = await updateTheEvent(req.body);
-
-          try {
-            res.json(afterUpdate);
-          } catch (error) {
-            console.log("E: ", error);
-          }
-
-          break;
-
-        case false:
-          // AN IMAGE IS INCLUDED IN THE REVISION
+          // B. Upload NEW image to Cloudinary and DB
           const imageRes = await uploadImageAndAddImageToDb(
             req.file,
             req.body.orgId,
           );
 
+          // C. Update the event to point to the new imageRes.id
           afterUpdate = await updateTheEvent(req.body, imageRes.id);
 
-          try {
-            res.json(afterUpdate);
-          } catch (error) {
-            console.log("E: ", error);
+          // D. CLEANUP: If there was an old image, destroy it in Cloudinary and SQL
+          if (oldImage && oldImage.imageId) {
+            await cloudinary.v2.uploader.destroy(oldImage.imageId);
+            await db.Image.destroy({ where: { id: oldImage.id } });
+            console.log(
+              `Updated event ${req.body.id}: Purged old image ${oldImage.imageId}`,
+            );
           }
 
-          break;
-
-        default:
-          break;
+          res.json(afterUpdate);
+        } catch (error) {
+          console.error("Update Error with Image Cleanup:", error);
+          res.status(500).json({ error: "Failed to update event image." });
+        }
       }
     },
   );
@@ -289,16 +287,32 @@ module.exports = (app, cloudinary, upload) => {
   });
 
   app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
-    const dbEvent = await db.Event.destroy({
-      where: {
-        id: req.params.id,
-      },
-    });
-
     try {
-      res.json(dbEvent);
+      // 1. Find the event AND the associated image
+      const event = await db.Event.findOne({
+        where: { id: req.params.id },
+        include: [db.Image],
+      });
+
+      if (!event) return res.status(404).json({ error: "Event not found" });
+
+      const imageToDelete = event.Image;
+
+      // 2. Delete the Event first (so it doesn't show up in the UI)
+      await db.Event.destroy({ where: { id: req.params.id } });
+
+      // 3. If there was an image, clean up Cloudinary and the Image table
+      if (imageToDelete && imageToDelete.imageId) {
+        // imageId is the column where you stored the Cloudinary public_id
+        await cloudinary.v2.uploader.destroy(imageToDelete.imageId);
+        await db.Image.destroy({ where: { id: imageToDelete.id } });
+        console.log(`Cleaned up Cloudinary asset: ${imageToDelete.imageId}`);
+      }
+
+      res.json({ message: "Event and associated assets deleted." });
     } catch (error) {
-      console.log("E: ", error);
+      console.log("Delete Error: ", error);
+      res.status(500).json(error);
     }
   });
 };
