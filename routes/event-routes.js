@@ -7,6 +7,12 @@ var isAuthenticated = require("../config/middleware/isAuthenticated");
 let formatDataForDB = (requestBody, imageIdFromDb) => {
   const data = {
     name: requestBody.name,
+    slug:
+      requestBody.slug ||
+      requestBody.name
+        .toLowerCase()
+        .replace(/ /g, "-")
+        .replace(/[^\w-]+/g, ""),
     startDate: requestBody.startDate,
     endDate: requestBody.endDate,
     repeatsEveryXDays: requestBody.repeatsEveryXDays || null,
@@ -85,10 +91,20 @@ module.exports = (app, cloudinary, upload) => {
     async (req, res) => {
       let afterUpdate;
 
+      // HELPER: Get a single event (for internal logic)
       const getTheUpdatedEvent = async () => {
         return await db.Event.findOne({
           where: { id: req.body.id, OrganizationId: req.body.orgId },
           include: [{ model: db.Image }, { model: db.Ministry }],
+        });
+      };
+
+      // HELPER: Get the FULL LIST (what the frontend actually needs to stay stable)
+      const getFullEventList = async () => {
+        return await db.Event.findAll({
+          where: { OrganizationId: req.body.orgId },
+          include: [{ model: db.Image }, { model: db.Ministry }],
+          order: [["startDate", "ASC"]],
         });
       };
 
@@ -108,47 +124,38 @@ module.exports = (app, cloudinary, upload) => {
       };
 
       // --- LOGIC START ---
-
-      // 1. Check if a new file is present
       const isNewImage = typeof req.file !== "undefined";
 
-      if (!isNewImage) {
-        // CASE: NO NEW IMAGE
-        afterUpdate = await updateTheEvent(req.body);
-        return res.json(afterUpdate);
-      } else {
-        // CASE: NEW IMAGE UPLOADED
-        try {
-          // A. Capture the OLD event/image data first
+      try {
+        if (!isNewImage) {
+          // CASE: NO NEW IMAGE
+          await updateTheEvent(req.body);
+        } else {
+          // CASE: NEW IMAGE UPLOADED
           const oldEvent = await db.Event.findOne({
             where: { id: req.body.id },
             include: [db.Image],
           });
           const oldImage = oldEvent ? oldEvent.Image : null;
 
-          // B. Upload NEW image to Cloudinary and DB
           const imageRes = await uploadImageAndAddImageToDb(
             req.file,
             req.body.orgId,
           );
+          await updateTheEvent(req.body, imageRes.id);
 
-          // C. Update the event to point to the new imageRes.id
-          afterUpdate = await updateTheEvent(req.body, imageRes.id);
-
-          // D. CLEANUP: If there was an old image, destroy it in Cloudinary and SQL
           if (oldImage && oldImage.imageId) {
             await cloudinary.v2.uploader.destroy(oldImage.imageId);
             await db.Image.destroy({ where: { id: oldImage.id } });
-            console.log(
-              `Updated event ${req.body.id}: Purged old image ${oldImage.imageId}`,
-            );
           }
-
-          res.json(afterUpdate);
-        } catch (error) {
-          console.error("Update Error with Image Cleanup:", error);
-          res.status(500).json({ error: "Failed to update event image." });
         }
+
+        // FINAL STEP: Always return the full list so the React frontend doesn't crash
+        const allEvents = await getFullEventList();
+        res.json(allEvents);
+      } catch (error) {
+        console.error("Update Error:", error);
+        res.status(500).json({ error: "Failed to update event." });
       }
     },
   );
