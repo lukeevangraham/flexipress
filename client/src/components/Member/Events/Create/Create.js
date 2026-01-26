@@ -22,19 +22,19 @@ const CreateEvent = ({
   const navigate = useNavigate();
 
   const [publish, setPublish] = useState(
-    eventFromList && eventFromList.published ? true : false
+    eventFromList && eventFromList.published ? true : false,
   );
   const [publishEnabled, setPublishEnabled] = useState(
-    eventFromList ? true : false
+    eventFromList ? true : false,
   );
   const [saveEnabled, setSaveEnabled] = useState(null);
   // const [selectedEvent2, setSelectedEvent2] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(
-    eventFromList ? eventFromList : null
+    eventFromList ? eventFromList : null,
   );
 
   const [descriptionValue, setDescriptionValue] = useState(
-    eventFromList ? eventFromList.description : ""
+    eventFromList ? eventFromList.description : "",
   );
 
   // const selectOptions = [
@@ -120,7 +120,7 @@ const CreateEvent = ({
       elementType: "image",
       elementConfig: {
         placeholder: "Image",
-        url: selectedEvent ? selectedEvent.Image.url : "",
+        url: selectedEvent?.Image?.url || "",
         file: "",
       },
       value: "",
@@ -148,7 +148,7 @@ const CreateEvent = ({
         // ministriesList.map()
         placeholder: "Ministries",
       },
-      value: selectedEvent
+      value: selectedEvent?.Ministries
         ? selectedEvent.Ministries.map((m) => m.id.toString())
         : [],
       validation: {
@@ -195,7 +195,7 @@ const CreateEvent = ({
     eventFormValues.append("endDate", eventForm.endDate.value);
     eventFormValues.append(
       "repeatsEveryXDays",
-      eventForm.repeatsEveryXDays.value
+      eventForm.repeatsEveryXDays.value,
     );
     eventFormValues.append("location", eventForm.location.value);
     eventFormValues.append("description", descriptionValue);
@@ -227,21 +227,16 @@ const CreateEvent = ({
 
     if (res.status === 200) {
       setPublishEnabled(true);
-      setSelectedEvent(res.data);
+
+      // If the server returns the full list, find the one we just edited
+      const justUpdated = res.data.find(
+        (ev) =>
+          ev.id === (selectedEvent?.id || res.data[res.data.length - 1].id),
+      );
+
+      setSelectedEvent(justUpdated);
+      setEvents(res.data); // Update the full list
       setSaveEnabled(false);
-
-      if (selectedEvent) {
-        console.log("res: ", res.data);
-        const revisedEvents = events.map((event) => {
-          return event.id === selectedEvent.id
-            ? {
-                ...res.data,
-              }
-            : event;
-        });
-
-        setEvents(revisedEvents);
-      }
     }
   };
 
@@ -258,14 +253,14 @@ const CreateEvent = ({
       updatedFormElement.value = e;
     } else if (updatedFormElement.elementType === "image") {
       updatedFormElement.elementConfig.url = URL.createObjectURL(
-        e.target.files[0]
+        e.target.files[0],
       );
       updatedFormElement.elementConfig.file = e.target.files[0];
     } else if (updatedFormElement.elementType === "richtext") {
       updatedFormElement.value = e.target;
     } else if (updatedFormElement.elementType === "select") {
       const selectedOptions = Array.from(e.target.selectedOptions).map(
-        (option) => option.value
+        (option) => option.value,
       );
       updatedFormElement.value = selectedOptions;
     } else {
