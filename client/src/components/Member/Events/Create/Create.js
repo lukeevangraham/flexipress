@@ -5,10 +5,8 @@ import Input from "../../../UI/Input/Input";
 import Button from "../../../UI/Button/Button";
 import server, { getMinistries } from "../../../../apis/server";
 import ReactQuill from "react-quill-new";
-// import { useLocation } from "react-router-dom";
 
 import classes from "./Create.module.scss";
-// import event from "../../../../../../models/event";
 
 const CreateEvent = ({
   eventFromList,
@@ -18,7 +16,6 @@ const CreateEvent = ({
   setSelectedRows,
 }) => {
   const { authUser } = useAuth();
-
   const navigate = useNavigate();
 
   const [publish, setPublish] = useState(
@@ -28,7 +25,6 @@ const CreateEvent = ({
     eventFromList ? true : false,
   );
   const [saveEnabled, setSaveEnabled] = useState(null);
-  // const [selectedEvent2, setSelectedEvent2] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(
     eventFromList ? eventFromList : null,
   );
@@ -36,15 +32,6 @@ const CreateEvent = ({
   const [descriptionValue, setDescriptionValue] = useState(
     eventFromList ? eventFromList.description : "",
   );
-
-  // const selectOptions = [
-  //   { value: "Youth", displayValue: "Youth" },
-  //   { value: "children", displayValue: "Children" },
-  //   { value: "worship", displayValue: "Worship" },
-  //   { value: "outreach", displayValue: "Outreach" },
-  //   { value: "missions", displayValue: "Missions" },
-  //   { value: "other", displayValue: "Other" },
-  // ];
 
   const [eventForm, setEventForm] = useState({
     name: {
@@ -120,6 +107,7 @@ const CreateEvent = ({
       elementType: "image",
       elementConfig: {
         placeholder: "Image",
+        // FIX 1: Safely access Image url
         url: selectedEvent?.Image?.url || "",
         file: "",
       },
@@ -138,34 +126,31 @@ const CreateEvent = ({
       validation: {
         required: false,
       },
-      // width: "50rem"
     },
     ministries: {
       elementType: "select",
       elementConfig: {
         options: [],
         multiple: true,
-        // ministriesList.map()
         placeholder: "Ministries",
       },
+      // FIX 2: Safely access Ministries array
       value: selectedEvent?.Ministries
         ? selectedEvent.Ministries.map((m) => m.id.toString())
         : [],
       validation: {
         required: false,
       },
-      // width: "20rem",
     },
   });
 
   useEffect(() => {
     getMinistries(authUser, setEventForm);
-  }, [authUser, setEventForm, getMinistries]);
+  }, [authUser, setEventForm]);
 
   const handlePublish = async (e) => {
     e.preventDefault();
-    // console.log("publish clicked", !publish);
-    const publishResponse = await server.put("/event/publish", {
+    await server.put("/event/publish", {
       eventId: selectedEvent.id,
       published: !publish,
       orgId: authUser.orgId,
@@ -186,10 +171,7 @@ const CreateEvent = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // console.log("Publish: ", publish);
-
     let eventFormValues = new FormData();
-
     eventFormValues.append("name", eventForm.name.value);
     eventFormValues.append("startDate", eventForm.startDate.value);
     eventFormValues.append("endDate", eventForm.endDate.value);
@@ -206,10 +188,6 @@ const CreateEvent = ({
     eventFormValues.append("ministryId", eventForm.ministries.value);
     eventFormValues.append("embedCode", eventForm.embedCode.value);
 
-    // for (var pair of eventFormValues.entries()) {
-    //   console.log(pair[0] + ": " + pair[1]);
-    // }
-
     let eventResponse;
 
     if (selectedEvent) {
@@ -217,9 +195,7 @@ const CreateEvent = ({
       eventResponse = await server.put("/event", eventFormValues);
     } else {
       eventResponse = await server.post("/event", eventFormValues, {
-        headers: {
-          "content-type": "multipart/form-data",
-        },
+        headers: { "content-type": "multipart/form-data" },
       });
     }
 
@@ -228,26 +204,22 @@ const CreateEvent = ({
     if (res.status === 200) {
       setPublishEnabled(true);
 
-      // If the server returns the full list, find the one we just edited
+      // FIX 3: Since res.data is an ARRAY, find the specific event to keep selectedEvent as an object
       const justUpdated = res.data.find(
         (ev) =>
           ev.id === (selectedEvent?.id || res.data[res.data.length - 1].id),
       );
 
       setSelectedEvent(justUpdated);
-      setEvents(res.data); // Update the full list
+      setEvents(res.data); // Update the full list state
       setSaveEnabled(false);
     }
   };
 
   const inputChangedHandler = (e, inputIdentifier) => {
     setSaveEnabled(true);
-    const updatedEventForm = {
-      ...eventForm,
-    };
-    const updatedFormElement = {
-      ...updatedEventForm[inputIdentifier],
-    };
+    const updatedEventForm = { ...eventForm };
+    const updatedFormElement = { ...updatedEventForm[inputIdentifier] };
 
     if (updatedFormElement.elementType === "date") {
       updatedFormElement.value = e;
@@ -279,10 +251,7 @@ const CreateEvent = ({
 
   const formElementsArray = [];
   for (let key in eventForm) {
-    formElementsArray.push({
-      id: key,
-      config: eventForm[key],
-    });
+    formElementsArray.push({ id: key, config: eventForm[key] });
   }
 
   const form = (
@@ -322,9 +291,9 @@ const CreateEvent = ({
       })}
     </form>
   );
+
   return (
     <div className={classes.EventSubmission}>
-      {/* <h1>Events</h1> */}
       {selectedEvent ? (
         <Button clicked={events ? backClickHandler : () => navigate("/events")}>
           &larr; Back
@@ -334,18 +303,14 @@ const CreateEvent = ({
       <div className={classes.EventSubmission__TopInfo}>
         <h2>{selectedEvent ? `Edit an` : `Create a new`} event</h2>
         <div className={classes.EventSubmission__TopInfo__Buttons}>
-          <Button
-            disabled={publishEnabled ? false : true}
-            clicked={handlePublish}
-          >
+          <Button disabled={!publishEnabled} clicked={handlePublish}>
             {publish ? `Unpublish` : `Publish`}
           </Button>
-          <Button disabled={saveEnabled ? false : true} clicked={handleSubmit}>
+          <Button disabled={!saveEnabled} clicked={handleSubmit}>
             Save
           </Button>
         </div>
       </div>
-      {/* {console.log("FORM: ", eventForm)} */}
       {form}
     </div>
   );
