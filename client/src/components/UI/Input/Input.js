@@ -59,13 +59,14 @@ const Input = ({
     case "image":
       inputElement = (
         <>
-          {elementConfig.url ? (
+          {/* Use Optional Chaining (?.) to safely check for the url */}
+          {elementConfig?.url ? (
             <img src={elementConfig.url} className={classes.image} alt="" />
           ) : null}
           <input
             type="file"
             {...elementConfig}
-            name={elementConfig.placeholder}
+            name={elementConfig?.placeholder || "image"} // Safety check here too
             id="image"
             onChange={changed}
             required={required ? true : null}
