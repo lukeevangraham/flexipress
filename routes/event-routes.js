@@ -33,10 +33,25 @@ let formatDataForDB = (requestBody, imageIdFromDb) => {
 
 module.exports = (app, cloudinary, upload) => {
   let uploadImageAndAddImageToDb = async (file, orgId) => {
-    const cloudinaryResponse = await cloudinary.v2.uploader.upload(file.path);
+    const cloudinaryResponse = await cloudinary.v2.uploader.upload(file.path, {
+      // 1. Keep the new account organized
+      folder: "flexipress_events",
+
+      // 2. Limit resolution (Resize to 1200px wide ONLY if the original is larger)
+      width: 1200,
+      crop: "limit",
+
+      // 3. Auto-Optimization
+      // fetch_format: "auto" picks WebP/AVIF for modern browsers
+      // quality: "auto" uses AI to compress the file size without losing detail
+      fetch_format: "auto",
+      quality: "auto",
+    });
 
     const newImageObject = {
       fileName: cloudinaryResponse.original_filename,
+      // secure_url will now point to the optimized version if you set it in presets,
+      // but Cloudinary also handles the optimization via the URL transformation.
       url: cloudinaryResponse.secure_url,
       imageId: cloudinaryResponse.public_id,
       width: cloudinaryResponse.width,
@@ -44,13 +59,15 @@ module.exports = (app, cloudinary, upload) => {
       OrganizationId: orgId,
     };
 
-    const dbImage = await db.Image.create(newImageObject, (err, image) => {
-      if (err) {
-        res.json(err.message);
-      }
-    });
-
-    return dbImage;
+    // Removed the callback (err, image) as db.Image.create returns a promise
+    // and we are using async/await.
+    try {
+      const dbImage = await db.Image.create(newImageObject);
+      return dbImage;
+    } catch (err) {
+      console.error("Database Error saving image:", err);
+      throw err; // Throw so the calling route knows the DB save failed
+    }
   };
 
   app.post("/api/event", upload.single("image"), async function (req, res) {
