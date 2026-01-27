@@ -222,10 +222,11 @@ const CreateEvent = ({
 
     const res = eventResponse;
 
-    if (res.status === 200) {
+    // Check if status is 200 AND ensure res.data is actually an array
+    if (res.status === 200 && Array.isArray(res.data)) {
       setPublishEnabled(true);
 
-      // If it's a brand new event, it's usually the last one in the returned list
+      // Find the event we just created or updated
       const justUpdated = res.data.find(
         (ev) =>
           ev.id === (selectedEvent?.id || res.data[res.data.length - 1].id),
@@ -234,10 +235,16 @@ const CreateEvent = ({
       if (justUpdated) {
         setSelectedEvent(justUpdated);
         setPublish(justUpdated.published);
+        setEvents(res.data);
+        setSaveEnabled(false);
       }
-
-      setEvents(res.data);
-      setSaveEnabled(false);
+    } else {
+      // Handle the case where the server returned an error object instead of the list
+      console.error(
+        "Server did not return an array. Check backend logs.",
+        res.data,
+      );
+      alert("Save failed: " + (res.data.error || "Unknown server error"));
     }
   };
 
