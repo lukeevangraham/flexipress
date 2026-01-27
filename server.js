@@ -13,6 +13,36 @@ var morgan = require("morgan");
 const multer = require("multer");
 const cloudinary = require("cloudinary");
 
+const allowedOrigins = [
+  "https://flexipress.grahamwebworks.com",
+  "http://flexipress.grahamwebworks.com",
+  "https://fpserver.grahamwebworks.com",
+  "http://localhost:3000", // Always keep this for local testing!
+];
+
+const isProd = process.env.NODE_ENV === "production";
+
+if (!isProd) {
+  app.use(
+    cors({
+      origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) === -1) {
+          var msg =
+            "The CORS policy for this site does not allow access from the specified Origin.";
+          return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+      },
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
+  );
+}
+
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "./client/build")));
@@ -35,16 +65,6 @@ if (process.env.NODE_ENV === "production") {
 //     methods: ["GET", "POST", "PUT", "DELETE"],
 //   })
 // );
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      return callback(null, true);
-    },
-    optionsSuccessStatus: 200,
-    credentials: true,
-  })
-);
 
 // app.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "*");
@@ -79,7 +99,7 @@ app.use(
     limit: "50mb",
     extended: true,
     parameterLimit: 1000000,
-  })
+  }),
 );
 
 app.use(bodyParser.json());
@@ -88,12 +108,19 @@ app.use(bodyParser.json());
 // app.use(express.json({ limit: "50mb" }));
 
 // We need to use sessions to keep track of our user's login status
+
 app.use(
   session({
     secret: process.env.PASSPORT_SECRET,
     resave: true,
     saveUninitialized: true,
-  })
+    proxy: isProd, // Only true in production behind Nginx
+    cookie: {
+      secure: isProd, // Only requires HTTPS in production
+      sameSite: isProd ? "none" : "lax", // 'none' for cross-domain prod, 'lax' for local
+      maxAge: 1000 * 60 * 60 * 24, // Recommended: 24-hour session
+    },
+  }),
 );
 app.use(passport.session());
 app.use(passport.initialize());
