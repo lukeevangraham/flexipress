@@ -99,33 +99,31 @@ module.exports = (app, cloudinary, upload) => {
   };
 
   app.post("/api/event", upload.single("image"), async function (req, res) {
-    if (req.file) {
-      const imageRes = await uploadImageAndAddImageToDb(
-        req.file,
-        req.body.orgId,
-      );
+    try {
+      let imageId = null;
 
-      const dbEvent = await db.Event.create(
-        formatDataForDB(req.body, imageRes.id),
-      );
-
-      const dbEventWithMins = await dbEvent.addMinistries(
-        req.body.ministryId.split(",").map((id) => parseInt(id)),
-      );
-
-      const valuesToSendToClient = {
-        ...dbEvent.dataValues,
-        Image: imageRes.dataValues,
-        Ministries: req.body.ministryId
-          .split(",")
-          .map((id) => ({ id: parseInt(id) })), // Mock ministry objects with only IDs
-      };
-
-      try {
-        res.json(valuesToSendToClient);
-      } catch (error) {
-        console.log("E: ", error);
+      if (req.file) {
+        const imageRes = await uploadImageAndAddImageToDb(
+          req.file,
+          req.body.orgId,
+        );
+        imageId = imageRes.id;
       }
+
+      const dbEvent = await db.Event.create(formatDataForDB(req.body, imageId));
+
+      if (req.body.ministryId) {
+        await dbEvent.addMinistries(
+          req.body.ministryId.split(",").map((id) => parseInt(id)),
+        );
+      }
+
+      // CONSISTENCY FIX: Fetch the full list just like the PUT route does
+      const allEvents = await fetchOrgEventList(req.body.orgId);
+      res.json(allEvents);
+    } catch (error) {
+      console.error("POST Error: ", error);
+      res.status(500).json({ error: "Failed to create event." });
     }
   });
 
