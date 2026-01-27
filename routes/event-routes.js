@@ -321,34 +321,38 @@ module.exports = (app, cloudinary, upload) => {
 
   app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
     try {
-      // 1. Find the event AND the associated image
+      const eventId = req.params.id;
+      // Use authUser.orgId if that's what your AuthContext/Passport uses
+      const orgId = req.user?.orgId || req.body?.orgId;
+
       const event = await db.Event.findOne({
-        where: {
-          id: req.params.id,
-          OrganizationId: req.user.orgId, // Assuming passport attaches user to req
-        },
-        include: [db.Image],
+        where: { id: eventId },
+        include: [db.Image, db.Ministry], // Include Ministries to access the association
       });
 
       if (!event) return res.status(404).json({ error: "Event not found" });
 
       const imageToDelete = event.Image;
 
-      // 2. Delete the Event first (so it doesn't show up in the UI)
-      await db.Event.destroy({ where: { id: req.params.id } });
+      // 1. MANUALLY UNLINK MINISTRIES
+      // This removes the rows in the junction table (EventMinistries)
+      await event.setMinistries([]);
 
-      // 3. If there was an image, clean up Cloudinary and the Image table
+      // 2. Now it is safe to delete the Event
+      await db.Event.destroy({ where: { id: eventId } });
+
+      // 3. Clean up Cloudinary and Image table
       if (imageToDelete && imageToDelete.imageId) {
-        // imageId is the column where you stored the Cloudinary public_id
         await cloudinary.v2.uploader.destroy(imageToDelete.imageId);
         await db.Image.destroy({ where: { id: imageToDelete.id } });
-        console.log(`Cleaned up Cloudinary asset: ${imageToDelete.imageId}`);
       }
 
       res.json({ message: "Event and associated assets deleted." });
     } catch (error) {
-      console.log("Delete Error: ", error);
-      res.status(500).json(error);
+      console.error("Delete Error: ", error);
+      res
+        .status(500)
+        .json({ error: "Database constraint error. Check associations." });
     }
   });
 };
