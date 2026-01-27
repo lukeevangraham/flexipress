@@ -14,8 +14,8 @@ import classes from "./Events.module.scss";
 const Events = () => {
   const { authUser } = useAuth();
 
-  const [eventList, setEventList] = useState(null);
-  const [colDefs, setColDefs] = useState(null);
+  const [eventList, setEventList] = useState([]);
+  const [colDefs, setColDefs] = useState([]);
   const [clickedEvent, setClickedEvent] = useState(null);
   const [selectedRows, setSelectedRows] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -24,39 +24,44 @@ const Events = () => {
 
   useEffect(() => {
     const getEvents = async () => {
-      const eventListRes = await server.get(`/events/org/${authUser.orgId}`);
+      // GUARD: Only fetch if we actually have an orgId
+      if (!authUser || !authUser.orgId) return;
 
-      setEventList(eventListRes.data);
-      setColDefs([
-        { field: "name", filter: true, checkboxSelection: true, flex: 3 },
-        {
-          field: "startDate",
-          flex: 1,
-          valueFormatter: (params) => {
-            return new Date(params.value).toLocaleDateString();
+      try {
+        const eventListRes = await server.get(`/events/org/${authUser.orgId}`);
+        setEventList(eventListRes.data || []); // Fallback to empty array
+
+        setColDefs([
+          { field: "name", filter: true, checkboxSelection: true, flex: 3 },
+          {
+            field: "startDate",
+            flex: 1,
+            valueFormatter: (params) =>
+              new Date(params.value).toLocaleDateString(),
           },
-        },
-        { field: "location", flex: 2 },
-        { field: "published", flex: 1 },
-        {
-          field: "updatedAt",
-          flex: 1,
-          valueFormatter: (params) => {
-            return new Date(params.value).toLocaleDateString();
+          { field: "location", flex: 2 },
+          { field: "published", flex: 1 },
+          {
+            field: "updatedAt",
+            flex: 1,
+            valueFormatter: (params) =>
+              new Date(params.value).toLocaleDateString(),
           },
-        },
-      ]);
+        ]);
+      } catch (err) {
+        console.error("Failed to fetch events:", err);
+      }
     };
 
     getEvents();
-  }, [setEventList, setColDefs, authUser]);
+  }, [authUser]);
 
   const deleteEvent = async () => {
     const deleteResponse = await server.delete(`/event/${selectedRows[0].id}`);
 
     if (deleteResponse.status === 200) {
       const trimmedEventList = eventList.filter(
-        (event) => event.id !== selectedRows[0].id
+        (event) => event.id !== selectedRows[0].id,
       );
       setEventList(trimmedEventList);
       setSelectedRows(null);
