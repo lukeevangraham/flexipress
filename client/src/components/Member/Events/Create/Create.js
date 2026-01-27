@@ -186,10 +186,14 @@ const CreateEvent = ({
     eventFormValues.append("name", eventForm.name.value);
     eventFormValues.append("startDate", eventForm.startDate.value);
     eventFormValues.append("endDate", eventForm.endDate.value);
+
+    // SANITIZE: Ensure numbers are actually numbers or null, not "undefined"
+    const repeats = eventForm.repeatsEveryXDays.value;
     eventFormValues.append(
       "repeatsEveryXDays",
-      eventForm.repeatsEveryXDays.value,
+      repeats === "" || repeats === undefined ? 0 : repeats,
     );
+
     eventFormValues.append("location", eventForm.location.value);
     eventFormValues.append("description", descriptionValue);
     eventFormValues.append("image", eventForm.image.elementConfig.file);
@@ -197,11 +201,17 @@ const CreateEvent = ({
     eventFormValues.append("orgId", authUser.orgId);
     eventFormValues.append("published", publish);
     eventFormValues.append("ministryId", eventForm.ministries.value);
-    eventFormValues.append("embedCode", eventForm.embedCode.value);
+
+    // SANITIZE: Prevent the literal string "undefined" from being saved
+    eventFormValues.append("embedCode", eventForm.embedCode.value || "");
 
     let eventResponse;
 
-    if (selectedEvent) {
+    // CRITICAL CHECK: Ensure we have a REAL numeric ID before attempting a PUT
+    const hasValidId =
+      selectedEvent && selectedEvent.id && selectedEvent.id !== "undefined";
+
+    if (hasValidId) {
       eventFormValues.append("id", selectedEvent.id);
       eventResponse = await server.put("/event", eventFormValues);
     } else {
@@ -215,20 +225,19 @@ const CreateEvent = ({
     if (res.status === 200) {
       setPublishEnabled(true);
 
-      // Find the event we just created or updated
-      // If it's new, it's likely the last item in the array
+      // If it's a brand new event, it's usually the last one in the returned list
       const justUpdated = res.data.find(
         (ev) =>
           ev.id === (selectedEvent?.id || res.data[res.data.length - 1].id),
       );
 
-      // CRITICAL: Update the state so handlePublish has an ID to work with
-      setSelectedEvent(justUpdated);
+      if (justUpdated) {
+        setSelectedEvent(justUpdated);
+        setPublish(justUpdated.published);
+      }
+
       setEvents(res.data);
       setSaveEnabled(false);
-
-      // Update the publish status based on the server response
-      setPublish(justUpdated.published);
     }
   };
 

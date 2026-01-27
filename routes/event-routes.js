@@ -134,9 +134,15 @@ module.exports = (app, cloudinary, upload) => {
     isAuthenticated,
     upload.single("image"),
     async (req, res) => {
-      let afterUpdate;
+      // 1. GATEKEEPER: Check for the "undefined" string or missing ID
+      if (!req.body.id || req.body.id === "undefined") {
+        console.error("PUT request received without a valid ID.");
+        return res
+          .status(400)
+          .json({ error: "Valid Event ID is required for update." });
+      }
 
-      // HELPER: Get a single event (for internal logic)
+      // HELPER: Get a single event
       const getTheUpdatedEvent = async () => {
         return await db.Event.findOne({
           where: { id: req.body.id, OrganizationId: req.body.orgId },
@@ -149,18 +155,23 @@ module.exports = (app, cloudinary, upload) => {
       };
 
       const updateTheEvent = async (requestBody, imageId) => {
-        const updatedEvent = await db.Event.update(
-          formatDataForDB(requestBody, imageId),
-          { where: { id: requestBody.id } },
-        );
+        // 2. SANITIZE embedCode: Ensure it's not the string "undefined"
+        const data = formatDataForDB(requestBody, imageId);
+        if (data.embedCode === "undefined") data.embedCode = null;
 
-        if (updatedEvent[0] == 1) {
-          let eventRes = await getTheUpdatedEvent();
-          await eventRes.setMinistries(
-            req.body.ministryId.split(",").map((id) => parseInt(id)),
-          );
-          return await getTheUpdatedEvent();
+        await db.Event.update(data, {
+          where: { id: requestBody.id },
+        });
+
+        // Fetch the instance to update associations
+        let eventRes = await getTheUpdatedEvent();
+        if (eventRes && requestBody.ministryId) {
+          const ministryIds = requestBody.ministryId
+            .split(",")
+            .map((id) => parseInt(id));
+          await eventRes.setMinistries(ministryIds);
         }
+        return eventRes;
       };
 
       // --- LOGIC START ---
@@ -168,10 +179,8 @@ module.exports = (app, cloudinary, upload) => {
 
       try {
         if (!isNewImage) {
-          // CASE: NO NEW IMAGE
           await updateTheEvent(req.body);
         } else {
-          // CASE: NEW IMAGE UPLOADED
           const oldEvent = await db.Event.findOne({
             where: { id: req.body.id },
             include: [db.Image],
@@ -190,7 +199,6 @@ module.exports = (app, cloudinary, upload) => {
           }
         }
 
-        // FINAL STEP: Always return the full list so the React frontend doesn't crash
         const allEvents = await getFullEventList();
         res.json(allEvents);
       } catch (error) {
