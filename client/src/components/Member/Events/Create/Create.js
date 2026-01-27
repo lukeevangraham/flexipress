@@ -234,7 +234,7 @@ const CreateEvent = ({
 
       if (justUpdated) {
         setSelectedEvent(justUpdated);
-        setPublish(justUpdated.published);
+        setPublish(!!justUpdated.published);
         setEvents(res.data);
         setSaveEnabled(false);
       }

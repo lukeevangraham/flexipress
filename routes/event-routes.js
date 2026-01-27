@@ -19,11 +19,12 @@ let formatDataForDB = (requestBody, imageIdFromDb) => {
     location: requestBody.location,
     description: requestBody.description,
     embedCode: requestBody.embedCode,
-    published: requestBody.published,
+    // FIX: Parse the string "false" into the boolean false
+    published:
+      requestBody.published === "true" || requestBody.published === true,
     OrganizationId: requestBody.orgId,
   };
 
-  // Only include ImageId in the update object if a new one was actually uploaded
   if (imageIdFromDb) {
     data.ImageId = imageIdFromDb;
   }
@@ -320,37 +321,42 @@ module.exports = (app, cloudinary, upload) => {
   app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
     try {
       const eventId = req.params.id;
-      // Use authUser.orgId if that's what your AuthContext/Passport uses
-      const orgId = req.user?.orgId || req.body?.orgId;
+      const userOrgId = req.user?.orgId; // Passport typically attaches user to req
 
       const event = await db.Event.findOne({
-        where: { id: eventId },
-        include: [db.Image, db.Ministry], // Include Ministries to access the association
+        where: {
+          id: eventId,
+          OrganizationId: userOrgId, // Security: verify ownership
+        },
+        include: [db.Image, db.Ministry],
       });
 
-      if (!event) return res.status(404).json({ error: "Event not found" });
+      if (!event)
+        return res
+          .status(404)
+          .json({ error: "Event not found or unauthorized" });
 
       const imageToDelete = event.Image;
 
-      // 1. MANUALLY UNLINK MINISTRIES
-      // This removes the rows in the junction table (EventMinistries)
+      // 1. Clear Ministry Links (Junction Table)
       await event.setMinistries([]);
 
-      // 2. Now it is safe to delete the Event
+      // 2. Delete the Event
       await db.Event.destroy({ where: { id: eventId } });
 
-      // 3. Clean up Cloudinary and Image table
+      // 3. Cloudinary Cleanup
       if (imageToDelete && imageToDelete.imageId) {
         await cloudinary.v2.uploader.destroy(imageToDelete.imageId);
         await db.Image.destroy({ where: { id: imageToDelete.id } });
       }
 
+      // Return status 200 so the frontend knows to filter the local list
       res.json({ message: "Event and associated assets deleted." });
     } catch (error) {
       console.error("Delete Error: ", error);
       res
         .status(500)
-        .json({ error: "Database constraint error. Check associations." });
+        .json({ error: "Failed to delete event. Check server logs." });
     }
   });
 };
