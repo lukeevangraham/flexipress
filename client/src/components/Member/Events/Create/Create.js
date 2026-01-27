@@ -144,9 +144,23 @@ const CreateEvent = ({
     },
   });
 
+  // EFFECT 1: Runs on mount to get ministries
   useEffect(() => {
     getMinistries(authUser, setEventForm);
   }, [authUser, setEventForm]);
+
+  // EFFECT 2: Runs whenever selectedEvent changes (e.g., after a Save)
+  useEffect(() => {
+    if (selectedEvent) {
+      // This stops the "button flip" by forcing the toggle
+      // to match what the database actually says.
+      setPublish(!!selectedEvent.published);
+
+      if (selectedEvent.id) {
+        setPublishEnabled(true);
+      }
+    }
+  }, [selectedEvent]);
 
   const handlePublish = async (e) => {
     e.preventDefault();
@@ -187,7 +201,7 @@ const CreateEvent = ({
     eventFormValues.append("startDate", eventForm.startDate.value);
     eventFormValues.append("endDate", eventForm.endDate.value);
 
-    // SANITIZE: Ensure numbers are actually numbers or null, not "undefined"
+    // SANITIZE: Numbers must be numeric; handle empty strings/undefined
     const repeats = eventForm.repeatsEveryXDays.value;
     eventFormValues.append(
       "repeatsEveryXDays",
@@ -199,52 +213,58 @@ const CreateEvent = ({
     eventFormValues.append("image", eventForm.image.elementConfig.file);
     eventFormValues.append("userId", authUser.id);
     eventFormValues.append("orgId", authUser.orgId);
+
+    // CRITICAL: Explicitly send the current local publish state
     eventFormValues.append("published", publish);
     eventFormValues.append("ministryId", eventForm.ministries.value);
-
-    // SANITIZE: Prevent the literal string "undefined" from being saved
     eventFormValues.append("embedCode", eventForm.embedCode.value || "");
 
     let eventResponse;
 
-    // CRITICAL CHECK: Ensure we have a REAL numeric ID before attempting a PUT
+    // Check for a real, existing ID (Update vs. Create)
     const hasValidId =
       selectedEvent && selectedEvent.id && selectedEvent.id !== "undefined";
 
-    if (hasValidId) {
-      eventFormValues.append("id", selectedEvent.id);
-      eventResponse = await server.put("/event", eventFormValues);
-    } else {
-      eventResponse = await server.post("/event", eventFormValues, {
-        headers: { "content-type": "multipart/form-data" },
-      });
-    }
-
-    const res = eventResponse;
-
-    // Check if status is 200 AND ensure res.data is actually an array
-    if (res.status === 200 && Array.isArray(res.data)) {
-      setPublishEnabled(true);
-
-      // Find the event we just created or updated
-      const justUpdated = res.data.find(
-        (ev) =>
-          ev.id === (selectedEvent?.id || res.data[res.data.length - 1].id),
-      );
-
-      if (justUpdated) {
-        setSelectedEvent(justUpdated);
-        setPublish(!!justUpdated.published);
-        setEvents(res.data);
-        setSaveEnabled(false);
+    try {
+      if (hasValidId) {
+        eventFormValues.append("id", selectedEvent.id);
+        eventResponse = await server.put("/event", eventFormValues);
+      } else {
+        eventResponse = await server.post("/event", eventFormValues, {
+          headers: { "content-type": "multipart/form-data" },
+        });
       }
-    } else {
-      // Handle the case where the server returned an error object instead of the list
-      console.error(
-        "Server did not return an array. Check backend logs.",
-        res.data,
-      );
-      alert("Save failed: " + (res.data.error || "Unknown server error"));
+
+      const res = eventResponse;
+
+      if (res.status === 200 && Array.isArray(res.data)) {
+        // 1. Identify the record we just touched
+        const justUpdated = res.data.find((ev) => {
+          if (hasValidId) {
+            return ev.id === selectedEvent.id;
+          }
+          // If it was a NEW event, match by name (since we don't have an ID yet)
+          return ev.name === eventForm.name.value;
+        });
+
+        if (justUpdated) {
+          // 2. Lock the UI state to the DB's actual values
+          setSelectedEvent(justUpdated);
+
+          // Use !! to force the DB's 1/0 or "false" into a clean boolean
+          setPublish(!!justUpdated.published);
+
+          // 3. Update global list and UI controls
+          setEvents(res.data);
+          setPublishEnabled(true);
+          setSaveEnabled(false);
+        }
+      } else {
+        throw new Error("Server response was not an array.");
+      }
+    } catch (err) {
+      console.error("Save Error:", err);
+      alert("Save failed: " + (err.response?.data?.error || err.message));
     }
   };
 

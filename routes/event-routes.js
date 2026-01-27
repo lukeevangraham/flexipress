@@ -19,9 +19,7 @@ let formatDataForDB = (requestBody, imageIdFromDb) => {
     location: requestBody.location,
     description: requestBody.description,
     embedCode: requestBody.embedCode,
-    // FIX: Parse the string "false" into the boolean false
-    published:
-      requestBody.published === "true" || requestBody.published === true,
+    published: String(requestBody.published) === "true",
     OrganizationId: requestBody.orgId,
   };
 
