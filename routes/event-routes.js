@@ -314,7 +314,10 @@ module.exports = (app, cloudinary, upload) => {
     try {
       // 1. Find the event AND the associated image
       const event = await db.Event.findOne({
-        where: { id: req.params.id },
+        where: {
+          id: req.params.id,
+          OrganizationId: req.user.orgId, // Assuming passport attaches user to req
+        },
         include: [db.Image],
       });
 

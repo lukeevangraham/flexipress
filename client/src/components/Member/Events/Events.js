@@ -57,14 +57,29 @@ const Events = () => {
   }, [authUser]);
 
   const deleteEvent = async () => {
-    const deleteResponse = await server.delete(`/event/${selectedRows[0].id}`);
-
-    if (deleteResponse.status === 200) {
-      const trimmedEventList = eventList.filter(
-        (event) => event.id !== selectedRows[0].id,
+    try {
+      const deleteResponse = await server.delete(
+        `/event/${selectedRows[0].id}`,
       );
-      setEventList(trimmedEventList);
-      setSelectedRows(null);
+
+      if (deleteResponse.status === 200) {
+        // 1. Close the modal first to prevent UI flickering
+        setShowModal(false);
+
+        // 2. Filter the list
+        const trimmedEventList = eventList.filter(
+          (event) => event.id !== selectedRows[0].id,
+        );
+
+        // 3. Update state and CLEAR selection completely
+        setEventList(trimmedEventList);
+        setSelectedRows(null);
+
+        // 4. Force AG Grid to deselect everything
+        gridRef.current.api.deselectAll();
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
     }
   };
 
