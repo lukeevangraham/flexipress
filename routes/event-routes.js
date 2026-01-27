@@ -201,15 +201,28 @@ module.exports = (app, cloudinary, upload) => {
   );
 
   app.put("/api/event/publish", async (req, res) => {
-    const updatePublishResponse = await db.Event.update(
-      { published: req.body.published },
-      { where: { id: req.body.eventId } },
-    );
-
     try {
-      res.json(updatePublishResponse);
+      // 1. Perform the update
+      await db.Event.update(
+        { published: req.body.published },
+        { where: { id: req.body.eventId } },
+      );
+
+      // 2. Fetch the fresh version of that event
+      // This ensures the frontend gets the latest timestamps and state
+      const updatedEvent = await db.Event.findOne({
+        where: { id: req.body.eventId },
+        include: ["Image", "Ministries"], // Optional: Include associations if your UI needs them
+      });
+
+      if (!updatedEvent) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+
+      res.json(updatedEvent);
     } catch (error) {
-      console.log("E: ", error);
+      console.error("Publish Error: ", error);
+      res.status(500).json({ error: "Failed to update publish status" });
     }
   });
 

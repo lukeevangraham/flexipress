@@ -150,22 +150,33 @@ const CreateEvent = ({
 
   const handlePublish = async (e) => {
     e.preventDefault();
-    await server.put("/event/publish", {
-      eventId: selectedEvent.id,
-      published: !publish,
-      orgId: authUser.orgId,
-    });
 
-    if (events) {
-      const revisedEvents = events.map((event) => {
-        return event.id === selectedEvent.id
-          ? { ...selectedEvent, published: !publish }
-          : event;
+    try {
+      // 1. Capture the response from the server
+      const response = await server.put("/event/publish", {
+        eventId: selectedEvent.id,
+        published: !publish,
+        orgId: authUser.orgId,
       });
-      setEvents(revisedEvents);
-    }
 
-    setPublish(!publish);
+      // 2. Use the fresh data from the server (response.data)
+      const updatedEvent = response.data;
+
+      // 3. Update the individual state
+      setSelectedEvent(updatedEvent);
+      setPublish(updatedEvent.published);
+
+      // 4. Update the parent list (grid) state
+      if (events) {
+        const revisedEvents = events.map((event) => {
+          return event.id === updatedEvent.id ? updatedEvent : event;
+        });
+        setEvents(revisedEvents);
+      }
+    } catch (err) {
+      console.error("Failed to toggle publish status:", err);
+      // Optional: Add user-facing error notification here
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -204,15 +215,20 @@ const CreateEvent = ({
     if (res.status === 200) {
       setPublishEnabled(true);
 
-      // FIX 3: Since res.data is an ARRAY, find the specific event to keep selectedEvent as an object
+      // Find the event we just created or updated
+      // If it's new, it's likely the last item in the array
       const justUpdated = res.data.find(
         (ev) =>
           ev.id === (selectedEvent?.id || res.data[res.data.length - 1].id),
       );
 
+      // CRITICAL: Update the state so handlePublish has an ID to work with
       setSelectedEvent(justUpdated);
-      setEvents(res.data); // Update the full list state
+      setEvents(res.data);
       setSaveEnabled(false);
+
+      // Update the publish status based on the server response
+      setPublish(justUpdated.published);
     }
   };
 
@@ -294,11 +310,15 @@ const CreateEvent = ({
 
   return (
     <div className={classes.EventSubmission}>
-      {selectedEvent ? (
-        <Button clicked={events ? backClickHandler : () => navigate("/events")}>
+      {(selectedEvent || clearSelectedEvent) && (
+        <Button
+          clicked={
+            clearSelectedEvent ? backClickHandler : () => navigate("/events")
+          }
+        >
           &larr; Back
         </Button>
-      ) : null}
+      )}
 
       <div className={classes.EventSubmission__TopInfo}>
         <h2>{selectedEvent ? `Edit an` : `Create a new`} event</h2>

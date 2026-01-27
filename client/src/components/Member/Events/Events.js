@@ -123,7 +123,19 @@ const Events = () => {
         </>
       ) : (
         <>
-          <Link to="/events/create">Create New Event</Link>
+          {/* <Link to="/events/create">Create New Event</Link> */}
+          <Button
+            clicked={() =>
+              setClickedEvent({
+                name: "",
+                startDate: new Date(),
+                endDate: new Date(),
+                description: "",
+              })
+            }
+          >
+            Create New Event
+          </Button>
           <br />
           <br />
           <h2>Event list</h2>
