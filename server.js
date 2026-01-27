@@ -4,6 +4,7 @@ const express = require("express");
 const session = require("express-session");
 const PORT = process.env.PORT || 3001;
 const app = express();
+app.set("trust proxy", 1); // Add this line right here!
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const passport = require("./config/passport");
