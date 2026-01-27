@@ -56,7 +56,7 @@ module.exports = (app, cloudinary, upload) => {
     return await db.Event.findAll({
       where: whereClause,
       include: [{ model: db.Image }, ministryInclude],
-      order: [["startDate", "ASC"]],
+      order: [["updatedAt", "DESC"]],
     });
   };
 
