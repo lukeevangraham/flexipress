@@ -321,10 +321,25 @@ module.exports = (app, cloudinary, upload) => {
   app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
     try {
       const eventId = req.params.id;
-      const userOrgId = req.user?.orgId;
+
+      // FALLBACK: Try multiple common Passport/Session locations for the orgId
+      const userOrgId = req.user?.orgId || req.user?.OrganizationId;
+
+      // SAFETY GATE: If we can't find an OrgID, don't even try the DB query
+      if (!userOrgId) {
+        console.error(
+          "Delete blocked: No Organization ID found in user session.",
+        );
+        return res
+          .status(401)
+          .json({ error: "User session missing Organization identity." });
+      }
 
       const event = await db.Event.findOne({
-        where: { id: eventId, OrganizationId: userOrgId },
+        where: {
+          id: eventId,
+          OrganizationId: userOrgId,
+        },
         include: [db.Image, db.Ministry],
       });
 
