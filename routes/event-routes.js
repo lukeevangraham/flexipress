@@ -321,42 +321,33 @@ module.exports = (app, cloudinary, upload) => {
   app.delete("/api/event/:id", isAuthenticated, async (req, res) => {
     try {
       const eventId = req.params.id;
-      const userOrgId = req.user?.orgId; // Passport typically attaches user to req
+      const userOrgId = req.user?.orgId;
 
       const event = await db.Event.findOne({
-        where: {
-          id: eventId,
-          OrganizationId: userOrgId, // Security: verify ownership
-        },
+        where: { id: eventId, OrganizationId: userOrgId },
         include: [db.Image, db.Ministry],
       });
 
-      if (!event)
-        return res
-          .status(404)
-          .json({ error: "Event not found or unauthorized" });
+      if (!event) return res.status(404).json({ error: "Event not found" });
 
       const imageToDelete = event.Image;
 
-      // 1. Clear Ministry Links (Junction Table)
+      // 1. MUST UNLINK MINISTRIES FIRST (Clears the junction table)
       await event.setMinistries([]);
 
-      // 2. Delete the Event
+      // 2. DELETE THE EVENT
       await db.Event.destroy({ where: { id: eventId } });
 
-      // 3. Cloudinary Cleanup
+      // 3. CLEAN UP IMAGE
       if (imageToDelete && imageToDelete.imageId) {
         await cloudinary.v2.uploader.destroy(imageToDelete.imageId);
         await db.Image.destroy({ where: { id: imageToDelete.id } });
       }
 
-      // Return status 200 so the frontend knows to filter the local list
-      res.json({ message: "Event and associated assets deleted." });
+      res.json({ message: "Successfully deleted" });
     } catch (error) {
       console.error("Delete Error: ", error);
-      res
-        .status(500)
-        .json({ error: "Failed to delete event. Check server logs." });
+      res.status(500).json({ error: error.message });
     }
   });
 };
