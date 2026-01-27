@@ -32,6 +32,34 @@ let formatDataForDB = (requestBody, imageIdFromDb) => {
 };
 
 module.exports = (app, cloudinary, upload) => {
+  // SHARED HELPER: This is the single source of truth for an Org's event list
+  const fetchOrgEventList = async (orgId, queryParams = {}) => {
+    const { published, featured, ministryId } = queryParams;
+
+    const whereClause = {
+      OrganizationId: orgId,
+      [Op.or]: [
+        { endDate: { [Op.gte]: new Date() } },
+        { repeatsEveryXDays: { [Op.gt]: 0 } },
+      ],
+    };
+
+    if (published !== undefined) whereClause.published = published === "true";
+    if (featured !== undefined)
+      whereClause.isFeaturedOnHome = featured === "true";
+
+    const ministryInclude = {
+      model: db.Ministry,
+      ...(ministryId && { where: { id: ministryId } }),
+    };
+
+    return await db.Event.findAll({
+      where: whereClause,
+      include: [{ model: db.Image }, ministryInclude],
+      order: [["startDate", "ASC"]],
+    });
+  };
+
   let uploadImageAndAddImageToDb = async (file, orgId) => {
     const cloudinaryResponse = await cloudinary.v2.uploader.upload(file.path, {
       // 1. Keep the new account organized
@@ -116,13 +144,8 @@ module.exports = (app, cloudinary, upload) => {
         });
       };
 
-      // HELPER: Get the FULL LIST (what the frontend actually needs to stay stable)
       const getFullEventList = async () => {
-        return await db.Event.findAll({
-          where: { OrganizationId: req.body.orgId },
-          include: [{ model: db.Image }, { model: db.Ministry }],
-          order: [["startDate", "ASC"]],
-        });
+        return await fetchOrgEventList(req.body.orgId);
       };
 
       const updateTheEvent = async (requestBody, imageId) => {
@@ -193,43 +216,8 @@ module.exports = (app, cloudinary, upload) => {
   // GET EVENTS BY ORG ID WITH OPTIONAL FILTERS
   app.get("/api/events/org/:orgId", async (req, res) => {
     try {
-      const { published, featured, ministryId } = req.query;
-
-      // 1. Start with the basic tenant/org filter
-      const whereClause = {
-        OrganizationId: req.params.orgId,
-        // 2. Add the Hybrid Filter for Efficiency
-        [Op.or]: [
-          // Keep events that haven't ended yet
-          { endDate: { [Op.gte]: new Date() } },
-          // KEEP ALL recurring events (so the client-side mapper can calculate next occurrence)
-          { repeatsEveryXDays: { [Op.gt]: 0 } },
-        ],
-      };
-
-      // 3. Handle 'published' filter
-      if (published !== undefined) {
-        whereClause.published = published === "true";
-      }
-
-      // 4. Handle 'featured' filter
-      if (featured !== undefined) {
-        whereClause.isFeaturedOnHome = featured === "true";
-      }
-
-      // Only apply the 'where' if ministryId actually exists
-      const ministryInclude = {
-        model: db.Ministry,
-        ...(ministryId && { where: { id: ministryId } }),
-      };
-
-      const dbEvent = await db.Event.findAll({
-        where: whereClause,
-        include: [{ model: db.Image }, ministryInclude],
-        order: [["startDate", "ASC"]],
-      });
-
-      res.json(dbEvent);
+      const events = await fetchOrgEventList(req.params.orgId, req.query);
+      res.json(events);
     } catch (error) {
       console.error("Fetch Events Error:", error);
       res.status(500).json({ error: error.message });
