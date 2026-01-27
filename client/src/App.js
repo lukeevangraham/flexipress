@@ -32,7 +32,9 @@ const App = () => {
     //   method: "get",
     // })
     server
-      .get("/user_data")
+      .get("/user_data", {
+        withCredentials: true,
+      })
       .then((res) => {
         if (res.data.id) {
           setIsLoggedIn(true);
