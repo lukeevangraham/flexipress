@@ -341,6 +341,12 @@ const CreateEvent = ({
           );
         }
       })}
+      <div className={classes.SlugPreview}>
+        <small>
+          <strong>Event Link:</strong> rbcommunity.org/event-
+          {selectedEvent?.slug || "pending-save"}
+        </small>
+      </div>
     </form>
   );
 
@@ -367,6 +373,7 @@ const CreateEvent = ({
           </Button>
         </div>
       </div>
+
       {form}
     </div>
   );

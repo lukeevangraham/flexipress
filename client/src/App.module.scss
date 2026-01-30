@@ -6,11 +6,11 @@
   // position: relative;
   &__Main {
     background-color: $color-tertiary-lighter;
-    background-image: linear-gradient(
-      135deg,
-      $color-tertiary-light,
-      $color-tertiary-lighter
-    );
+    // background-image: linear-gradient(
+    //   135deg,
+    //   $color-tertiary-light,
+    //   $color-tertiary-lighter
+    // );
     padding: 2rem;
     flex-grow: 1;
     min-height: 100vh;

@@ -19,6 +19,8 @@ const allowedOrigins = [
   "http://flexipress.grahamwebworks.com",
   "https://fpserver.grahamwebworks.com",
   "http://localhost:3000", // Always keep this for local testing!
+  "http://localhost:3001", // Always keep this for local testing!
+  "http://localhost:5959", // Always keep this for local testing!
 ];
 
 const isProd = process.env.NODE_ENV === "production";

@@ -2,12 +2,12 @@
 
 .Sidebar {
   // background-color: orangered;
-  // background-color: $color-primary-light;
-  background-image: linear-gradient(
-    135deg,
-    $color-primary-light,
-    $color-primary-lighter
-  );
+  background-color: $color-tertiary-light;
+  // background-image: linear-gradient(
+  //   135deg,
+  //   $color-primary-light,
+  //   $color-primary-lighter
+  // );
   max-width: 20rem;
   display: flex;
   flex-direction: column;
