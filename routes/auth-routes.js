@@ -104,6 +104,7 @@ module.exports = function (app) {
         email: req.user.email,
         orgName: orgInfo.dataValues.orgName,
         orgId: orgInfo.dataValues.id,
+        role: req.user.role,
         // firstName: req.user.firstName,
         // lastName: req.user.lastName,
         // image: req.user.ProfilePicture,
@@ -133,7 +134,7 @@ module.exports = function (app) {
             where: {
               id: req.body.id,
             },
-          }
+          },
         );
 
         res.json(dbUser);
@@ -154,12 +155,12 @@ module.exports = function (app) {
           password: bcrypt.hashSync(
             req.body.newPassword,
             bcrypt.genSaltSync(10),
-            null
+            null,
           ),
         },
-        { where: { id: req.body.userId } }
+        { where: { id: req.body.userId } },
       ).then((dbUser) => res.json(dbUser));
-    }
+    },
   );
 
   app.post("/api/invite", async (req, res) => {

@@ -54,6 +54,7 @@ const Sidebar = () => {
             <li>Sermons</li>
           </ul>
         </div>
+        {console.log("authUser in sidebar:", authUser)}
         <div className={classes.Sidebar__Info__InfoGroup}>
           <div className={classes.Sidebar__Info__InfoGroup__Name}>
             Info Singles
