@@ -55,30 +55,34 @@ const Sidebar = () => {
           </ul>
         </div>
         {console.log("authUser in sidebar:", authUser)}
-        <div className={classes.Sidebar__Info__InfoGroup}>
-          <div className={classes.Sidebar__Info__InfoGroup__Name}>
-            Info Singles
+        {authUser.role === "admin" ? (
+          <div className={classes.Sidebar__Info__InfoGroup}>
+            <div className={classes.Sidebar__Info__InfoGroup__Name}>
+              Info Singles
+            </div>
+            <ul>
+              <li>Global</li>
+              <li>
+                <Link to="/singles/home">Home</Link>
+              </li>
+              <li>About</li>
+              <li>Contact</li>
+              <li>Giving</li>
+              <li>I'm New</li>
+              <li>Kids</li>
+              <li>Visit</li>
+              <li>Prayer</li>
+            </ul>
           </div>
-          <ul>
-            <li>Global</li>
-            <li>
-              <Link to="/singles/home">Home</Link>
-            </li>
-            <li>About</li>
-            <li>Contact</li>
-            <li>Giving</li>
-            <li>I'm New</li>
-            <li>Kids</li>
-            <li>Visit</li>
-            <li>Prayer</li>
-          </ul>
-        </div>
+        ) : null}
       </div>
       <div className={classes.Sidebar__User}>
-        <div className={classes.Sidebar__User__Settings}>
-          <Link to="/settings">Settings</Link>
-        </div>
-        <div>{authUser.email}</div>
+        {authUser.role === "admin" ? (
+          <div className={classes.Sidebar__User__Settings}>
+            <Link to="/settings">Settings</Link>
+          </div>
+        ) : null}
+        <div className={classes.Sidebar__User__Email}>{authUser.email}</div>
         <div className={classes.Sidebar__userButton}>
           <Button clicked={signOut}>
             <>Sign Out</>

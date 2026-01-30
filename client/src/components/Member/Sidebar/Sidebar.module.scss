@@ -52,6 +52,19 @@
     & > *:not(:last-child) {
       margin: 1rem 0;
     }
+
+    &__Email {
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: width 0.3s ease;
+
+      &:hover {
+        width: auto;
+        overflow: visible;
+      }
+    }
   }
 
   &__userButton {
