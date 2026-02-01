@@ -1,3 +1,10 @@
+.Events {
+  &__Header {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
 .editGrid {
   // background-color: orangered;
   display: flex;

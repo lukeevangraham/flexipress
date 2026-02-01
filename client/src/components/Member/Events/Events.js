@@ -95,22 +95,27 @@ const Events = () => {
   );
 
   return (
-    <>
-      {console.log({ EventList: eventList })}
-      <h1>Events</h1>
-      {selectedRows && selectedRows.length ? (
-        <Modal show={showModal} modalClosed={() => setShowModal(false)}>
-          <div className={classes.editModal}>
-            <div>Are you sure you want to delete {selectedRows[0].name}?</div>
-            <div className={classes.editModal__Buttons}>
-              <Button clicked={() => setShowModal(false)}>Cancel</Button>
-              <Button clicked={deleteEvent} color={"ghost"}>
-                Delete
-              </Button>
-            </div>
-          </div>
-        </Modal>
-      ) : null}
+    <div className={classes.Events}>
+      <div className={classes.Events__Header}>
+        <h1>Events</h1>
+        {clickedEvent ? null : (
+          <>
+            {/* <Link to="/events/create">Create New Event</Link> */}
+            <Button
+              clicked={() =>
+                setClickedEvent({
+                  name: "",
+                  startDate: new Date(),
+                  endDate: new Date(),
+                  description: "",
+                })
+              }
+            >
+              Create New Event
+            </Button>
+          </>
+        )}
+      </div>
       {clickedEvent ? (
         <>
           <CreateEvent
@@ -121,21 +126,9 @@ const Events = () => {
             setSelectedRows={setSelectedRows}
           />
         </>
-      ) : (
+      ) : null}
+      {clickedEvent ? null : (
         <>
-          {/* <Link to="/events/create">Create New Event</Link> */}
-          <Button
-            clicked={() =>
-              setClickedEvent({
-                name: "",
-                startDate: new Date(),
-                endDate: new Date(),
-                description: "",
-              })
-            }
-          >
-            Create New Event
-          </Button>
           <br />
           <br />
           <h2>Event list</h2>
@@ -159,7 +152,20 @@ const Events = () => {
           </div>
         </>
       )}
-    </>
+      {selectedRows && selectedRows.length ? (
+        <Modal show={showModal} modalClosed={() => setShowModal(false)}>
+          <div className={classes.editModal}>
+            <div>Are you sure you want to delete {selectedRows[0].name}?</div>
+            <div className={classes.editModal__Buttons}>
+              <Button clicked={() => setShowModal(false)}>Cancel</Button>
+              <Button clicked={deleteEvent} color={"ghost"}>
+                Delete
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
+    </div>
   );
 };
 
