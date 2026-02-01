@@ -54,7 +54,7 @@ const Sidebar = () => {
             <li>Sermons</li>
           </ul>
         </div>
-        {console.log("authUser in sidebar:", authUser)}
+
         {authUser.role === "admin" ? (
           <div className={classes.Sidebar__Info__InfoGroup}>
             <div className={classes.Sidebar__Info__InfoGroup__Name}>

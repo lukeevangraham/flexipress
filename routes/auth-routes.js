@@ -4,6 +4,9 @@ var passport = require("../config/passport");
 var bcrypt = require("bcrypt-nodejs");
 const transporter = require("../config/nodemailer");
 
+// Requiring our custom middleware for checking if a user is logged in
+var isAuthenticated = require("../config/middleware/isAuthenticated");
+
 module.exports = function (app) {
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
@@ -228,6 +231,27 @@ module.exports = function (app) {
     } catch (error) {
       console.log("ERR: ", error);
       res.json({ valid: false });
+    }
+  });
+
+  // GET ALL USERS FOR AN ORG
+  app.get("/api/org_users", isAuthenticated, async (req, res) => {
+    if (!req.user) {
+      // The user is not logged in, send back an empty object
+      console.log("not logged in");
+      res.json({});
+    } else {
+      try {
+        const orgUsers = await db.User.findAll({
+          where: { OrganizationId: req.user.OrganizationId },
+          attributes: ["id", "firstName", "lastName", "email", "role"],
+        });
+
+        res.json(orgUsers);
+      } catch (error) {
+        console.log("ERR: ", error);
+        res.json(error);
+      }
     }
   });
 };
