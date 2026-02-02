@@ -98,7 +98,11 @@ const Events = () => {
     <div className={classes.Events}>
       <div className={classes.Events__Header}>
         <h1>Events</h1>
-        {clickedEvent ? null : (
+        {clickedEvent ? (
+          <Button clicked={() => setClickedEvent(null)}>
+            &larr; Back to List
+          </Button>
+        ) : (
           <>
             {/* <Link to="/events/create">Create New Event</Link> */}
             <Button
@@ -131,7 +135,7 @@ const Events = () => {
         <>
           <br />
           <br />
-          <h2>Event list</h2>
+          {/* <h2>Event list</h2> */}
           {editSelection}
           <div className={`ag-theme-quartz ${classes.grid}`}>
             <AgGridReact

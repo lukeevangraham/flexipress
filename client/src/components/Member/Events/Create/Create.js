@@ -352,7 +352,7 @@ const CreateEvent = ({
 
   return (
     <div className={classes.EventSubmission}>
-      {(selectedEvent || clearSelectedEvent) && (
+      {/* {(selectedEvent || clearSelectedEvent) && (
         <Button
           clicked={
             clearSelectedEvent ? backClickHandler : () => navigate("/events")
@@ -360,7 +360,9 @@ const CreateEvent = ({
         >
           &larr; Back
         </Button>
-      )}
+      )} */}
+      <br />
+      <br />
 
       <div className={classes.EventSubmission__TopInfo}>
         <h2>{selectedEvent ? `Edit an` : `Create a new`} event</h2>
