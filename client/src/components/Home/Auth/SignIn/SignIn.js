@@ -18,6 +18,7 @@ const SignIn = () => {
       elementConfig: {
         type: "email",
         placeholder: "Email Address",
+        autocomplete: "username",
       },
       value: "",
       validation: {
@@ -31,6 +32,7 @@ const SignIn = () => {
       elementConfig: {
         type: "password",
         placeholder: "Password",
+        autocomplete: "current-password",
       },
       value: "",
       validation: {
